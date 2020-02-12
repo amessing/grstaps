@@ -1,23 +1,23 @@
 /*
  * Copyright (C) 2020 Andrew Messing
  *
- * GTAPS is free software; you can redistribute it and/or modify it
+ * GRSTAPS is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published
  * by the Free Software Foundation; either version 3 of the License,
  * or any later version.
  *
- * GTAPS is distributed in the hope that it will be useful, but WITHOUT
+ * GRSTAPS is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public
  * License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with GTAPS; if not, write to the Free Software Foundation,
+ * along with GRSTAPS; if not, write to the Free Software Foundation,
  * Inc., #59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-#ifndef GTAPS_CUSTOM_EXCEPTION_HPP
-#define GTAPS_CUSTOM_EXCEPTION_HPP
+#ifndef GRSTAPS_CUSTOM_EXCEPTION_HPP
+#define GRSTAPS_CUSTOM_EXCEPTION_HPP
 
 // global
 #include <utility>
@@ -26,9 +26,9 @@
 #include <fmt/format.h>
 
 // local
-#include "gtaps/logger.hpp"
+#include "grstaps/logger.hpp"
 
-namespace gtaps
+namespace grstaps
 {
     /**
      * Base class for custom exceptions
@@ -73,7 +73,7 @@ namespace gtaps
     protected:
         std::string m_message;
     };
-}  // namespace gtaps
+}  // namespace grstaps
 
 /**
  * Macro for the information about where an exception occurred
@@ -84,7 +84,7 @@ namespace gtaps
  * Macro for creating a custom exception
  */
 #define EXCEPTION(Err)                                                                                                 \
-    class Err : public gtaps::CustomException                                                                          \
+    class Err : public grstaps::CustomException                                                                          \
     {                                                                                                                  \
        public:                                                                                                         \
         template <typename... Args>                                                                                    \
@@ -93,33 +93,33 @@ namespace gtaps
             int line                    = -1,                                                                          \
             const std::string& message  = "",                                                                          \
             Args&&... args)                                                                                            \
-            : gtaps::CustomException(#Err, function, file, line, message, std::forward<Args>(args)...)                 \
+            : grstaps::CustomException(#Err, function, file, line, message, std::forward<Args>(args)...)                 \
         {}                                                                                                             \
                                                                                                                        \
         Err(const std::string& message)                                                                                \
-            : gtaps::CustomException(message)                                                                    \
+            : grstaps::CustomException(message)                                                                    \
         {}                                                                                                             \
     };
 
 #ifdef NDEBUG
 #    define ERROR(message, ...)                                                                                        \
         std::string formatted_message = fmt::format(message, ##__VA_ARGS__);                                           \
-        gtaps::Logger::error("(<CustomException> in {0:s} at {1:s}:{2:d}) {3:s}", E_INFO, formatted_message);          \
+        grstaps::Logger::error("(<CustomException> in {0:s} at {1:s}:{2:d}) {3:s}", E_INFO, formatted_message);          \
         exit(1);
 #    define CUSTOM_ERROR(Err, message, ...)
         std::string formatted_message = fmt::format(message, ##__VA_ARGS__);                                           \
-        gtaps::Logger::error("(<#Err> in {0:s} at {1:s}:{2:d}) {3:s}", E_INFO, formatted_message);                     \
+        grstaps::Logger::error("(<#Err> in {0:s} at {1:s}:{2:d}) {3:s}", E_INFO, formatted_message);                     \
         exit(1);
 #else
 #    define ERROR(message, ...)                                                                                        \
         std::string formatted_message = fmt::format(message, ##__VA_ARGS__);                                           \
         std::string error_message = fmt::format("(<CustomException> in {0:s} at {1:s}:{2:d}) {3:s}", E_INFO, formatted_message); \
-        gtaps::Logger::error(error_message);                                                                             \
-        throw gtaps::CustomException(error_message);
+        grstaps::Logger::error(error_message);                                                                             \
+        throw grstaps::CustomException(error_message);
 #    define CUSTOM_ERROR(Err, message, ...)                                                                            \
         Err err_(E_INFO, message, ##__VA_ARGS__);                                                                      \
-        gtaps::Logger::error(err_.what());                                                                             \
+        grstaps::Logger::error(err_.what());                                                                             \
         throw err_;
 #endif
 
-#endif  // GTAPS_CUSTOM_EXCEPTION_HPP
+#endif  // GRSTAPS_CUSTOM_EXCEPTION_HPP
