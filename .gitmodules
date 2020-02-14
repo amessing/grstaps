@@ -1,0 +1,4 @@
+[submodule "lib/fmt"]
+	path = lib/fmt
+    url = git@github.com:amessing/fmt.git
+    branch = master
