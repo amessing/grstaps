@@ -1,7 +1,7 @@
 // LICENSE
 
-#ifndef GRSTAPS_DOMAIN_KNOWLEDGE_ACTION_HPP
-#define GRSTAPS_DOMAIN_KNOWLEDGE_ACTION_HPP
+#ifndef GRSTAPS_ACTION_HPP
+#define GRSTAPS_ACTION_HPP
 
 // local
 #include "grstaps/noncopyable.hpp"
@@ -55,4 +55,4 @@ namespace grstaps
     };
 }
 
-#endif // GRSTAPS_DOMAIN_KNOWLEDGE_ACTION_HPP
+#endif // GRSTAPS_ACTION_HPP
