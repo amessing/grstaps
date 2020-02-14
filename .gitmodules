@@ -6,3 +6,7 @@
 	path = lib/spdlog
     url = git@github.com:amessing/spdlog.git
     branch = v1.x
+[submodule "lib/googletest"]
+	path = lib/googletest
+    url = git@github.com:amessing/googletest.git
+    branch = master
