@@ -13,3 +13,6 @@
 [submodule "lib/lemon"]
 	path = lib/lemon
 	url = git@github.com:amessing/lemon-copy.git
+[submodule "lib/args"]
+	path = lib/args
+	url = git@github.com:amessing/args.git
