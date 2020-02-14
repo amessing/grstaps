@@ -10,3 +10,6 @@
 	path = lib/googletest
     url = git@github.com:amessing/googletest.git
     branch = master
+[submodule "lib/lemon"]
+	path = lib/lemon
+	url = git@github.com:amessing/lemon-copy.git
