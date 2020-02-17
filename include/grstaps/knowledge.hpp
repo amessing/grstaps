@@ -15,47 +15,52 @@
  * along with GRSTAPS; if not, write to the Free Software Foundation,
  * Inc., #59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
-#ifndef GRSTAPS_BASE_ROBOT_HPP
-#define GRSTAPS_BASE_ROBOT_HPP
+#ifndef GRSTAPS_KNOWLEDGE_HPP
+#define GRSTAPS_KNOWLEDGE_HPP
 
-// global
-#include <string>
-
-// local
 #include "grstaps/noncopyable.hpp"
 
 namespace grstaps
 {
     /**
-     * Container for a robot/controllable agent
+     * Centralized container for domain knowledge
      */
-    class Robot : public Noncopyable
+    class Knowledge : public Noncopyable
     {
        public:
         /**
-         * Constructor
-         *
-         * \param species_name The name of the species of this robot
+         * \returns A singleton to the knowledge container
          */
-        Robot(const std::string& species_name);
+        Knowledge& instance();
 
         /**
-         * \returns The identifier for this robot
+         * \returns The action at \p id
          */
-        unsigned int id() const;
+        const Action& action(unsigned int id) const;
 
         /**
-         * \returns The traits of this robot
+         * \returns The object at \p id
          */
+        const Object& object(unsigned int id) const;
+
+        /**
+         * \returns The location at \p id
+         */
+        const Location& location(unsigned int id) const;
+
+        /**
+         * \returns The robot at \p id
+         */
+        const Robot& robot(unsigned int id) const;
 
        private:
-        unsigned int m_id;           //!< The identifier for this specific robot
-        std::string m_species_name;  //!< The name of the species of this robot
-        // Traits (Vector/Map/Class)
-        // Starting location
+        Knowledge() = default;
 
-        static unsigned int s_next_robot_id;  //!< The identifier for the next robot to be created
+        std::vector<Action> m_actions;
+        std::vector<Object> m_objects;
+        std::vector<Location> m_locations;
+        std::vector<Robot> m_robots;
     };
 }  // namespace grstaps
 
-#endif  // GRSTAPS_BASE_ROBOT_HPP
+#endif  // GRSTAPS_KNOWLEDGE_HPP

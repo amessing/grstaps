@@ -15,16 +15,42 @@
  * along with GRSTAPS; if not, write to the Free Software Foundation,
  * Inc., #59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
-#ifndef GRSTAPS_SIMPLE_TEMPORAL_NETWORK_HPP
-#define GRSTAPS_SIMPLE_TEMPORAL_NETWORK_HPP
+#include "grstaps/location.hpp"
 
 namespace grstaps
 {
-    class SimpleTemporalNetwork
-    {
-       public:
-       private:
-    };
-}  // namespace grstaps
+    unsigned int Location::s_next_location_id = 0;
 
-#endif  // GRSTAPS_SIMPLE_TEMPORAL_NETWORK_HPP
+    Location::Location(const std::string& type, float x, float y)
+        : m_id(s_next_location_id++)
+        , m_type(type)
+        , m_x(x)
+        , m_y(y)
+    {}
+
+    unsigned int Location::id() const
+    {
+        return m_id;
+    }
+
+    const std::string& Location::type() const
+    {
+        return m_type;
+    }
+
+    float Location::x() const
+    {
+        return m_x;
+    }
+
+    float Location::y() const
+    {
+        return m_y;
+    }
+
+    std::pair<float, float> Location::coordinates() const
+    {
+        return std::make_pair(m_x, m_y);
+    }
+
+}  // namespace grstaps

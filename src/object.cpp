@@ -15,16 +15,24 @@
  * along with GRSTAPS; if not, write to the Free Software Foundation,
  * Inc., #59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
-#ifndef GRSTAPS_SIMPLE_TEMPORAL_NETWORK_HPP
-#define GRSTAPS_SIMPLE_TEMPORAL_NETWORK_HPP
+#include "grstaps/object.hpp"
 
 namespace grstaps
 {
-    class SimpleTemporalNetwork
-    {
-       public:
-       private:
-    };
-}  // namespace grstaps
+    unsigned int Object::s_next_object_id = 0;
 
-#endif  // GRSTAPS_SIMPLE_TEMPORAL_NETWORK_HPP
+    Object::Object(const std::string& type)
+        : m_id(s_next_object_id++)
+        , m_type(type)
+    {}
+
+    unsigned int Object::id() const
+    {
+        return m_id;
+    }
+
+    const std::string& Object::type() const
+    {
+        return m_type;
+    }
+}  // namespace grstaps

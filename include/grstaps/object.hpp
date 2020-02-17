@@ -15,47 +15,52 @@
  * along with GRSTAPS; if not, write to the Free Software Foundation,
  * Inc., #59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
-#ifndef GRSTAPS_BASE_ROBOT_HPP
-#define GRSTAPS_BASE_ROBOT_HPP
-
-// global
-#include <string>
+#ifndef GRSTAPS_BASE_OBJECT_HPP
+#define GRSTAPS_BASE_OBJECT_HPP
 
 // local
 #include "grstaps/noncopyable.hpp"
 
-namespace grstaps
+namespace grtaps
 {
     /**
-     * Container for a robot/controllable agent
+     * Container for non-controllable object
      */
-    class Robot : public Noncopyable
+    class Object : public Noncopyable
     {
        public:
         /**
          * Constructor
-         *
-         * \param species_name The name of the species of this robot
          */
-        Robot(const std::string& species_name);
+        Object(const std::string& type);
 
         /**
-         * \returns The identifier for this robot
+         * \returns The identifier for this object
          */
         unsigned int id() const;
 
         /**
-         * \returns The traits of this robot
+         * \returns The type of this object
          */
+        const std::string& type() const;
+
+        /**
+         * \returns Whether this object can be moved
+         */
+        bool movable() const;
+
+        /**
+         * \returns The weight of this object
+         */
+        float weight() const;
 
        private:
-        unsigned int m_id;           //!< The identifier for this specific robot
-        std::string m_species_name;  //!< The name of the species of this robot
-        // Traits (Vector/Map/Class)
-        // Starting location
+        unsigned int m_id;   //!< Identifier for this specific object
+        std::string m_type;  //!< Type of this object (e.g. box)
+        // Properties (json lib?)
 
-        static unsigned int s_next_robot_id;  //!< The identifier for the next robot to be created
+        static unsigned int s_next_object_id;  //!< The identifier for the next object to be created
     };
-}  // namespace grstaps
+}  // namespace grtaps
 
-#endif  // GRSTAPS_BASE_ROBOT_HPP
+#endif  // GRSTAPS_BASE_OBJECT_HPP

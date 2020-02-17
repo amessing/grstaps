@@ -15,16 +15,33 @@
  * along with GRSTAPS; if not, write to the Free Software Foundation,
  * Inc., #59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
-#ifndef GRSTAPS_SIMPLE_TEMPORAL_NETWORK_HPP
-#define GRSTAPS_SIMPLE_TEMPORAL_NETWORK_HPP
+#include "grstaps/knowledge.hpp"
 
 namespace grstaps
 {
-    class SimpleTemporalNetwork
+    Knowledge& Knowledge::instance()
     {
-       public:
-       private:
-    };
-}  // namespace grstaps
+        static Knowledge rv;
+        return rv;
+    }
 
-#endif  // GRSTAPS_SIMPLE_TEMPORAL_NETWORK_HPP
+    const Action& Knowledge::action(unsigned int id) const
+    {
+        return m_actions[id];
+    }
+
+    const Object& Knowledge::object(unsigned int id) const
+    {
+        return m_objects[id];
+    }
+
+    const Location& Knowledge::location(unsigned int id) const
+    {
+        return m_location[id];
+    }
+
+    const Robot& robot(unsigned int id) const
+    {
+        return m_robots[id];
+    }
+}  // namespace grstaps

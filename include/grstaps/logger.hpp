@@ -15,13 +15,11 @@
  * along with GRSTAPS; if not, write to the Free Software Foundation,
  * Inc., #59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
-
 #ifndef GRSTAPS_LOGGER_HPP
 #define GRSTAPS_LOGGER_HPP
 
 // global
 #include <filesystem>
-//#include <experimental/filesystem>
 #include <memory>
 #include <utility>
 #include <vector>
@@ -51,7 +49,7 @@ namespace grstaps
          *              log message
          */
         template <typename... Args>
-        static void debug(const std::string& message, Args&&... args)
+        static void debug(const std::string &message, Args &&... args)
         {
             getInstance()->debug(message.c_str(), std::forward<Args>(args)...);
         }
@@ -67,7 +65,7 @@ namespace grstaps
          *              log message
          */
         template <typename... Args>
-        static void info(const std::string& message, Args&&... args)
+        static void info(const std::string &message, Args &&... args)
         {
             getInstance()->info(message.c_str(), std::forward<Args>(args)...);
         }
@@ -83,7 +81,7 @@ namespace grstaps
          *              log message
          */
         template <typename... Args>
-        static void warn(const std::string& message, Args&&... args)
+        static void warn(const std::string &message, Args &&... args)
         {
             getInstance()->warn(message.c_str(), std::forward<Args>(args)...);
         }
@@ -99,7 +97,7 @@ namespace grstaps
          *              log message
          */
         template <typename... Args>
-        static void error(const std::string& message, Args&&... args)
+        static void error(const std::string &message, Args &&... args)
         {
             getInstance()->error(message.c_str(), std::forward<Args>(args)...);
         }
@@ -115,7 +113,7 @@ namespace grstaps
          *              log message
          */
         template <typename... Args>
-        static void critical(const std::string& message, Args&&... args)
+        static void critical(const std::string &message, Args &&... args)
         {
             getInstance()->critical(message.c_str(), std::forward<Args>(args)...);
         }
