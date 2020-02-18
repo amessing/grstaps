@@ -7,10 +7,11 @@ compiler: gcc
 git:
   submodules: false
 
-#addons:
-#  apt:
-#    packages:
-#      -
+addons:
+  apt:
+    packages:
+      - xorg-dev
+      - libglu1-mesa-dev
 
 # Hack for ssh submodules
 before_install:
