@@ -12,6 +12,7 @@ addons:
     packages:
       - xorg-dev
       - libglu1-mesa-dev
+      - libompl-dev
 
 # Hack for ssh submodules
 before_install:
