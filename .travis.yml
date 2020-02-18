@@ -4,11 +4,18 @@ dist: bionic
 language: cpp
 compiler: gcc
 
+git:
+  submodules: false
+
 #addons:
 #  apt:
 #    packages:
 #      -
 
+# Hack for ssh submodules
+before_install:
+  - sed -i 's/git@github.com:/https:\/\/github.com\//' .gitmodules
+  - git submodule update --init --recursive
 
 # install:
 #
