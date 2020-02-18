@@ -20,3 +20,7 @@
 	path = lib/ompl
 	url = git@github.com:amessing/ompl.git
     branch = master
+[submodule "lib/box2d"]
+	path = lib/box2d
+	url = git@github.com:amessing/box2d.git
+    branch = master
