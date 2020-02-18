@@ -21,17 +21,18 @@ namespace grstaps
 {
     unsigned int Action::s_next_action_id = 0;
 
-    Action::Action(const std::string& prototype,
-                   /* Preconditions */
-                   /* Effects */
-                   /* Durations */
-                   /* Traits */)
+    Action::Action(unsigned int starting_location)
         : m_id(s_next_action_id++)
-        , m_prototype(prototype)
+        , m_starting_location(starting_location)
     {}
 
     unsigned int Action::id() const
     {
         return m_id;
+    }
+
+    unsigned int Action::startingLocation() const
+    {
+        return m_starting_location;
     }
 }  // namespace grstaps

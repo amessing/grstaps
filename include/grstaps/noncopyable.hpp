@@ -15,7 +15,6 @@
  * along with GRSTAPS; if not, write to the Free Software Foundation,
  * Inc., #59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
-
 #ifndef GRSTAPS_NONCOPYABLE_HPP
 #define GRSTAPS_NONCOPYABLE_HPP
 
@@ -26,14 +25,14 @@ namespace grstaps
      */
     class Noncopyable
     {
-    public:
-        Noncopyable() = default;
+       public:
+        Noncopyable()  = default;
         ~Noncopyable() = default;
 
-    private:
+       private:
         Noncopyable(const Noncopyable&) = delete;
         Noncopyable& operator=(const Noncopyable&) = delete;
     };
-}
+}  // namespace grstaps
 
-#endif //GRSTAPS_NONCOPYABLE_HPP
+#endif  // GRSTAPS_NONCOPYABLE_HPP

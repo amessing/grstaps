@@ -18,10 +18,13 @@
 #ifndef GRSTAPS_BASE_OBJECT_HPP
 #define GRSTAPS_BASE_OBJECT_HPP
 
+// global
+#include <string>
+
 // local
 #include "grstaps/noncopyable.hpp"
 
-namespace grtaps
+namespace grstaps
 {
     /**
      * Container for non-controllable object
@@ -61,6 +64,6 @@ namespace grtaps
 
         static unsigned int s_next_object_id;  //!< The identifier for the next object to be created
     };
-}  // namespace grtaps
+}  // namespace grstaps
 
 #endif  // GRSTAPS_BASE_OBJECT_HPP

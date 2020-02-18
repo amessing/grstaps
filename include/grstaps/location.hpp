@@ -15,16 +15,17 @@
  * along with GRSTAPS; if not, write to the Free Software Foundation,
  * Inc., #59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
-#ifndef GRSTAPS_BASE_LOCATION_HPP
-#define GRSTAPS_BASE_LOCATION_HPP
+#ifndef GRSTAPS_LOCATION_HPP
+#define GRSTAPS_LOCATION_HPP
 
 // global
-#include <pair>
+#include <string>
+#include <utility>
 
 // local
 #include "grstaps/noncopyable.hpp"
 
-namespace grtaps
+namespace grstaps
 {
     /**
      * Container for a location
@@ -74,5 +75,5 @@ namespace grtaps
 
         static unsigned int s_next_location_id;  //!< The identifier for this next location to be created
     };
-}  // namespace grtaps
-#endif  // GRSTAPS_BASE_LOCATION_HPP
+}  // namespace grstaps
+#endif  // GRSTAPS_LOCATION_HPP

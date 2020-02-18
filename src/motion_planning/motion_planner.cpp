@@ -19,11 +19,18 @@
 
 // external
 #include <ompl/base/ProblemDefinition.h>
+#include <ompl/base/objectives/PathLengthOptimizationObjective.h>
 #include <ompl/geometric/planners/prm/LazyPRM.h>
+
+// local
+#include "grstaps/knowledge.hpp"
+#include "grstaps/location.hpp"
+#include "grstaps/motion_planning/validity_checker.hpp"
 
 namespace grstaps
 {
     namespace ob = ompl::base;
+    namespace og = ompl::geometric;
 
     MotionPlanner& MotionPlanner::instance()
     {
@@ -31,7 +38,7 @@ namespace grstaps
         return rv;
     }
 
-    void MotionPlanner::setMap()
+    void MotionPlanner::setMap(const std::vector<b2PolygonShape>& obstacles)
     {
         // Construct the state space in which we are planning: R^2
         m_space = std::make_shared<ob::RealVectorStateSpace>(2);
@@ -39,10 +46,10 @@ namespace grstaps
         m_space->setBounds(0.0, 1.0);
 
         m_space_information = std::make_shared<ob::SpaceInformation>(m_space);
-        m_space_information->setStateValidityChecker(std::make_shared<ValidityChecker>(space_information));
+        m_space_information->setStateValidityChecker(std::make_shared<ValidityChecker>(obstacles, m_space_information));
         m_space_information->setup();
 
-        m_planner = std::make_shared<ob::LazyPRM>(space_information);
+        m_planner = std::make_shared<og::LazyPRM>(m_space_information);
 
         m_map_set = true;
     }
@@ -52,13 +59,13 @@ namespace grstaps
         m_query_time = run_time;
     }
 
-    std::pair<boolean, float> MotionPlanner::query(unsigned int from, unsigned int to)
+    std::pair<bool, float> MotionPlanner::query(unsigned int from, unsigned int to)
     {
         Knowledge& knowledge = Knowledge::instance();
         return query(knowledge.location(from), knowledge.location(to));
     }
 
-    std::pair<boolean, float> MotionPlanner::query(const Location& from, const Location& to)
+    std::pair<bool, float> MotionPlanner::query(const Location& from, const Location& to)
     {
         // Create the robot's starting state
         ob::ScopedState<> start(m_space);
@@ -73,7 +80,7 @@ namespace grstaps
         // Create problem instance
         auto problem = std::make_shared<ob::ProblemDefinition>(m_space_information);
         problem->setStartAndGoalStates(start, goal);
-        problem->setOptimizationObjective();  // todo: parameter
+        problem->setOptimizationObjective(std::make_shared<ob::PathLengthOptimizationObjective>(m_space_information));
 
         m_planner->setProblemDefinition(problem);
         m_planner->setup();

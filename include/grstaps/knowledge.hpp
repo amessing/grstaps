@@ -18,10 +18,20 @@
 #ifndef GRSTAPS_KNOWLEDGE_HPP
 #define GRSTAPS_KNOWLEDGE_HPP
 
+// global
+#include <vector>
+
+// local
 #include "grstaps/noncopyable.hpp"
 
 namespace grstaps
 {
+    // Forward declarations
+    class Action;
+    class Location;
+    class Object;
+    class Robot;
+
     /**
      * Centralized container for domain knowledge
      */
@@ -31,7 +41,7 @@ namespace grstaps
         /**
          * \returns A singleton to the knowledge container
          */
-        Knowledge& instance();
+        static Knowledge& instance();
 
         /**
          * \returns The action at \p id

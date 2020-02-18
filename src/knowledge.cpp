@@ -17,6 +17,12 @@
  */
 #include "grstaps/knowledge.hpp"
 
+// local
+#include "grstaps/action.hpp"
+#include "grstaps/location.hpp"
+#include "grstaps/object.hpp"
+#include "grstaps/robot.hpp"
+
 namespace grstaps
 {
     Knowledge& Knowledge::instance()
@@ -37,10 +43,10 @@ namespace grstaps
 
     const Location& Knowledge::location(unsigned int id) const
     {
-        return m_location[id];
+        return m_locations[id];
     }
 
-    const Robot& robot(unsigned int id) const
+    const Robot& Knowledge::robot(unsigned int id) const
     {
         return m_robots[id];
     }

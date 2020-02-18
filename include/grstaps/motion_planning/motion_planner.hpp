@@ -19,9 +19,11 @@
 #define GRSTAPS_MOTION_PLANNER_HPP
 
 // global
-#include <pair>
+#include <utility>
 
 // external
+#include <box2d/b2_polygon_shape.h>
+#include <ompl/base/Planner.h>
 #include <ompl/base/SpaceInformation.h>
 #include <ompl/base/spaces/RealVectorStateSpace.h>
 
@@ -49,9 +51,11 @@ namespace grstaps
         /**
          * Sets the obstacles in the map
          *
-         * \todo: parameter
+         * \param obstacles The list of obstacles in the environment
+         *
+         * \todo: boundary?
          */
-        void setMap();
+        void setMap(const std::vector<b2PolygonShape>& obstacles);
 
         /**
          * Sets how long a query can run
@@ -64,7 +68,7 @@ namespace grstaps
          *
          * \returns Whether a motion plan can be created and the length of the motion plan
          */
-        std::pair<boolean, float> query(unsigned int from, unsigned int to);
+        std::pair<bool, float> query(unsigned int from, unsigned int to);
 
         /**
          * \param from The location that a robot is travelling from
@@ -72,7 +76,7 @@ namespace grstaps
          *
          * \returns Whether a motion plan can be created and the length of the motion plan
          */
-        std::pair<boolean, float> query(const Location& from, const Location& to);
+        std::pair<bool, float> query(const Location& from, const Location& to);
 
        private:
         /**
@@ -80,10 +84,10 @@ namespace grstaps
          */
         MotionPlanner();
 
-        bool m_map_set;                               //!< Whether the map has been set for the motion planner
-        float m_query_time;                           //!< How long a query can run for
-        ompl::base::PlannerPtr m_planner;             //!< The OMPL motion planner
-        ompl::base::RealVectorStateSpacePtr m_space;  //!< Outline of the space
+        bool m_map_set;                    //!< Whether the map has been set for the motion planner
+        float m_query_time;                //!< How long a query can run for
+        ompl::base::PlannerPtr m_planner;  //!< The OMPL motion planner
+        std::shared_ptr<ompl::base::RealVectorStateSpace> m_space;  //!< Outline of the space
         ompl::base::SpaceInformationPtr
             m_space_information;  //!< Information about the space (includes validity checker)
     };

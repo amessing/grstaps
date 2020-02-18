@@ -12,6 +12,9 @@ if(BUILD_EXE)
     add_subdirectory(args)
 endif(BUILD_EXE)
 
+# Collsion Checking
+add_subdirectory(box2d)
+
 # Formatting
 add_subdirectory(fmt)
 
@@ -19,7 +22,7 @@ add_subdirectory(fmt)
 add_subdirectory(lemon)
 
 # Motion Planning
-add_subdirectory(ompl)
+# add_subdirectory(ompl)
 
 # Logging
 add_subdirectory(spdlog)

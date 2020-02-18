@@ -1,0 +1,20 @@
+dist: bionic
+# 18.04
+
+language: cpp
+compiler: gcc
+
+#addons:
+#  apt:
+#    packages:
+#      -
+
+
+# install:
+#
+
+script:
+  - build.sh
+
+#after_success:
+# todo: coverage

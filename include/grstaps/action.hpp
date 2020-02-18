@@ -32,11 +32,7 @@ namespace grstaps
         /**
          * Constructor
          */
-        Action(const std::string& prototype,
-               /* Preconditions */
-               /* Effects */
-               /* Durations */
-               /* Traits */);
+        Action(unsigned int starting_location);
 
         /**
          * \returns The identifier for this action
@@ -63,8 +59,15 @@ namespace grstaps
          * \returns The required traits for this action
          */
 
+        /**
+         * \returns The id of the location that this action starts at
+         */
+        unsigned int startingLocation() const;
+
        private:
-        unsigned int m_id;  //!< The id of this specific action
+        unsigned int m_id;                 //!< The id of this specific action
+        unsigned int m_starting_location;  //!< The id of the location that this action starts at
+
         // condition (equation) - pointer/object/noncopyable
         // duration min, max (equation?) - pointer/object/noncopyable
         // effect (equation) - pointer/object/noncopyable

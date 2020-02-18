@@ -23,8 +23,8 @@ list(REMOVE_ITEM ${PROJECT_NAME}_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cp
 # Create library
 add_library(_${PROJECT_NAME} ${${PROJECT_NAME}_HEADERS} ${${PROJECT_NAME}_SOURCES})
 set_target_properties(_${PROJECT_NAME} PROPERTIES CXX_STANDARD 17 CXX_STANDARD_REQUIRED YES)
-target_link_libraries(_${PROJECT_NAME} fmt lemon ompl spdlog stdc++fs)
-target_include_directories(_${PROJECT_NAME} PUBLIC include)
+target_link_libraries(_${PROJECT_NAME} box2d fmt lemon ${OMPL_LIBRARIES} spdlog stdc++fs)
+target_include_directories(_${PROJECT_NAME} PUBLIC include ${OMPL_INCLUDE_DIRS})
 
 # Create executable
 if(BUILD_EXE)
