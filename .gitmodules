@@ -16,3 +16,7 @@
 [submodule "lib/args"]
 	path = lib/args
 	url = git@github.com:amessing/args.git
+[submodule "lib/ompl"]
+	path = lib/ompl
+	url = git@github.com:amessing/ompl.git
+    branch = master
