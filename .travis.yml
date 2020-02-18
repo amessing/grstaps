@@ -4,17 +4,26 @@ dist: bionic
 language: cpp
 compiler: gcc
 
-#addons:
-#  apt:
-#    packages:
-#      -
+git:
+  submodules: false
 
+addons:
+  apt:
+    packages:
+      - xorg-dev
+      - libglu1-mesa-dev
+      - libompl-dev
+
+# Hack for ssh submodules
+before_install:
+  - sed -i 's/git@github.com:/https:\/\/github.com\//' .gitmodules
+  - git submodule update --init --recursive
 
 # install:
 #
 
 script:
-  - build.sh
+  - ./build.sh
 
 #after_success:
 # todo: coverage

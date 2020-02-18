@@ -1,0 +1,1 @@
+Graphically Recursive Simultaneous Task Allocation, Planning, and Scheduling [![Build Status](https://travis-ci.com/amessing/grstaps.svg?token=ZbU2mzJqy2bwdxUCNR2d&branch=master)](https://travis-ci.com/amessing/grstaps)
