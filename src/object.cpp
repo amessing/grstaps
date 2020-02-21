@@ -21,9 +21,10 @@ namespace grstaps
 {
     unsigned int Object::s_next_object_id = 0;
 
-    Object::Object(const std::string& type)
+    Object::Object(const std::string& type, const nlohmann::json& properties)
         : m_id(s_next_object_id++)
         , m_type(type)
+        , m_properties(properties)
     {}
 
     unsigned int Object::id() const

@@ -20,6 +20,7 @@
 // external
 #include <ompl/base/ProblemDefinition.h>
 #include <ompl/base/objectives/PathLengthOptimizationObjective.h>
+#include <ompl/base/spaces/RealVectorStateSpace.h>
 #include <ompl/geometric/planners/prm/LazyPRM.h>
 
 // local
@@ -38,12 +39,11 @@ namespace grstaps
         return rv;
     }
 
-    void MotionPlanner::setMap(const std::vector<b2PolygonShape>& obstacles)
+    void MotionPlanner::setMap(const std::vector<b2PolygonShape>& obstacles, float boundary_min, float boundary_max)
     {
         // Construct the state space in which we are planning: R^2
         m_space = std::make_shared<ob::RealVectorStateSpace>(2);
-        // todo: set the bounds based on the map
-        m_space->setBounds(0.0, 1.0);
+        std::dynamic_pointer_cast<ob::RealVectorStateSpace>(m_space)->setBounds(boundary_min, boundary_max);
 
         m_space_information = std::make_shared<ob::SpaceInformation>(m_space);
         m_space_information->setStateValidityChecker(std::make_shared<ValidityChecker>(obstacles, m_space_information));

@@ -20,3 +20,6 @@
 	path = lib/box2d
 	url = git@github.com:amessing/box2d.git
     branch = master
+[submodule "lib/json"]
+	path = lib/json
+	url = git@github.com:amessing/json.git

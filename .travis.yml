@@ -3,6 +3,7 @@ dist: bionic
 
 language: cpp
 compiler: gcc
+sudo: required
 
 git:
   submodules: false
@@ -12,18 +13,22 @@ addons:
     packages:
       - xorg-dev
       - libglu1-mesa-dev
-      - libompl-dev
 
 # Hack for ssh submodules
 before_install:
   - sed -i 's/git@github.com:/https:\/\/github.com\//' .gitmodules
   - git submodule update --init --recursive
 
-# install:
-#
+install:
+  - wget https://ompl.kavrakilab.org/install-ompl-ubuntu.sh
+  - chmod u+x install-ompl-ubuntu.sh
+  - sudo ./install-ompl-ubuntu.sh
 
 script:
-  - ./build.sh
+  - ./build.sh --clean --testing
+
+after_success:
+  - ./build/grstaps_tests
 
 #after_success:
 # todo: coverage

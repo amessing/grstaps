@@ -21,6 +21,9 @@
 // global
 #include <string>
 
+// external
+#include <nlohmann/json.hpp>
+
 // local
 #include "grstaps/noncopyable.hpp"
 
@@ -34,8 +37,11 @@ namespace grstaps
        public:
         /**
          * Constructor
+         *
+         * \param type The type of the object
+         * \param properties The properties of this object
          */
-        Object(const std::string& type);
+        Object(const std::string& type, const nlohmann::json& properties);
 
         /**
          * \returns The identifier for this object
@@ -49,18 +55,42 @@ namespace grstaps
 
         /**
          * \returns Whether this object can be moved
+         *
+         * \note Is a wrapper for the Object#property function below
          */
         bool movable() const;
 
         /**
          * \returns The weight of this object
+         *
+         * \note Is a wrapper for the Object#property function below
          */
         float weight() const;
 
+        /**
+         * \returns Whether this object has the property specified by \p name
+         */
+        bool hasProperty(const std::string& name) const;
+
+        /**
+         * \param name The name of the property (e.g. movable)
+         *
+         * \tparam The type of the property
+         *
+         * \returns The property specified by \p name
+         */
+        template <typename PropertyType>
+        const PropertyType& property(const std::string& name) const;
+
+        /**
+         * \returns The properties of this object
+         */
+        const nlohmann::json& properties() const;
+
        private:
-        unsigned int m_id;   //!< Identifier for this specific object
-        std::string m_type;  //!< Type of this object (e.g. box)
-        // Properties (json lib?)
+        unsigned int m_id;            //!< Identifier for this specific object
+        std::string m_type;           //!< Type of this object (e.g. box)
+        nlohmann::json m_properties;  //!< A "magic" dictionary of the properties of this object
 
         static unsigned int s_next_object_id;  //!< The identifier for the next object to be created
     };

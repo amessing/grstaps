@@ -13,16 +13,23 @@ if(BUILD_EXE)
 endif(BUILD_EXE)
 
 # Collsion Checking
+set(BOX2D_BUILD_TESTBED OFF CACHE INTERNAL "")
+set(BOX2D_BUILD_UNIT_TESTS OFF CACHE INTERNAL "")
+set(BOX2D_BUILD_DOCS OFF CACHE INTERNAL "")
 add_subdirectory(box2d)
 
 # Formatting
 add_subdirectory(fmt)
 
+# Json (Magic)
+set(JSON_BuildTests OFF CACHE INTERNAL "")
+add_subdirectory(json)
+
 # Graph Theory
 add_subdirectory(lemon)
 
-# Motion Planning
-# add_subdirectory(ompl)
-
 # Logging
 add_subdirectory(spdlog)
+
+# Motion Planning
+find_package(ompl 1.4 REQUIRED)

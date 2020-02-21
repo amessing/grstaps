@@ -18,6 +18,9 @@
 #ifndef GRSTAPS_BASE_ACTION_HPP
 #define GRSTAPS_BASE_ACTION_HPP
 
+// global
+#include <vector>
+
 // local
 #include "grstaps/noncopyable.hpp"
 
@@ -31,6 +34,8 @@ namespace grstaps
        public:
         /**
          * Constructor
+         *
+         * \param starting_location The identifier for the location this action is started at
          */
         Action(unsigned int starting_location);
 
@@ -39,21 +44,47 @@ namespace grstaps
          */
         unsigned int id() const;
 
+#if 0  // Ignoring for now
         /**
-         * \returns Preconditions
+         * \returns The condiitions for this action to start
          */
+        const std::vector<Fluent>& startConditions() const;
 
         /**
-         * \returns Effects
+         * \returns The conditions that need to hold while this action is happening
          */
+        const std::vector<Fluent>& overAllConditions() const;
 
         /**
-         * \returns minimum and maximum duration
+         * \returns The conditions for this action to end
          */
+        const std::vector<Fluent>& endConditions() const;
 
         /**
-         * \returns function for calculating duration
+         * \returns The effects that happen at the start of this action
          */
+        const std::vector<Fluent>& startEffects() const;
+
+        /**
+         * \returns The effects that happen at the end of this action
+         */
+        const std::vector<Fluent>& endEffects() const;
+
+        /**
+         * \returns The interval of the duration of this action
+         */
+        const std::pair<Duration, Duration>& durationRange() const;
+
+        /**
+         * \returns The minimum duration of this action
+         */
+        const Duration& minimumDuration() const;
+
+        /**
+         * \returns The maximum duration of this action
+         */
+        const Duration& maximumDuration() const;
+#endif
 
         /**
          * \returns The required traits for this action
@@ -68,9 +99,17 @@ namespace grstaps
         unsigned int m_id;                 //!< The id of this specific action
         unsigned int m_starting_location;  //!< The id of the location that this action starts at
 
-        // condition (equation) - pointer/object/noncopyable
-        // duration min, max (equation?) - pointer/object/noncopyable
-        // effect (equation) - pointer/object/noncopyable
+#if 0  // Ignoring for now
+        std::vector<Fluent>
+            m_start_conditions;  //!< A conjunction of the conditions that need to hold at the start of this action
+        std::vector<Fluent> m_over_all_conditions;  //!< A conjunction of the conditions that need to hold while this
+                                                    //!< action is happening
+        std::vector<Fluent>
+            m_end_conditions;  //!< A conjunction of the conditions that need to hold when this action finishes
+        std::pair<Duration, Duration> m_durations;  //!< A pair of the minimum and maximum durations
+        std::vector<Fluent> m_start_effects;  //!< A conjunction of the effects that happen at the start of this action
+        std::vector<Fluent> m_end_effects;    //!< A conjunction of the effects that happen at the end of this action
+#endif
         // traits/trait mapping
 
         static unsigned int s_next_action_id;  //!< The id for the next action that is created
