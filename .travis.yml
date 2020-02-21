@@ -23,6 +23,7 @@ install:
   - wget https://ompl.kavrakilab.org/install-ompl-ubuntu.sh
   - chmod u+x install-ompl-ubuntu.sh
   - sudo ./install-ompl-ubuntu.sh
+  - sudo ln -s /usr/include/eigen3/Eigen /usr/include/Eigen
 
 script:
   - ./build.sh --clean --testing
