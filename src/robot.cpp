@@ -26,8 +26,30 @@ namespace grstaps
         , m_species_name(species_name)
     {}
 
+    Robot::Robot(const std::string& species_name, const std::vector<float>& traits)
+        : m_id(s_next_robot_id)
+        , m_species_name(species_name)
+        , m_traits(traits)
+    {}
+
     unsigned int Robot::id() const
     {
         return m_id;
     }
+
+    const std::string& Robot::speciesName() const
+    {
+        return m_species_name;
+    }
+
+    std::vector<float>& Robot::traits()
+    {
+        return m_traits;
+    }
+
+    const std::vector<float>& Robot::traits() const
+    {
+        return m_traits;
+    }
+
 }  // namespace grstaps

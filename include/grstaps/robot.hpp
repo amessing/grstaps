@@ -19,13 +19,18 @@
 #define GRSTAPS_BASE_ROBOT_HPP
 
 // global
+#include <memory>
 #include <string>
+#include <vector>
 
 // local
 #include "grstaps/noncopyable.hpp"
 
 namespace grstaps
 {
+    /// Forward Declarations
+    class Location;
+
     /**
      * Container for a robot/controllable agent
      */
@@ -40,19 +45,38 @@ namespace grstaps
         Robot(const std::string& species_name);
 
         /**
+         * Constructor
+         *
+         * \param species_name The name of the species of this robot
+         * \param traits A list of traits of this robot
+         */
+        Robot(const std::string& species_name, const std::vector<float>& traits);
+
+        /**
          * \returns The identifier for this robot
          */
         unsigned int id() const;
 
         /**
+         * \returns The name of the species of this robot
+         */
+        const std::string& speciesName() const;
+
+        /**
          * \returns The traits of this robot
          */
+        std::vector<float>& traits();
+
+        /**
+         * \returns The traits of this robot
+         */
+         const std::vector<float>& traits() const;
 
        private:
         unsigned int m_id;           //!< The identifier for this specific robot
         std::string m_species_name;  //!< The name of the species of this robot
-        // Traits (Vector/Map/Class)
-        // Starting location
+        std::vector<float> m_traits; //!< A list of the robots traits
+        std::shared_ptr<Location> m_stating_location;
 
         static unsigned int s_next_robot_id;  //!< The identifier for the next robot to be created
     };

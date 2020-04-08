@@ -1,11 +1,11 @@
-#Graphically Recursive Simultaneous Task Allocation, Planning, and Scheduling [![Build Status](https://travis-ci.com/amessing/grstaps.svg?token=ZbU2mzJqy2bwdxUCNR2d&branch=master)](https://travis-ci.com/amessing/grstaps)
+# Graphically Recursive Simultaneous Task Allocation, Planning, and Scheduling [![Build Status](https://travis-ci.com/amessing/grstaps.svg?token=ZbU2mzJqy2bwdxUCNR2d&branch=master)](https://travis-ci.com/amessing/grstaps)
 
 ## Dependencies:
 ### apt:
 - xorg-dev
 - libglu1-mesa-dev
 ### Manually
-- (OMPL)[https://ompl.kavrakilab.org/installation.html] Follow the from source instructions (Only 3omp commands)
+- (OMPL)[https://ompl.kavrakilab.org/installation.html] Follow the from source instructions (Only 3 commands)
 - sudo ln -s /usr/include/eigen3/Eigen /usr/include/Eigen
 ### included submodules:
 - [args](https://github.com/Taywee/args) - Argument Parsing
