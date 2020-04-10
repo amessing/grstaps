@@ -74,5 +74,9 @@ At one time many threads will be writing, and at another many will be reading bu
     };
 }// namespace grstaps
 
-//#include "UniformCostSearch.cpp"
+
 #endif //GRSTAPS_UNIFORMCOST
+
+#ifndef GRSTAPS_UNIFORMCOSTCPP
+#include "../src/Search/UniformCostSearch.cpp"
+#endif

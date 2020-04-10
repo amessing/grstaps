@@ -67,8 +67,6 @@ namespace grstaps {
 
     protected:
         nodePtr<Data> initialNodePtr; //!< Pointer to Starting Node in the search
-        GoalLocator<Data> isGoal;  //!< Functor that tells us if a node is a goal
-        NodeExpander<Data> expandGraph;  //!< Functor that takes a node and a graph and expands that node to add children
         Graph<Data> &graph; //!< Whether the map has been set for the motion planner
     };
 

@@ -15,24 +15,24 @@
  * along with GRSTAPS; if not, write to the Free Software Foundation,
  * Inc., #59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
-#include "grstaps/action.hpp"
-
-namespace grstaps
-{
-    unsigned int Action::s_next_action_id = 0;
-
-    Action::Action(unsigned int starting_location)
-        : m_id(s_next_action_id++)
-        , m_starting_location(starting_location)
-    {}
-
-    unsigned int Action::id() const
-    {
-        return m_id;
-    }
-
-    unsigned int Action::startingLocation() const
-    {
-        return m_starting_location;
-    }
-}  // namespace grstaps
+//#include "grstaps/action.hpp"
+//
+//namespace grstaps
+//{
+//    unsigned int Action::s_next_action_id = 0;
+//
+//    Action::Action(unsigned int starting_location)
+//        : m_id(s_next_action_id++)
+//        , m_starting_location(starting_location)
+//    {}
+//
+//    unsigned int Action::id() const
+//    {
+//        return m_id;
+//    }
+//
+//    unsigned int Action::startingLocation() const
+//    {
+//        return m_starting_location;
+//    }
+//}  // namespace grstaps

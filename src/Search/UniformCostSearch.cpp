@@ -15,6 +15,8 @@
  * along with GRSTAPS; if not, write to the Free Software Foundation,
  * Inc., #59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
+#ifndef GRSTAPS_UNIFORMCOSTCPP
+#define GRSTAPS_UNIFORMCOSTCPP
 
 //internal
 #include "grstaps/Search/UniformCostSearch.h"
@@ -71,7 +73,6 @@ namespace grstaps {
         results->addResults(this->graph, currentNode, searchFailed);
 
     }
-
     template<class Data>
     bool UniformCostSearch<Data>::updateCurrent()  {
         bool searchFailed = false;
@@ -91,3 +92,4 @@ namespace grstaps {
 
 }//namespace grstaps
 
+#endif
