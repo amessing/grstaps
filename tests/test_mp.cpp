@@ -13,9 +13,10 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with GRSTAPS; if not, write to the Free Software Foundation,
- * Inc., #59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+ * Inc., #59 Temple Plac
  */
 // external
+
 #include <gtest/gtest.h>
 
 // local
@@ -39,7 +40,7 @@ namespace grstaps
                 obstacles.push_back(obstacle);
             }
 
-            // Obstacle 2
+            // Obstacle 2// external
             {
                 b2PolygonShape obstacle;
 

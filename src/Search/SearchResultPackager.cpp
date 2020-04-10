@@ -1,5 +1,5 @@
 /*
- * Copyright (C)2020 Andrew Messing
+ * Copyright (C)2020 Glen Neville
  *
  * GRSTAPS is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published
@@ -15,16 +15,26 @@
  * along with GRSTAPS; if not, write to the Free Software Foundation,
  * Inc., #59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
-#ifndef GRSTAPS_SIMPLE_TEMPORAL_NETWORK_HPP
-#define GRSTAPS_SIMPLE_TEMPORAL_NETWORK_HPP
 
-namespace grstaps
-{
-    class SimpleTemporalNetwork
-    {
-       public:
-       private:
-    };
-}  // namespace grstaps
+#ifndef GRSTAPS_SEARCHRESULTSPACKAGERCPP
+#define GRSTAPS_SEARCHRESULTSPACKAGERCPP
 
-#endif  // GRSTAPS_SIMPLE_TEMPORAL_NETWORK_HPP
+
+#include "grstaps/Search/SearchResultPackager.h"
+
+
+
+namespace grstaps {
+
+    template<class Data>
+    void SearchResultPackager<Data>::addResults(Graph<Data>& resultGraph, nodePtr<Data> &goalNode,
+                                                     bool searchFailed){
+        graph = &resultGraph;
+        finalNode = goalNode;
+        foundGoal = !searchFailed;
+        }
+
+
+}//namespace grstaps
+
+#endif
