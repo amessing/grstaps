@@ -136,7 +136,7 @@ namespace grstaps {
         numSpecies = newNumSpecies;
     }
 
-    std::unordered_map<std::string, int >* TaskAllocation::getSpeciesNames(){
+    robin_hood::unordered_map<std::string, int >* TaskAllocation::getSpeciesNames(){
         return speciesNames;
     }
 

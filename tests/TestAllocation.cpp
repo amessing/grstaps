@@ -50,7 +50,102 @@ namespace grstaps {
 
             vector<vector<float>> goalDistribution{
                     {1, 1, 1, 1, 1},
-
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
+                    {0, 0, 0, 0, 0},
+                    {1, 1, 1, 1, 1},
+                    {0, 0, 0, 0, 0},
+                    {1, 1, 1, 1, 1},
+                    {0, 0, 0, 0, 0},
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
+                    {0, 0, 0, 0, 0},
+                    {1, 1, 1, 1, 1},
+                    {0, 0, 0, 0, 0},
+                    {1, 1, 1, 1, 1},
+                    {0, 0, 0, 0, 0},
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
+                    {0, 0, 0, 0, 0},
+                    {1, 1, 1, 1, 1},
+                    {0, 0, 0, 0, 0},
+                    {1, 1, 1, 1, 1},
+                    {0, 0, 0, 0, 0},
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
+                    {0, 0, 0, 0, 0},
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
 
             };
 
@@ -64,7 +159,102 @@ namespace grstaps {
 
             vector<vector<float>> noncumTraitCutoff{
                     {1, 1, 1, 1, 1},
-
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
+                    {0, 0, 0, 0, 0},
+                    {1, 1, 1, 1, 1},
+                    {0, 0, 0, 0, 0},
+                    {1, 1, 1, 1, 1},
+                    {0, 0, 0, 0, 0},
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
+                    {0, 0, 0, 0, 0},
+                    {1, 1, 1, 1, 1},
+                    {0, 0, 0, 0, 0},
+                    {1, 1, 1, 1, 1},
+                    {0, 0, 0, 0, 0},
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
+                    {0, 0, 0, 0, 0},
+                    {1, 1, 1, 1, 1},
+                    {0, 0, 0, 0, 0},
+                    {1, 1, 1, 1, 1},
+                    {0, 0, 0, 0, 0},
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
+                    {0, 0, 0, 0, 0},
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1},
 
             };
 
@@ -83,6 +273,7 @@ namespace grstaps {
             NodeExpander<TaskAllocation> *expander = new AllocationExpander(heur, cos);
             SearchResultPackager<TaskAllocation> *package = new AllocationResultsPackager();
 
+            /*
             BestFirstSearch<TaskAllocation> searcher(graphTest, node1);
 
             auto start = std::chrono::high_resolution_clock::now();
@@ -93,7 +284,8 @@ namespace grstaps {
             AllocationResultsPackager *results = static_cast<AllocationResultsPackager *>(package);
             results->printResults();
 
-            UniformCostSearch<TaskAllocation> searcher1(graphTest, node1);
+
+            AStarSearch<TaskAllocation> searcher2(graphTest, node1);
 
             start = std::chrono::high_resolution_clock::now();
             searcher1.search(isGoal, expander, package);
@@ -102,14 +294,15 @@ namespace grstaps {
             std::cout << "Time=" << duration.count() << std::endl;
             results = static_cast<AllocationResultsPackager *>(package);
             results->printResults();
+            */
 
             UniformCostSearch<TaskAllocation> searcher2(graphTest, node1);
-            start = std::chrono::high_resolution_clock::now();
+            auto start = std::chrono::high_resolution_clock::now();
             searcher2.search(isGoal, expander, package);
-            stop = std::chrono::high_resolution_clock::now();
-            duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
+            auto stop = std::chrono::high_resolution_clock::now();
+            auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
             std::cout << "Time=" << duration.count() << std::endl;
-            results = static_cast<AllocationResultsPackager *>(package);
+            auto results = static_cast<AllocationResultsPackager *>(package);
             results->printResults();
 
             delete isGoal;

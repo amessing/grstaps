@@ -22,11 +22,13 @@
 #include <vector>
 #include "Node.h"
 #include "Edge.h"
+#include <grstaps/unordered_map/robin_hood.h>
 //#include "tbb/concurrent_unordered_map.h"B
 
 using std::string;
 using std::vector;
-
+//using std::unordered_map;
+//using robin_hood::unordered_map;
 
 namespace grstaps {
 
@@ -181,8 +183,8 @@ namespace grstaps {
         */
         bool edgeExist(string);
         //tbb::concurrent_unordered_map<typename Key, typename T, typename Hasher, typename Key_equality, typename Allocator>(const Allocator &a) {}
-        unordered_map<string, edgePtr < Data> > edgeList; //!< Unordered_map to the graphs edges
-        unordered_map<string, nodePtr < Data> > nodeList;  //!< Unordered_map to the graphs nodes
+        robin_hood::unordered_map<string, edgePtr < Data> > edgeList; //!< Unordered_map to the graphs edges
+        robin_hood::unordered_map<string, nodePtr < Data> > nodeList;  //!< Unordered_map to the graphs nodes
     private:
 
     };

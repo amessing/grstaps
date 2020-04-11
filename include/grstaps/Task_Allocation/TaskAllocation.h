@@ -21,12 +21,14 @@
 #include <vector>
 #include <string>
 #include <iostream>
-#include <unordered_map>
 #include "grstaps/Scheduling/Scheduler.h"
 #include <iomanip>      // std::setw
 #include <boost/shared_ptr.hpp>
+#include <grstaps/unordered_map/robin_hood.h>
 
 using std::vector;
+//using std::unordered_map;
+//using robin_hood::unordered_map;
 
 namespace grstaps {
 
@@ -242,7 +244,7 @@ namespace grstaps {
         *
         *
         */
-        std::unordered_map<std::string, int >* getSpeciesNames();
+        robin_hood::unordered_map<std::string, int >* getSpeciesNames();
 
         /**
         * getter for ActionNames
@@ -293,8 +295,8 @@ namespace grstaps {
         vector<vector<float>>* speciesTraitDistribution{};
         vector<vector<float>>* actionNoncumulativeTraitValue{};
         Scheduler* scheduler{};
-        std::unordered_map<std::string, int >* actionNames{}; //!< Unordered_map to the parent nodes */
-        std::unordered_map<std::string, int >* speciesNames{}; //!< Unordered_map to the parent nodes */
+        robin_hood::unordered_map<std::string, int >* actionNames{}; //!< Unordered_map to the parent nodes */
+        robin_hood::unordered_map<std::string, int >* speciesNames{}; //!< Unordered_map to the parent nodes */
         const vector<std::string>* actionIDs{};
         boost::shared_ptr<vector<int>> numSpecies{};
 

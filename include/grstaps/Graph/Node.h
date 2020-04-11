@@ -23,7 +23,7 @@
 
 #include <string>
 #include <vector>
-#include <unordered_map>
+#include <grstaps/unordered_map/robin_hood.h>
 #include <boost/shared_ptr.hpp>
 #include <boost/make_shared.hpp>
 #include <boost/weak_ptr.hpp>
@@ -38,7 +38,6 @@
 // due to conflicts between boost and std smart pointer types
 using std::string;
 using std::vector;
-using std::unordered_map;
 
 namespace grstaps
 {
@@ -264,8 +263,8 @@ public:
     */
     void addChildEdge(edgePtr<Data>, const string&, bool quick =true);
 
-	unordered_map<string, edgePtr<Data> > enteringEdges; //!< Unordered_map to the parent nodes */
-	unordered_map<string, edgePtr<Data> > leavingEdges;  //!< Unordered_map to the child  nodes*/
+    robin_hood::unordered_map<string, edgePtr<Data> > enteringEdges; //!< Unordered_map to the parent nodes */
+    robin_hood::unordered_map<string, edgePtr<Data> > leavingEdges;  //!< Unordered_map to the child  nodes*/
 
 
 private:
