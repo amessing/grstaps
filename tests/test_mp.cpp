@@ -70,8 +70,8 @@ namespace grstaps
                 obstacles.push_back(obstacle);
             }
 
-            MotionPlanner& mp = MotionPlanner::instance();
-            mp.setMap(obstacles, 0, 10);
+            //MotionPlanner& mp = MotionPlanner::instance();
+            //mp.setMap(obstacles, 0, 10);
         }
     }  // namespace test
 }  // namespace grstaps

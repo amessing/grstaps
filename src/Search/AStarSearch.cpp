@@ -16,6 +16,9 @@
  * Inc., #59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
+#ifndef GRSTAPS_ASTARCPP
+#define GRSTAPS_ASTARCPP
+
 #include "grstaps/Search/AStarSearch.h"
 
 namespace grstaps {
@@ -128,3 +131,4 @@ namespace grstaps {
 
 }//namespace grstaps
 
+#endif
