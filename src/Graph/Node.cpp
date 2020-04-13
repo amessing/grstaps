@@ -21,11 +21,22 @@
 
 #include "grstaps/Graph/Node.h"
 
+
 namespace grstaps {
 
 
     template<class Data>
     Node<Data>::Node(string id, Data& data) : nodeID(std::move(id)), pathCost(0.0f), heuristic(0.0f), nodeData(data){
+    }
+
+    template<class Data>
+    Node<Data>::Node(grstaps::Node<Data> & copyNode){
+        enteringEdges = copyNode.enteringEdges;
+        leavingEdges = copyNode.leavingEdges;
+        nodeID = copyNode.nodeID;
+        pathCost = copyNode.pathCost;
+        heuristic = copyNode.heuristic;
+        nodeData = copyNode.nodeData;
     }
 
     template<class Data>
@@ -219,6 +230,11 @@ namespace grstaps {
             removedFromNode = true;
         }
         return removedFromNode;
+    }
+
+    template<class Data>
+    void Node<Data>::setID(string newID){
+        nodeID = newID;
     }
 
 } //Namespace GRSTAPS

@@ -48,14 +48,25 @@ namespace grstaps {
         */
         AStarSearch(Graph<Data> &, nodePtr<Data> &);
 
+
+        /**
+        * Constructor
+        *
+        *  \param the search problem you are going to copy from
+        *  \param id of new action
+        *  \param traitRequirements of the new action
+        *  \param the nonCumTraits requirements
+        *
+        */
+        AStarSearch(AStarSearch<TaskAllocation> &p2, std::string& newActionIDexpander, vector<float>& traitRequirements, vector<float>& nonCumTraits, NodeExpander<TaskAllocation>* expander );
+
         /**
        * Copy Constructor
        *
        * \param the search problem you are going to copy from
-       * \param the new expansion function you will use on the copy
        *
        */
-        AStarSearch(AStarSearch<Data> &, NodeExpander<Data> &);
+        AStarSearch(AStarSearch<Data> &, NodeExpander<TaskAllocation>*);
 
         /**
          * Search through the graph and find a node

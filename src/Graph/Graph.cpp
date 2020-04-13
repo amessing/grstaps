@@ -85,7 +85,7 @@ namespace grstaps {
             // if the node does not exist, add it to the list of nodes
             if (nodeList.size() > 0 && nodeExists != NULL) {
                 string errorString =
-                        "File format error : Duplicate node '" + nodeExists->getNodeID() + " Node Not Added";
+                        "File format error : Duplicate node '" + id + " Node Not Added";
                 std::cout << errorString << std::endl;
             } else {
                 nodeList[id] = nodeToAdd;
@@ -105,7 +105,7 @@ namespace grstaps {
             // if the node does not exist, add it to the list of nodes
             if (nodeList.size() > 0 && nodeExists != NULL) {
                 string errorString =
-                        "File format error : Duplicate node '" + nodeExists->getNodeID() + " Node Not Added";
+                        "File format error : Duplicate node '" + id + " Node Not Added";
                 std::cout << errorString << std::endl;
             } else {
                 nodeList[id] = nodeToAdd;
@@ -127,7 +127,7 @@ namespace grstaps {
             // if the node already exists, throw an error message
             // if the node does not exist, add it to the list of nodes
             if (nodeList.size() > 0 && nodeExists != NULL) {
-                string errorString = "File format error : Duplicate node '" + nodeExists->getNodeID() + " Node Not Added";
+                string errorString = "File format error : Duplicate node '" + id + " Node Not Added";
                 std::cout << errorString << std::endl;
             } else {
                 nodeList[id] = nodePtr<Data>(new Node<Data>(id, data));
@@ -150,7 +150,7 @@ namespace grstaps {
             // if the node does not exist, add it to the list of nodes
             if (nodeList.size() > 0 && nodeExists != NULL) {
                 string errorString =
-                        "File format error : Duplicate node '" + nodeExists->getNodeID() + " Node Not Added";
+                        "File format error : Duplicate node '" + id + " Node Not Added";
                 std::cout << errorString << std::endl;
             } else {
                 auto newNode = nodePtr<Data>(new Node<Data>(id, data));

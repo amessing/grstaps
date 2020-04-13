@@ -50,217 +50,26 @@ namespace grstaps {
 
             vector<vector<float>> goalDistribution{
                     {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {0, 0, 0, 0, 0},
-                    {1, 1, 1, 1, 1},
-                    {0, 0, 0, 0, 0},
-                    {1, 1, 1, 1, 1},
-                    {0, 0, 0, 0, 0},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {0, 0, 0, 0, 0},
-                    {1, 1, 1, 1, 1},
-                    {0, 0, 0, 0, 0},
-                    {1, 1, 1, 1, 1},
-                    {0, 0, 0, 0, 0},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {0, 0, 0, 0, 0},
-                    {1, 1, 1, 1, 1},
-                    {0, 0, 0, 0, 0},
-                    {1, 1, 1, 1, 1},
-                    {0, 0, 0, 0, 0},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {0, 0, 0, 0, 0},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
+
 
             };
 
             vector<vector<float>> speciesDistribution{
-                    {1, 0, 0, 0, 0},
-                    {0, 1, 0, 0, 0},
-                    {0, 0, 1, 0, 0},
-                    {0, 0, 0, 1, 1}
+                    {1, 0, 1, 0, 1},
+                    {0, 1, 0, 1, 0},
+
 
             };
 
             vector<vector<float>> noncumTraitCutoff{
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {0, 0, 0, 0, 0},
-                    {1, 1, 1, 1, 1},
-                    {0, 0, 0, 0, 0},
-                    {1, 1, 1, 1, 1},
-                    {0, 0, 0, 0, 0},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {0, 0, 0, 0, 0},
-                    {1, 1, 1, 1, 1},
-                    {0, 0, 0, 0, 0},
-                    {1, 1, 1, 1, 1},
-                    {0, 0, 0, 0, 0},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {0, 0, 0, 0, 0},
-                    {1, 1, 1, 1, 1},
-                    {0, 0, 0, 0, 0},
-                    {1, 1, 1, 1, 1},
-                    {0, 0, 0, 0, 0},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {0, 0, 0, 0, 0},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1}
+
 
             };
 
 
             TaskAllocation ta((&goalDistribution), (&speciesDistribution), (&noncumTraitCutoff));
-            //ta.checkSize();
+            ta.checkSize();
             auto node1 = boost::shared_ptr<Node<TaskAllocation>>(new Node<TaskAllocation>(std::string(ta.getID()), ta));
 
             node1->setData(ta);
@@ -272,6 +81,7 @@ namespace grstaps {
             GoalLocator<TaskAllocation> *isGoal = new AllocationIsGoal();
             NodeExpander<TaskAllocation> *expander = new AllocationExpander(heur, cos);
             SearchResultPackager<TaskAllocation> *package = new AllocationResultsPackager();
+
 
             /*
             BestFirstSearch<TaskAllocation> searcher(graphTest, node1);
@@ -296,7 +106,7 @@ namespace grstaps {
             results->printResults();
             */
 
-            UniformCostSearch<TaskAllocation> searcher2(graphTest, node1);
+            AStarSearch<TaskAllocation> searcher2(graphTest, node1);
             auto start = std::chrono::high_resolution_clock::now();
             searcher2.search(isGoal, expander, package);
             auto stop = std::chrono::high_resolution_clock::now();
@@ -304,6 +114,21 @@ namespace grstaps {
             std::cout << "Time=" << duration.count() << std::endl;
             auto results = static_cast<AllocationResultsPackager *>(package);
             results->printResults();
+
+            /*
+            std::string newActionID = "New Action";
+            vector<float> traitRequirements{1, 1, 1, 1, 1};
+            vector<float> nonCumTraits{1, 1, 1, 1, 1};
+
+            AStarSearch<TaskAllocation> searchCopy(searcher2, newActionID, traitRequirements, nonCumTraits, expander );
+            start = std::chrono::high_resolution_clock::now();
+            searchCopy.search(isGoal, expander, package);
+            stop = std::chrono::high_resolution_clock::now();
+            duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
+            std::cout << "Time=" << duration.count() << std::endl;
+            results = static_cast<AllocationResultsPackager *>(package);
+            results->printResults();
+            */
 
             delete isGoal;
             delete expander;

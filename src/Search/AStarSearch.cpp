@@ -27,22 +27,69 @@ namespace grstaps {
     }
 
     template<class Data>
-    AStarSearch<Data>::AStarSearch(AStarSearch<Data> &p2, NodeExpander<Data> &expander) : SearchBase<Data>() {
-        NodeExpander<Data>& expandGraph = expander;
-
-        for (auto itr = p2.frontier.begin(); itr != p2.frontier.leavingEdges.end(); ++itr) {
+    AStarSearch<Data>::AStarSearch(AStarSearch<Data> &p2, NodeExpander<TaskAllocation>* expander) : SearchBase<Data>() {
+        for (auto itr = p2.frontier.begin(); itr != p2.frontier.end(); ++itr) {
             nodePtr<Data> nodeToAdd = nodePtr<Data>(new Node<Data>(itr));
             this->graph.addNode(nodeToAdd);
             frontier.push(nodeToAdd);
         }
         for (auto itr = closedList.begin(); itr != closedList.end(); ++itr) {
             nodePtr<Data> nodeToExpand = nodePtr<Data>(new Node<Data>(itr));
-            expandGraph(this->graph, nodeToExpand);
+            (*expander)(this->graph, nodeToExpand);
         }
 
         currentNode = this->graph.findNode(p2->currentNode->getNodeID());
         this->initialNodePtr = this->graph.findNode(p2->initialNodePtr->getNodeID());
     }
+
+    template<> AStarSearch<TaskAllocation>::AStarSearch(AStarSearch<TaskAllocation> &p2, std::string& newActionID, vector<float>& traitRequirements, vector<float>& nonCumTraits, NodeExpander<TaskAllocation>* expander ) : SearchBase<TaskAllocation>() {
+        graph = Graph<TaskAllocation>();
+        boost::shared_ptr<TaskAllocation> nodeData = boost::shared_ptr<TaskAllocation>(new TaskAllocation(TaskAllocation(p2.initialNodePtr->getData())));
+        vector<vector<float>> actionRequirements = (*nodeData->getGoalTraitDistribution());
+        actionRequirements.push_back(traitRequirements);
+        vector<vector<float>> nonCumActionRequirements = (*nodeData->getActionNoncumulativeTraitValue());
+        int numSpec = (nodeData->getSpeciesTraitDistribution()->size());
+        nonCumActionRequirements.push_back(nonCumTraits);
+        auto newActionIDs = nodeData->getActionIDs();
+        this->graph.printNodeList();
+        this->graph.printNodeList();
+        if(newActionIDs != NULL) {
+            newActionIDs->push_back(newActionID);
+        }
+
+        float goalDistAdd = 0;
+        for(int i=0; i < traitRequirements.size(); i++){
+            goalDistAdd += traitRequirements[i];
+        }
+        nodeData->addAction(&actionRequirements, &nonCumActionRequirements, goalDistAdd);
+
+        for (auto itr = p2.frontier.begin(); itr != p2.frontier.end(); ++itr) {
+            nodePtr<TaskAllocation> nodeToAdd = nodePtr<TaskAllocation>(new Node<TaskAllocation>(**itr));
+            nodeToAdd->setID((nodeToAdd->getNodeID() + string ( nodeToAdd->getData().getSpeciesTraitDistribution()->size(), '0')));
+            (nodeToAdd->getData()).addAction((&actionRequirements), (&nonCumActionRequirements), goalDistAdd,  newActionIDs);
+            this->graph.addNode(nodeToAdd);
+            frontier.push(nodeToAdd);
+        }
+        for (auto itr = p2.closedList.begin(); itr != p2.closedList.end(); ++itr) {
+            for (int i=0; i < numSpec; i++){
+                auto newTA = nodeData;
+                vector<short> allocation = (**itr).getData().getAllocation();
+                vector<short> emptyVect(numSpec, 0);
+                allocation.insert(allocation.end(), emptyVect.begin(), emptyVect.end());
+                newTA->setAllocation(allocation);
+
+                newTA->addAgent(i, actionRequirements.size()-1);
+                std::string newID = newTA->getID();
+                nodePtr<TaskAllocation> newNode = nodePtr<TaskAllocation>(new Node<TaskAllocation> (newID, *newTA));
+                this->graph.addNode(newNode);
+                frontier.push(newNode);
+            }
+        }
+        this->initialNodePtr = this->frontier.top();
+        updateCurrent();
+
+    }
+
     template<class Data>
     void AStarSearch<Data>::search(GoalLocator<Data>* goal, NodeExpander<Data>* expander, SearchResultPackager<Data>* results) {
         GoalLocator<Data>& isGoal = *goal;  // Functor that tells us if a node is a goal
@@ -56,6 +103,7 @@ namespace grstaps {
                 frontier.push(node);
             }
             searchFailed = updateCurrent();
+            cout << currentNode->getData().getID() << "=" << isGoal(this->graph, currentNode) << endl;
         }
 
         results->addResults(this->graph, currentNode, searchFailed);

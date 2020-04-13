@@ -23,8 +23,6 @@
 #include "grstaps/Graph/Node.h"
 #include "grstaps/Graph/Graph.h"
 #include "grstaps/Task_Allocation/TaskAllocation.h"
-
-
 #include <string>
 #include <iostream>
 

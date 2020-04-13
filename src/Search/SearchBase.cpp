@@ -34,7 +34,13 @@ namespace grstaps {
 
     template<class Data>
     SearchBase<Data>::SearchBase(){
-        graph = new Graph<Data>();
+        graph = Graph<Data>();
+        initialNodePtr = nullptr;
+
+    }
+
+    template<> SearchBase<TaskAllocation>::SearchBase(){
+        graph;
         initialNodePtr = nullptr;
 
     }

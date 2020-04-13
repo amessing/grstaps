@@ -70,6 +70,16 @@ public:
     */
     Node(string , Data&);
 
+
+    /**
+    * Constructor
+    *
+    * \param the string id of the new node
+    * \param the node data
+    *
+    */
+    Node(Node&);
+
     /**
    * Destructor
    */
@@ -263,12 +273,22 @@ public:
     */
     void addChildEdge(edgePtr<Data>, const string&, bool quick =true);
 
+
+    /**
+     *
+     * Set node id
+     *
+     * \param new node id
+     *
+    */
+    void setID(string);
+
     robin_hood::unordered_map<string, edgePtr<Data> > enteringEdges; //!< Unordered_map to the parent nodes */
     robin_hood::unordered_map<string, edgePtr<Data> > leavingEdges;  //!< Unordered_map to the child  nodes*/
 
 
 private:
-    const string nodeID;   //!< Whether the map has been set for the motion planner
+    string nodeID;   //!< Whether the map has been set for the motion planner
 	float pathCost{};  //!< Float containing the nodes heuristic cost g()
 	float heuristic{};  //!< Float containing the nodes heuristic cost h()
     Data nodeData;  //!< Pointer to the nodes data
@@ -277,7 +297,7 @@ private:
 };
 
 
-/**
+/**Node
  *
  *\note The NodeCompareCost defines function objects that are passed
  *\note to a priority queue or similar data structure for correct ordering

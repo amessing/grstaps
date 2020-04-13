@@ -67,7 +67,7 @@ namespace grstaps {
 
     protected:
         nodePtr<Data> initialNodePtr; //!< Pointer to Starting Node in the search
-        Graph<Data> &graph; //!< Whether the map has been set for the motion planner
+        Graph<Data> graph;
     };
 
 } // namespace GRSTAPS

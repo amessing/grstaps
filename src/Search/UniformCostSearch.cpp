@@ -39,9 +39,7 @@ namespace grstaps {
     }
 
     template<class Data>
-    UniformCostSearch<Data>::UniformCostSearch(UniformCostSearch<Data> &p2, NodeExpander<Data> &expander) : SearchBase<Data>() {
-        NodeExpander<Data>& expandGraph = expander;
-
+    UniformCostSearch<Data>::UniformCostSearch(UniformCostSearch<Data> &p2, NodeExpander<Data> &expandGraph) : SearchBase<Data>() {
         for (auto itr = p2.frontier.begin(); itr != p2.frontier.leavingEdges.end(); ++itr) {
             nodePtr<Data> nodeToAdd = nodePtr<Data>(new Node<Data>(itr));
             this->graph.addNode(nodeToAdd);

@@ -33,27 +33,27 @@ namespace grstaps {
     bool AllocationExpander::operator()(Graph<TaskAllocation>& graph, nodePtr<TaskAllocation>& expandNode){
         TaskAllocation data = expandNode->getData();
         vector<short> allocation = data.getAllocation();
-        std::string parentNodeID = expandNode->getNodeID();
+        std::string nodeID = expandNode->getNodeID();
         float currentCost = expandNode->getPathCost();
         int numSpecies = expandNode->getData().getNumSpecies()->size();
         float parentsGoalDistance = expandNode->getData().getGoalDistance();
-        std:string newNodeID;
+
         int numTask = allocation.size()/numSpecies;
         vector<int> numSpec = *data.getNumSpecies();
         for(int i=0; i < numTask; i++){
             for(int j=0; j < numSpecies; j++){
                 int index = i *numSpecies + j;
-                newNodeID = editID(allocation, parentNodeID, index);
+                std::string newNodeID = editID(allocation, nodeID, index);
 
                 if(!graph.nodeExist(newNodeID) && (int(newNodeID[(i*numSpecies)+j]- '0') <= (numSpec)[j] )) {
-                    auto newNodeData(data);
+                    TaskAllocation newNodeData(data);
                     newNodeData.addAgent(j, i);
                     if(newNodeData.getGoalDistance() < parentsGoalDistance) {
                         float heur = (*this->heuristicFunc)(graph, data, newNodeData);
                         float cost = (*this->costFunc)(graph, data, newNodeData);
                         auto newNode = nodePtr<TaskAllocation>(new Node<TaskAllocation>(newNodeID, newNodeData));
                         graph.addNode(newNode, newNodeID);
-                        graph.addEdge(newNodeID, parentNodeID, cost - currentCost, expandNode, newNode);
+                        graph.addEdge(newNodeID, nodeID, cost - currentCost, expandNode, newNode);
                     }
                 }
             }

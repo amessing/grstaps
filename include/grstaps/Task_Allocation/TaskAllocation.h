@@ -18,6 +18,7 @@
 
 #ifndef GRSTAPS_TASKALLOCATION_H
 #define GRSTAPS_TASKALLOCATION_H
+
 #include <vector>
 #include <string>
 #include <iostream>
@@ -27,8 +28,6 @@
 #include <grstaps/unordered_map/robin_hood.h>
 
 using std::vector;
-//using std::unordered_map;
-//using robin_hood::unordered_map;
 
 namespace grstaps {
 
@@ -54,7 +53,7 @@ namespace grstaps {
         *\param a vector containing the species trait distribution
         *\param a vector containing initial allocation
         */
-        TaskAllocation(vector<vector<float>>*, vector<vector<float>>*, vector<short>, vector<vector<float>>*,  boost::shared_ptr<vector<int>> =boost::shared_ptr<vector<int>>(NULL), vector<std::string> =vector<std::string>{}, const vector<std::string>& =vector<std::string>{});
+        TaskAllocation(vector<vector<float>>*, vector<vector<float>>*, vector<short>, vector<vector<float>>*,  boost::shared_ptr<vector<int>> =boost::shared_ptr<vector<int>>(NULL), vector<std::string>* =NULL);
 
         /**
         * constructor
@@ -62,7 +61,7 @@ namespace grstaps {
         *\param a vector containing the goaltrait distribution
         *\param a vector containing the species trait distribution
         */
-        TaskAllocation(vector<vector<float>>*, vector<vector<float>>*, vector<vector<float>>*, boost::shared_ptr<vector<int>> =boost::shared_ptr<vector<int>>(NULL), const vector<std::string> =vector<std::string>{}, const vector<std::string>& =vector<std::string>{});
+        TaskAllocation(vector<vector<float>>*, vector<vector<float>>*, vector<vector<float>>*, boost::shared_ptr<vector<int>> =boost::shared_ptr<vector<int>>(NULL), vector<std::string>* =NULL);
 
         /**
         * Copy constructor
@@ -82,7 +81,7 @@ namespace grstaps {
         * \return bool is this node a goal
         *
         */
-        void addAction(const vector<float>&, const vector<float>&);
+        void addAction(const vector<float>&, const vector<float>&, const std::string);
 
         /**
         * runs the scheduler on this allocation and returns the time to schedule
@@ -204,15 +203,6 @@ namespace grstaps {
         */
         void setActionNoncumulativeTraitValue(vector<vector<float>>*);
 
-        /**
-       * adds an agent to a task
-       *
-       * \param string containing the task id
-       * \param string containing the species id
-       *
-       */
-        bool addAgent(const std::string&, const std::string&);
-
 
         /**
         * setter for SpeciesNames
@@ -251,7 +241,15 @@ namespace grstaps {
         *
         *
         */
-        const vector<std::string>* getActionIDs();
+        vector<std::string>* getActionIDs();
+
+        /**
+        * setter for ActionNames
+        *
+        *\param the naes for the action ID
+         *
+        */
+        void setActionIDs(vector<std::string>*);
 
 
         /**
@@ -289,23 +287,34 @@ namespace grstaps {
         */
         void checkSize();
 
+        /**
+        * Adds an action to the task allocators job
+        *
+        * \param the new goalTraitDistribution
+        * \param the cutoff values for all noncumulative traits
+        * \param the new set of action IDS
+        * \param the new amount to add to the goal distance
+        *
+        */
+        void addAction(vector<vector<float>>*, vector<vector<float>>*, float, vector<std::string>* =NULL);
+
 
     private:
-        vector<vector<float>>* goalTraitDistribution{};
+        boost::shared_ptr<int> scheduleType{};
         vector<vector<float>>* speciesTraitDistribution{};
-        vector<vector<float>>* actionNoncumulativeTraitValue{};
         Scheduler* scheduler{};
-        robin_hood::unordered_map<std::string, int >* actionNames{}; //!< Unordered_map to the parent nodes */
-        robin_hood::unordered_map<std::string, int >* speciesNames{}; //!< Unordered_map to the parent nodes */
-        const vector<std::string>* actionIDs{};
         boost::shared_ptr<vector<int>> numSpecies{};
 
-        int scheduleType{};
+        vector<vector<float>>* actionNoncumulativeTraitValue{};
+        vector<std::string>* actionIDs{};
+        vector<vector<float>>* goalTraitDistribution{};
+
         float scheduleTime{};
         float goalDistance{};
         bool isGoal{};
 
         vector<short> allocation;
+
     };
 
 }
