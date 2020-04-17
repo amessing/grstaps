@@ -40,35 +40,45 @@ namespace grstaps
         virtual void decode(const StateAssignment& state) override;
 
     private:
-        std::array<unsigned int, 11> m_location_type_start_indicies;
-        std::array<unsigned int, 11> m_function_type_start_indicies; //!< Contains the starting index for each
-        //!< type of function/predicate in a survivor state
+        /**
+         * \returns The location type for the given index
+         */
+        std::string locationIndexToString(int16_t index);
 
-        // Indicies in 'm_location_type_start_indicies'
-        const unsigned int k_medicine_start = 0;
-        const unsigned int k_small_crate_start = 1;
-        const unsigned int k_large_crate_start = 2;
-        const unsigned int k_water_start = 3;
-        const unsigned int k_construction_kit_start = 4;
-        const unsigned int k_pickup = 5;
-        const unsigned int k_hospital = 6;
-        const unsigned int k_survivor = 7;
-        const unsigned int k_fire = 8;
-        const unsigned int k_damaged_building = 9;
-        const unsigned int k_total_locations = 10;
+        // Locations
+        unsigned int m_medicine_start; //!< Index of the starting location for the medicine
+        unsigned int m_water_start; //!< Index of the starting location of the water containers
+        unsigned int m_small_crate_start; //!< Index of the starting location for the small crates
+        unsigned int m_large_crate_start; //!< Index of the starting location for the large crates
+        unsigned int m_construction_kit_start; //!< Index of the starting location for the construction kits
+        unsigned int m_pickup; //!< Index of the pickup location
+        unsigned int m_first_hospital; //!< Index of the first hospital location
+        unsigned int m_num_hospitals; //!< Number of hospitals
+        unsigned int m_first_survivor_loc; //!< Index of the first survivor location
+        unsigned int m_num_survivors; //!< Number of survivors
+        unsigned int m_first_fire_loc; //!< Index of the first fire location
+        unsigned int m_num_fires; //!< Number of fires
+        unsigned int m_first_damaged_building_loc; //!< Index of the first damaged building location
+        unsigned int m_num_damaged_buildings; //!< Number of damaged buildings
+        unsigned int m_total_locations; //!< The total number of locations
 
-        // Indicies in 'm_function_type_start_indicies'
-        const unsigned int k_location = 0;
-        const unsigned int k_contains = 1;
-        const unsigned int k_in = 2;
-        const unsigned int k_uses = 3;
-        const unsigned int k_used = 4; // Maybe should change one of these?
-        const unsigned int k_healed = 5;
-        const unsigned int k_on_fire = 6;
-        const unsigned int k_rubble_cleared = 7;
-        const unsigned int k_repaired = 8;
-        const unsigned int k_mutex = 9;
-        const unsigned int k_total = 10;
+        // Number of objects
+        unsigned int m_num_medicine; //!< Number of medicine
+        unsigned int m_num_small_crate; //!< Number of small crates
+        unsigned int m_num_large_crate; //!< Number of large crates
+        unsigned int m_num_small_water_container; //!< Number of small water containers
+        unsigned int m_num_large_water_container; //!< Number of large water containers
+        unsigned int m_num_damaged_buildings_on_fire; //!< Number of damaged buildings that start on fire
+
+        // Predicates/Functions
+        unsigned int m_first_empty; //!< Index of the first empty predicate in a state
+        unsigned int m_first_contains; //!< Index of the first contains function in a state
+        unsigned int m_first_in; //!< Index of the first in function in a state
+        unsigned int m_first_uses; //!< Index of the first uses function in a state
+        unsigned int m_first_on_fire; //!< Index of the first onFire predicate in a state
+        unsigned int m_first_rubble_cleared; //!< Index of the first rubbleCleared predicate in a state
+        unsigned int m_first_repaired; //!< Index of the first repaired predicate in a state
+        unsigned int m_first_healed; //!< Index of the first healed predicate in a state
 
         friend class SurvivorProblem;
     };

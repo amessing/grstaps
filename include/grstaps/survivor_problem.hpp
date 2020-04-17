@@ -33,6 +33,7 @@ namespace grstaps
      */
     class SurvivorProblem : public Problem<SurvivorStateDecoder>
     {
+        using Parent = Problem<SurvivorStateDecoder>;
         using Coordinates = std::pair<unsigned int, unsigned int>;
     public:
         /**
@@ -44,9 +45,8 @@ namespace grstaps
          * Initializes the problem
          *
          * \param config The configuration
-         * \param state_decoder Utility for decoding a state
          */
-        virtual void init(const nlohmann::json& config, SurvivorStateDecoder& state_decoder) override ;
+        virtual void init(const nlohmann::json& config) override ;
 
     private:
         /**
@@ -58,23 +58,27 @@ namespace grstaps
          * Creates all the important locations
          *
          * \param config Configuration for the problem
-         * \param vars Important information to be passed between internal functions
          */
-        void createLocations(const nlohmann::json& config, SurvivorStateDecoder& state_decoder);
+        void createLocations(const nlohmann::json& config);
 
         /**
          * Creates the initial state
          *
          * \param config Configuration for the problem
-         * \param vars Important information to be passed between internal functions
          */
-        void createInitialState(const nlohmann::json& config, SurvivorStateDecoder& state_decoder);
+        void createInitialState(const nlohmann::json& config);
+
+        /**
+         * Add the initial location for each object to the state
+         *
+         * \param config Configuration for the problem
+         */
+        void addInitialLocationsToInitialState(const nlohmann::json& config);
 
         /**
          * Creates the goal
          *
          * \param config Configuration for the problem
-         * \param vars Important information to be passed between internal functions
          */
         void createGoal(const nlohmann::json& config, SurvivorStateDecoder& state_decoder);
 
@@ -82,9 +86,8 @@ namespace grstaps
          * Creates the total list of grounded actions
          *
          * \param config Configuration for the problem
-         * \param vars Important information to be passed between internal functions
          */
-        void createActions(const nlohmann::json& config, SurvivorStateDecoder& state_decoder);
+        void createActions(const nlohmann::json& config);
 
         /**
          * Generates a random number

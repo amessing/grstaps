@@ -49,14 +49,6 @@ namespace grstaps
         const char * const k_survivor_location = "survivor";
         const char * const k_fire_location = "fire";
         const char * const k_damaged_building_location = "damaged_building";
-
-        // Location Indices
-        const unsigned int k_medicine_start_location_index = 0;
-        const unsigned int k_water_start_location_index = 1;
-        const unsigned int k_small_crate_location_index = 2;
-        const unsigned int k_large_crate_location_index = 3;
-        const unsigned int k_pickup_location_index = 4;
-
     }
 }
 

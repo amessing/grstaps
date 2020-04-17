@@ -15,7 +15,6 @@
  * along with grstaps; if not, write to the Free Software Foundation,
  * Inc., #59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
-#if 0
 #include "grstaps/survivor_problem.hpp"
 
 // local
@@ -28,7 +27,7 @@ namespace grstaps
     std::unique_ptr<std::random_device> SurvivorProblem::s_rd = nullptr;
     std::unique_ptr<std::mt19937> SurvivorProblem::s_generator = nullptr;
 
-    void SurvivorProblem::init(const nlohmann::json& config, SurvivorStateDecoder& state_decoder)
+    void SurvivorProblem::init(const nlohmann::json& config)
     {
         Logger::debug("Building a survivor problem");
 
@@ -46,9 +45,9 @@ namespace grstaps
         buildMap(config);
 
         nlohmann::json vars;
-        //createLocations(config, vars);
-        //createInitialState(config, vars);
-        //createGoal(config, vars);
+        createLocations(config);
+        createInitialState(config);
+        createGoal(config);
         //createActions(config, vars);
 
     }
@@ -62,232 +61,334 @@ namespace grstaps
         // Add obstacles (premade shapes)
     }
 
-    void SurvivorProblem::createLocations(const nlohmann::json& config, SurvivorStateDecoder& state_decoder)
+    void SurvivorProblem::createLocations(const nlohmann::json& config)
     {
         // Add medicine start location
         std::pair<unsigned int, unsigned int> xy = createMedicineStartLocation();
-        state_decoder.m_location_type_start_indicies[state_decoder.k_medicine_start] = m_locations.size();
+        m_state_decoder->m_medicine_start = m_locations.size();
         m_locations.emplace_back(constants::k_medicine_location, xy.first, xy.second);
-
 
         // Add water start location
         xy = createWaterStartLocation();
-        state_decoder.m_location_type_start_indicies[state_decoder.k_water_start] = m_locations.size();
+        m_state_decoder->m_water_start = m_locations.size();
         m_locations.emplace_back(constants::k_water_location, xy.first, xy.second);
 
         // Add small crate packing location
         xy = createSmallCrateStartLocation();
-        state_decoder.m_location_type_start_indicies[state_decoder.k_small_crate_start] = m_locations.size();
+        m_state_decoder->m_small_crate_start = m_locations.size();
         m_locations.emplace_back(constants::k_small_crate_location, xy.first, xy.second);
 
         // Add large crate packing location
         xy = createLargeCrateStartLocation();
-        state_decoder.m_location_type_start_indicies[state_decoder.k_large_crate_start] = m_locations.size();
+        m_state_decoder->m_large_crate_start = m_locations.size();
         m_locations.emplace_back(constants::k_large_crate_location, xy.first, xy.second);
 
         // Add construction kit start location
         xy = createConstructionKitStartLocation();
-        state_decoder.m_location_type_start_indicies[state_decoder.k_construction_kit_start] = m_locations.size();
+        m_state_decoder->m_construction_kit_start = m_locations.size();
         m_locations.emplace_back(constants::k_construction_kit_location, xy.first, xy.second);
 
         // Add pickup location
         xy = createPickupLocation();
-        state_decoder.m_location_type_start_indicies[state_decoder.k_pickup] = m_locations.size();
+        m_state_decoder->m_pickup = m_locations.size();
         m_locations.emplace_back(constants::k_pickup_location, xy.first, xy.second);
 
         // Add hospital locations
         {
-            unsigned int num_hospitals = randomUnsignedInt(config[constants::k_min_num_hospitals],
-                                                           config[constants::k_max_num_hospitals]);
-            state_decoder.m_location_type_start_indicies[state_decoder.k_hospital] = m_locations.size();
-            Logger::debug("Adding {0:d} hospitals", num_hospitals);
-            for(unsigned int i = 0; i < num_hospitals; ++i)
+            m_state_decoder->m_num_hospitals = randomUnsignedInt(config[constants::k_min_num_hospitals],
+                                                                 config[constants::k_max_num_hospitals]);
+            m_state_decoder->m_first_hospital = m_locations.size();
+            Logger::debug("Adding {0:d} hospitals", m_state_decoder->m_num_hospitals);
+            for(uint16_t i = 0; i < m_state_decoder->m_num_hospitals; ++i)
             {
                 xy = createLocationOutsideWarehouse();
-                m_locations.emplace_back(fmt::format("{0:s}_{1:d}", constants::k_hospital_location, i + 1), xy.first, xy.second);
+                m_locations.emplace_back(fmt::format("{0:s}_{1:d}", constants::k_hospital_location, i + 1),
+                                         xy.first,
+                                         xy.second);
             }
         }
 
         // Add survivor locations
         {
-            unsigned int num_survivors = randomUnsignedInt(config[constants::k_min_num_survivors],
-                                                           config[constants::k_max_num_survivors]);
-            state_decoder.m_location_type_start_indicies[state_decoder.k_survivor] = m_locations.size();
-            Logger::debug("Adding {0:d} survivors", num_survivors);
-            for(unsigned int i = 0; i < num_survivors; ++i)
+            m_state_decoder->m_num_survivors = randomUnsignedInt(config[constants::k_min_num_survivors],
+                                                                 config[constants::k_max_num_survivors]);
+            m_state_decoder->m_first_survivor_loc = m_locations.size();
+            Logger::debug("Adding {0:d} survivors", m_state_decoder->m_num_survivors);
+            for(unsigned int i = 0; i < m_state_decoder->m_num_survivors; ++i)
             {
                 xy = createLocationOutsideWarehouse();
-                m_locations.emplace_back(fmt::format("{0:s}_{1:d}",constants::k_survivor_location, i + 1), xy.first, xy.second);
+                m_locations.emplace_back(fmt::format("{0:s}_{1:d}", constants::k_survivor_location, i + 1),
+                                         xy.first,
+                                         xy.second);
             }
         }
 
         // Add fire locations
         {
-            unsigned int num_fires = randomUnsignedInt(config[constants::k_min_num_fire],
+            m_state_decoder->m_num_fires = randomUnsignedInt(config[constants::k_min_num_fire],
                                                        config[constants::k_max_num_fire]);
-            state_decoder.m_location_type_start_indicies[state_decoder.k_fire] = m_locations.size();
-            Logger::debug("Adding {0:d} fires", num_fires);
-            for(unsigned int i = 0; i < num_fires; ++i)
+            m_state_decoder->m_first_fire_loc = m_locations.size();
+            Logger::debug("Adding {0:d} fires", m_state_decoder->m_num_fires);
+            for(unsigned int i = 0; i < m_state_decoder->m_num_fires; ++i)
             {
                 xy = createLocationOutsideWarehouse();
-                m_locations.emplace_back(fmt::format("{0:s}_{1:d}", constants::k_fire_location, i + 1), xy.first, xy.second);
+                m_locations.emplace_back(fmt::format("{0:s}_{1:d}", constants::k_fire_location, i + 1),
+                                         xy.first,
+                                         xy.second);
             }
         }
 
         // Add damaged building locations
         {
-            unsigned int num_damaged_buildings = randomUnsignedInt(config[constants::k_min_num_damaged_buildings],
+            m_state_decoder->m_num_damaged_buildings = randomUnsignedInt(config[constants::k_min_num_damaged_buildings],
                                                                    config[constants::k_max_num_damaged_buildings]);
-            state_decoder.m_location_type_start_indicies[state_decoder.k_damaged_building] = m_locations.size();
-            Logger::debug("Adding {0:d} damaged buildings", num_damaged_buildings);
-            for(unsigned int i = 0; i < num_damaged_buildings; ++i)
+            m_state_decoder->m_first_damaged_building_loc = m_locations.size();
+            Logger::debug("Adding {0:d} damaged buildings", m_state_decoder->m_num_damaged_buildings);
+            for(unsigned int i = 0; i < m_state_decoder->m_num_damaged_buildings; ++i)
             {
                 xy = createLocationOutsideWarehouse();
-                m_locations.emplace_back(fmt::format("{0:s}_{1:d}", constants::k_damaged_building_location, i + 1), xy.first, xy.second);
+                m_locations.emplace_back(fmt::format("{0:s}_{1:d}", constants::k_damaged_building_location, i + 1),
+                                         xy.first,
+                                         xy.second);
             }
         }
 
-        state_decoder.m_location_type_start_indicies[state_decoder.k_total_locations] = m_locations.size();
+        m_state_decoder->m_total_locations = m_locations.size();
     }
 
-    void SurvivorProblem::createInitialState(const nlohmann::json& config,
-                                             SurvivorStateDecoder& state_decoder)
+    void SurvivorProblem::createInitialState(const nlohmann::json& config)
     {
         Logger::debug("Creating initial state");
+        addInitialLocationsToInitialState(config);
+        unsigned int state_variable = m_state_decoder->m_total_locations;
+
+        // Record empty state assignment for each medicine
+        m_state_decoder->m_first_empty = m_initial_state.size();
+        for(unsigned int i = 0; i < m_state_decoder->m_num_medicine; ++i, ++state_variable)
+        {
+            Logger::debug("({0:d}) Medicine {1:d} empty - {2:d}", state_variable, i + 1, 0);
+            m_initial_state.emplace_back(state_variable, 0);
+        }
+
+        // Record contains state assignment for each crate
+        m_state_decoder->m_first_contains = m_initial_state.size();
+        for(unsigned int i = 0; i < m_state_decoder->m_num_small_crate; ++i, ++state_variable)
+        {
+            Logger::debug("({0:d}) Small Crate {1:d} contains - {2:d}", state_variable, i + 1, 0);
+            m_initial_state.emplace_back(state_variable, 0);
+        }
+        for(unsigned int i = 0; i < m_state_decoder->m_num_large_crate; ++i, ++state_variable)
+        {
+            Logger::debug("({0:d}) Large Crate {1:d} contains - {2:d}", state_variable, i + 1, 0);
+            m_initial_state.emplace_back(state_variable, 0);
+        }
+
+        // Record in state assignment for each medicine
+        m_state_decoder->m_first_in = m_initial_state.size();
+        for(unsigned int i = 0; i < m_state_decoder->m_num_medicine; ++i, ++state_variable)
+        {
+            Logger::debug("({0:d}) Medicine {1:d} in - {2:d}", state_variable, i + 1, 0);
+            m_initial_state.emplace_back(state_variable, 0);
+        }
+
+        // Record uses state assignment for each water container
+        m_state_decoder->m_first_uses = m_initial_state.size();
+        for(unsigned int i = 0; i < m_state_decoder->m_num_small_water_container; ++i, ++state_variable)
+        {
+            Logger::debug("({0:d}) Small Water Container {1:d} uses - {2:d}", state_variable, i + 1, 0);
+            m_initial_state.emplace_back(state_variable, 0);
+        }
+        for(unsigned int i = 0; i < m_state_decoder->m_num_large_water_container; ++i, ++state_variable)
+        {
+            Logger::debug("({0:d}) Large Water Container {1:d} uses - {2:d}", state_variable, i + 1, 0);
+            m_initial_state.emplace_back(state_variable, 0);
+        }
+
+        // Record onFire status for each fire and damaged building
+        m_state_decoder->m_first_on_fire = m_initial_state.size();
+        for(unsigned int i = 0; i < m_state_decoder->m_num_fires; ++i, ++state_variable)
+        {
+            Logger::debug("({0:d}) Fire {1:d} onFire - {2:d}", state_variable, i + 1, 0);
+            m_initial_state.emplace_back(state_variable, 1);
+        }
+        for(unsigned int i = 0; i < m_state_decoder->m_num_damaged_buildings; ++i, ++state_variable)
+        {
+            Logger::debug("({0:d}) Damaged Building {1:d} onFire - {2:d}", state_variable, i + 1, 0);
+            m_initial_state.emplace_back(state_variable, i < m_state_decoder->m_num_damaged_buildings_on_fire ? 1 : 0);
+        }
+
+        // Record rubbleCleared status for each damaged building
+        m_state_decoder->m_first_rubble_cleared = m_initial_state.size();
+        for(unsigned int i = 0; i < m_state_decoder->m_num_damaged_buildings; ++i, ++state_variable)
+        {
+            Logger::debug("({0:d}) Damaged Building {1:d} rubbleCleared - {2:d}", state_variable, i + 1, 0);
+            m_initial_state.emplace_back(state_variable, 0);
+        }
+
+        // Record repaired status for each damaged building
+        m_state_decoder->m_first_repaired = m_initial_state.size();
+        for(unsigned int i = 0; i < m_state_decoder->m_num_damaged_buildings; ++i, ++state_variable)
+        {
+            Logger::debug("({0:d}) Damaged Building {1:d} repaired - {2:d}", state_variable, i + 1, 0);
+            m_initial_state.emplace_back(state_variable, 0);
+        }
+
+        // Record healed status for each survivor
+        m_state_decoder->m_first_healed = m_initial_state.size();
+        for(unsigned int i = 0; i < m_state_decoder->m_num_survivors; ++i, ++state_variable)
+        {
+            Logger::debug("({0:d}) Survivor {1:d} healed - {2:d}", state_variable, i + 1, 0);
+            m_initial_state.emplace_back(state_variable, 0);
+        }
+    }
+
+    void SurvivorProblem::addInitialLocationsToInitialState(const nlohmann::json& config)
+    {
+        unsigned int num_survivors = m_state_decoder->m_num_survivors;
         unsigned int state_variable = 0;
-        unsigned int num_survivors = state_decoder.m_location_type_start_indicies[state_decoder.k_fire] - state_decoder.m_location_type_start_indicies[state_decoder.k_survivor];
 
         // Record initial locations of all objects
         Logger::debug("Recording initial locations");
-        //state_decoder.
         //// Record locations for each medicine vial
         unsigned int num_medicine;
         {
             num_medicine = randomUnsignedInt(num_survivors,
-                                             num_survivors +
-                                             config[constants::k_extra_medicine].get<unsigned int>());
+                                             num_survivors + config[constants::k_extra_medicine].get<unsigned int>());
             Logger::debug("Adding {0:d} medicine", num_medicine);
             for(unsigned int i = 0; i < num_medicine; ++i, ++state_variable)
             {
                 Logger::debug("({0:d}) Medicine {1:d} - {2:s}",
                               state_variable,
                               i + 1,
-                              m_locations[constants::k_medicine_start_location_index].type());
-                m_initial_state.emplace_back(state_variable, constants::k_medicine_start_location_index);
+                              m_locations[m_state_decoder->m_medicine_start].type());
+                m_initial_state.emplace_back(state_variable, m_state_decoder->m_medicine_start);
             }
         }
 
         //// Record locations for each crate
         float crate_ratio = randomFloat();
         {
-            unsigned int num_small_crate =
-                static_cast<unsigned int>(num_medicine * crate_ratio / 5.0) + 1 + randomUnsignedInt(0, config[constants::k_extra_small_crates]);
-            Logger::debug("Adding {0:d} small crates", num_small_crate);
-            for(unsigned int i = 0; i < num_small_crate; ++i, ++state_variable)
+            m_state_decoder->m_num_small_crate = static_cast<unsigned int>(num_medicine * crate_ratio / 5.0) + 1 +
+                                           randomUnsignedInt(0, config[constants::k_extra_small_crates]);
+            Logger::debug("Adding {0:d} small crates", m_state_decoder->m_num_small_crate);
+            for(unsigned int i = 0; i < m_state_decoder->m_num_small_crate; ++i, ++state_variable)
             {
                 Logger::debug("({0:d}) Small Crate {1:d} - {2:s}",
                               state_variable,
                               i + 1,
-                              m_locations[constants::k_small_crate_location_index].type());
-                m_initial_state.emplace_back(state_variable, constants::k_small_crate_location_index);
+                              m_locations[m_state_decoder->m_small_crate_start].type());
+                m_initial_state.emplace_back(state_variable, m_state_decoder->m_small_crate_start);
             }
         }
 
         {
-            unsigned int num_large_crate = static_cast<unsigned int>(num_medicine * (1.0 - crate_ratio) / 10.0) + 1 +
+            m_state_decoder->m_num_large_crate = static_cast<unsigned int>(num_medicine * (1.0 - crate_ratio) / 10.0) + 1 +
                                            randomUnsignedInt(0, config[constants::k_extra_large_crates]);
-            Logger::debug("Adding {0:d} large crates", num_large_crate);
-            for(unsigned int i = 0; i < num_large_crate; ++i, ++state_variable)
+            Logger::debug("Adding {0:d} large crates", m_state_decoder->m_num_large_crate );
+            for(unsigned int i = 0; i < m_state_decoder->m_num_large_crate ; ++i, ++state_variable)
             {
                 Logger::debug("({0:d}) Small Crate {1:d} - {2:s}",
                               state_variable,
                               i + 1,
-                              m_locations[constants::k_large_crate_location_index].type());
-                m_initial_state.emplace_back(state_variable, constants::k_large_crate_location_index);
+                              m_locations[m_state_decoder->m_large_crate_start].type());
+                m_initial_state.emplace_back(state_variable, m_state_decoder->m_large_crate_start);
             }
         }
 
         //// Record locations for each water container
         float damaged_building_fire_ratio = randomFloat();
-        unsigned int num_damaged_buildings = vars[constants::k_num_damaged_buildings];
+        unsigned int num_damaged_buildings = m_state_decoder->m_num_damaged_buildings
         unsigned int num_damaged_building_fire = damaged_building_fire_ratio * num_damaged_buildings;
-        Logger::debug("{0:d} of {1:d} the damaged buildings are on FIRE", num_damaged_building_fire, num_damaged_buildings);
+        Logger::debug("{0:d} of {1:d} the damaged buildings are on FIRE",
+                      num_damaged_building_fire,
+                      num_damaged_buildings);
         {
-            unsigned int num_total_fire = vars[constants::k_num_fires].get<unsigned int>() + num_damaged_building_fire;
+            unsigned int num_total_fire = m_state_decoder->m_num_fires + num_damaged_building_fire;
             float small_water_ratio = randomFloat();
-            unsigned int num_small_water = static_cast<unsigned int>(num_total_fire * small_water_ratio) + 1 + randomUnsignedInt(0, config[constants::k_extra_small_water_containers]);
-            Logger::debug("Adding {0:d} small water containers", num_small_water);
-            for(unsigned int i = 0; i < num_small_water; ++i, ++state_variable)
+            m_state_decoder->m_num_small_water_container = static_cast<unsigned int>(num_total_fire * small_water_ratio) + 1 +
+                                           randomUnsignedInt(0, config[constants::k_extra_small_water_containers]);
+            Logger::debug("Adding {0:d} small water containers", m_state_decoder->m_num_small_water_container);
+            for(unsigned int i = 0; i < m_state_decoder->m_num_small_water_container; ++i, ++state_variable)
             {
-                Logger::debug("({0:d}) Small Water {1:d} - {2:s}", state_variable,
+                Logger::debug("({0:d}) Small Water {1:d} - {2:s}",
+                              state_variable,
                               i + 1,
-                              m_locations[constants::k_water_start_location_index].type());
-                m_initial_state.emplace_back(state_variable, constants::k_water_start_location_index);
+                              m_locations[m_state_decoder->m_water_start].type());
+                m_initial_state.emplace_back(state_variable, m_state_decoder->m_water_start);
             }
 
-            unsigned int num_large_water = static_cast<unsigned int>(num_total_fire * (1.0 - small_water_ratio) / 2.0) + 1 + randomUnsignedInt(0, config[constants::k_extra_large_water_containers]);
-            Logger::debug("Adding {0:d} large water containers", num_large_water);
-            for(unsigned int i = 0; i < num_large_water; ++i, ++state_variable)
+            m_state_decoder->m_num_large_water_container =
+                static_cast<unsigned int>(num_total_fire * (1.0 - small_water_ratio) / 2.0) + 1 +
+                randomUnsignedInt(0, config[constants::k_extra_large_water_containers]);
+            Logger::debug("Adding {0:d} large water containers", m_state_decoder->m_num_large_water_container);
+            for(unsigned int i = 0; i < m_state_decoder->m_num_large_water_container; ++i, ++state_variable)
             {
-                Logger::debug("({0:d}) Large Water {1:d} - {2:s}", state_variable,
+                Logger::debug("({0:d}) Large Water {1:d} - {2:s}",
+                              state_variable,
                               i + 1,
-                              m_locations[constants::k_water_start_location_index].type());
-                m_initial_state.emplace_back(state_variable, constants::k_water_start_location_index);
+                              m_locations[m_state_decoder->m_water_start].type());
+                m_initial_state.emplace_back(state_variable, m_state_decoder->m_water_start);
             }
         }
 
         //// Record locations for each survivor
-        unsigned int first_survivor_location = vars[constants::k_first_survivor_location_index];
+        unsigned int first_survivor_location = m_state_decoder->m_first_survivor_loc;
         for(unsigned int i = 0; i < num_survivors; ++i, ++state_variable)
         {
-            Logger::debug("({0:d}) Survivor {1:d} - {2:s}", state_variable,
+            Logger::debug("({0:d}) Survivor {1:d} - {2:s}",
+                          state_variable,
                           i + 1,
                           m_locations[first_survivor_location + i].type());
             m_initial_state.emplace_back(state_variable, first_survivor_location + i);
         }
 
         //// Record locations for each construction kit
-
-
-        // Record used state assignment for each medicine
-        vars[constants::k_used_first_index] = m_initial_state.size();
-        for(unsigned int i = 0; i < num_medicine; ++i, ++state_variable)
+        for(unsigned int i = 0; i < num_survivors; ++i, ++state_variable)
         {
-            Logger::debug("({0:d}) Medicine {1:d} used - {2:d}", state_variable,
+            Logger::debug("({0:d}) Survivor {1:d} - {2:s}",
+                          state_variable,
                           i + 1,
-                          0);
-            m_initial_state.emplace_back(state_variable, 0);
+                          m_locations[m_state_decoder->m_construction_kit_start].type());
+            m_initial_state.emplace_back(state_variable, m_state_decoder->m_construction_kit_start);
+        }
+    }
+
+    void SurvivorProblem::createGoal(const nlohmann::json& config)
+    {
+        Logger::debug("Creating goal");
+
+        // Each survivor healed
+        for(unsigned int i = 0; i < m_state_decoder->m_num_survivors; ++i)
+        {
+            Logger::debug("({0:d}) Survivor {1:d} - {2:d}",
+                          m_state_decoder->m_first_healed + i,
+                          i + 1,
+                          1);
+            m_goal.emplace_back(m_state_decoder->m_first_healed + i, 1);
         }
 
-        // Record contains state assignment for each crate
-        vars[constants::k_contains_first_index] = m_initial_state.size();
+        // Each fire extinguished
+        for(unsigned int i = 0; i < m_state_decoder->m_num_fires; ++i)
+        {
+            Logger::debug("({0:d}) Fire {1:d} onFire - {2:d}",
+                          m_state_decoder->m_first_on_fire + i,
+                          i + 1,
+                          1);
+            m_goal.emplace_back(m_state_decoder->m_first_on_fire + i, 0);
+        }
 
-
-        // Record in state assignment for each medicine
-        vars[constants::k_in_first_index] = m_initial_state.size();
-
-        // Record uses state assignment for each water container
-        vars[constants::k_uses_first_index] = m_initial_state.size();
-
-        // Record onFire status for each fire and damaged building
-        vars[constants::k_on_fire_first_index] = m_initial_state.size();
-
-        // Record rubbleCleared status for each damaged building
-        vars[constants::k_rubbed_cleared_first_index] = m_initial_state.size();
-
-        // Record repaired status for each damaged building
-        vars[constants::k_repaired_first_index] = m_initial_state.size();
-
-        // Record healed status for each survivor
-        vars[constants::k_healed_first_index] = m_initial_state.size();
+        // Each damaged building repaired
+        for(unsigned int i = 0; i < m_state_decoder->m_num_damaged_buildings; ++i)
+        {
+            Logger::debug("({0:d}) Damaged Building {1:d} repaired - {2:d}",
+                          m_state_decoder->m_first_on_fire + i,
+                          i + 1,
+                          1);
+            m_goal.emplace_back(m_state_decoder->m_first_repaired + i, 1);
+        }
     }
 
-    void SurvivorProblem::createGoal(const nlohmann::json& config, nlohmann::json& vars)
-    {
-        // todo
-    }
-
-    void SurvivorProblem::createActions(const nlohmann::json& config, nlohmann::json& vars)
+    void SurvivorProblem::createActions(const nlohmann::json& config)
     {
         // todo
     }
@@ -345,4 +446,3 @@ namespace grstaps
         return std::make_pair<float, float>(0.0f, 0.0f);
     }
 }
-#endif

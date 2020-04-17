@@ -35,11 +35,15 @@
 namespace grstaps
 {
     /**
-     * Creates a MA-CTAMP problem
+     * Creates a HMA-CTAMP problem
+     *
+     * todo: type trait magic
      */
     template <typename StateDecoder>
     class Problem
     {
+    protected:
+        using StateDecoderType = StateDecoder;
     public:
         /**
          * Default Constructor
@@ -50,20 +54,8 @@ namespace grstaps
          * Initializes this problem
          *
          * \param config The configuration for generating a problem
-         * \param state_decoder Utility for decoding a state (Also used to generate a problem)
          */
-        virtual void init(const nlohmann::json& config, StateDecoder& state_decoder) = 0;
-
-        /**
-         * Initializes this problem
-         *
-         * \param config The configuration for generating a problem
-         */
-        void init(const nlohmann::json& config)
-        {
-            StateDecoder state_decoder;
-            init(config, state_decoder);
-        }
+        void init(const nlohmann::json& config) = 0;
 
         /**
          * Writes the problem config
@@ -105,9 +97,14 @@ namespace grstaps
         /**
          * \returns The goal of the problem
          */
-         const StateAssignment& goal() const
+        const StateAssignment& goal() const
         {
              return m_goal;
+        }
+
+        const StateDecoder& stateDecoder() const
+        {
+            return *m_state_decoder;
         }
 
     protected:
@@ -117,6 +114,8 @@ namespace grstaps
 
         StateAssignment m_initial_state; //!< The initial state of the problem
         StateAssignment m_goal; //!< The state assignment representing the goal
+
+        std::unique_ptr<StateDecoder> m_state_decoder;
     };
 }
 
