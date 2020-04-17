@@ -31,7 +31,7 @@ namespace grstaps
     class Problem;
     class Scheduler;
     class Solution;
-    class TaskAllocator;
+    class TaskAllocation;
     class TaskPlanner;
 
     /**
@@ -48,7 +48,7 @@ namespace grstaps
         Solver(std::shared_ptr<Problem> problem,
             std::shared_ptr<MotionPlanner> motion_planner,
             std::shared_ptr<Scheduler> scheduler,
-            std::shared_ptr<TaskAllocator> task_allocator,
+            std::shared_ptr<TaskAllocation> task_allocator,
             std::shared_ptr<TaskPlanner> task_planner);
 
         /**
@@ -64,7 +64,7 @@ namespace grstaps
         std::shared_ptr<Problem> m_problem;
         std::shared_ptr<MotionPlanner> m_motion_planner;
         std::shared_ptr<Scheduler> m_scheduler;
-        std::shared_ptr<TaskAllocator> m_task_allocator;
+        std::shared_ptr<TaskAllocation> m_task_allocation;
         std::shared_ptr<TaskPlanner> m_task_planner;
     };
 }

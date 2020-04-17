@@ -15,24 +15,65 @@
  * along with GRSTAPS; if not, write to the Free Software Foundation,
  * Inc., #59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
-//#include "grstaps/action.hpp"
-//
-//namespace grstaps
-//{
-//    unsigned int Action::s_next_action_id = 0;
-//
-//    Action::Action(unsigned int starting_location)
-//        : m_id(s_next_action_id++)
-//        , m_starting_location(starting_location)
-//    {}
-//
-//    unsigned int Action::id() const
-//    {
-//        return m_id;
-//    }
-//
-//    unsigned int Action::startingLocation() const
-//    {
-//        return m_starting_location;
-//    }
-//}  // namespace grstaps
+#include "grstaps/action.hpp"
+
+namespace grstaps
+{
+    unsigned int Action::s_next_action_id = 0;
+
+    Action::Action(unsigned int starting_location)
+        : m_id(s_next_action_id++)
+        , m_starting_location(starting_location)
+    {}
+
+    unsigned int Action::id() const
+    {
+        return m_id;
+    }
+
+    float Action::duration() const
+    {
+        return m_duration;
+    }
+
+    const StateAssignment& Action::startConditions() const
+    {
+        return m_start_conditions;
+    }
+
+    const StateAssignment& Action::overAllConditions() const
+    {
+        return m_over_all_conditions;
+    }
+
+    const StateAssignment& Action::endConditions() const
+    {
+        return m_end_conditions;
+    }
+
+    const StateAssignment& Action::startEffects() const
+    {
+        return m_start_effects;
+    }
+
+    const StateAssignment& Action::endEffects() const
+    {
+        return m_end_effects;
+    }
+
+    bool Action::isGoal() const
+    {
+        return m_is_goal;
+    }
+
+    const std::vector<float>& Action::requirements() const
+    {
+        return m_requirements;
+    }
+
+    unsigned int Action::startingLocation() const
+    {
+        return m_starting_location;
+    }
+
+}  // namespace grstaps

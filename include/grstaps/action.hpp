@@ -27,8 +27,6 @@
 
 namespace grstaps
 {
-    class Fluent;
-
     /**
      * Container for all aspects of an action that any of the subsystems need
      */
@@ -78,10 +76,14 @@ namespace grstaps
         const StateAssignment& endEffects() const;
 
         /**
-         * \returns The required traits for this action
-         *
-         * \todo
+         * \returns Whether this action is the fictitious action for the goal
          */
+        bool isGoal() const;
+
+        /**
+         * \returns The required traits for this action
+         */
+         const std::vector<float>& requirements() const;
 
         /**
          * \returns The id of the location that this action starts at
@@ -105,13 +107,15 @@ namespace grstaps
         StateAssignment m_start_effects; //!< A conjunction of the effects that happen at the start of this action
         StateAssignment m_end_effects; //!< A conjunction of the effects that happen at the end of this action
 
+        bool m_is_goal; //!< Whether this action is the fictitious action for the goal
+
         // For the task allocator
-        // traits/trait mapping
+        std::vector<float> m_requirements;
 
         static unsigned int s_next_action_id;  //!< The id for the next action that is created
 
         // Allows the Problem class to easily build an action
-        friend class Problem;
+        //friend class Problem;
     };
 }  // namespace grstaps
 

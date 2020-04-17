@@ -16,7 +16,7 @@ include(FileOutputs)
 
 option(BUILD_DOC "Build Documentation" OFF)
 option(BUILD_TESTS "Build Unit Tests" ON)
-option(BUILD_EXE "Build Executable" OFF)
+option(BUILD_EXE "Build Executable" ON)
 
 # Add external libraries
 add_subdirectory(lib)
@@ -80,5 +80,5 @@ if(BUILD_TESTS)
 
     add_executable(${PROJECT_NAME}_test ${${PROJECT_NAME}_TEST_SOURCES} ${testDataOutputs})
     set_target_properties(${PROJECT_NAME}_test PROPERTIES CXX_STANDARD 17 CXX_STANDARD_REQUIRED YES)
-    target_link_libraries(${PROJECT_NAME}_test PRIVATE _${PROJECT_NAME} box2d gtest gmock)
+    target_link_libraries(${PROJECT_NAME}_test PRIVATE _${PROJECT_NAME} box2d nlohmann_json gtest gmock)
 endif(BUILD_TESTS)
