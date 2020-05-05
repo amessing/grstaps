@@ -16,17 +16,13 @@
  * Inc., #59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-#include <iostream>
-#include <stdexcept>
-#include <cstdlib>
-#include <utility>
-#include "grstaps/Graph/Graph.h"
-#include "grstaps/Scheduling/TAScheduleTime.h"
+#ifndef GRSTAPS_CHECK_ALLOCATABLE_H
+#define GRSTAPS_CHECK_ALLOCATABLE_H
 
-namespace grstaps {
+#include <vector>
+#include <boost/shared_ptr.hpp>
+using std::vector;
 
-    float TAScheduleTime::operator()(Graph<TaskAllocation> &graph, TaskAllocation &parentNode, TaskAllocation &newNode){
-        return newNode.getScheduleTime();
-    }//
+bool isAllocatable(vector<vector<float>> goalDistribution, vector<vector<float>> speciesDistribution, vector<vector<float>> nonCumTraitCutoff, boost::shared_ptr<vector<int>> numSpec);
 
-} //grstaps
+#endif  // GRSTAPS_CHECK_ALLOCATABLE_H

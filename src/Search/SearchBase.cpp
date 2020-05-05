@@ -39,12 +39,6 @@ namespace grstaps {
 
     }
 
-    template<> SearchBase<TaskAllocation>::SearchBase(){
-        graph;
-        initialNodePtr = nullptr;
-
-    }
-
 
 }//namespace grstaps
 

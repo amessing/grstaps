@@ -15,18 +15,32 @@
  * along with GRSTAPS; if not, write to the Free Software Foundation,
  * Inc., #59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
-
-#include <iostream>
-#include <stdexcept>
-#include <cstdlib>
-#include <utility>
+#ifndef GRSTAPS_TASKASSIGNMINORDER_H
+#define GRSTAPS_TASKASSIGNMINORDER_H
+#include "grstaps/Search/Heuristic.h"
+#include "grstaps/Graph/Node.h"
 #include "grstaps/Graph/Graph.h"
-#include "grstaps/Scheduling/TAScheduleTime.h"
+#include "grstaps/Task_Allocation/TaskAllocation.h"
+
 
 namespace grstaps {
-
-    float TAScheduleTime::operator()(Graph<TaskAllocation> &graph, TaskAllocation &parentNode, TaskAllocation &newNode){
-        return newNode.getScheduleTime();
-    }//
-
+class TaskAssignMinOrder: public Heuristic {
+       public:
+        /**
+         *
+         * Returns the heuristic of a node
+         *
+         * \param the graph that the node is fronm
+         * \param id of the parent node
+         * \param the new node to find cost of
+         *
+        */
+        float operator()(Graph<TaskAllocation> &graph, TaskAllocation &parentNode, TaskAllocation &newNode);
+    };
 } //grstaps
+
+#endif  // GRSTAPS_TASKASSIGNMINORDER_H
+
+
+
+

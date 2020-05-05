@@ -62,12 +62,14 @@ namespace grstaps {
             for (auto itr = this->currentNode->leavingEdges.begin(); itr != this->currentNode->leavingEdges.end(); ++itr) {
                 auto node = this->graph.findNode(itr->second->getTailNode());
                 frontier.push(node);
+
             }
             searchFailed = updateCurrent();
+
+
         }
 
         results->addResults(this->graph, currentNode, searchFailed);
-
     }
 
     template<class Data>

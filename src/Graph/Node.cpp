@@ -26,7 +26,7 @@ namespace grstaps {
 
 
     template<class Data>
-    Node<Data>::Node(string id, Data& data) : nodeID(std::move(id)), pathCost(0.0f), heuristic(0.0f), nodeData(data){
+    Node<Data>::Node(string id, Data& data) : nodeID(id), pathCost(0.0f), heuristic(0.0f), nodeData(data){
     }
 
     template<class Data>
@@ -82,7 +82,7 @@ namespace grstaps {
 
     template<class Data>
     void Node<Data>::setData(Data& data) {
-        nodeData = std::move(data);
+        nodeData = data;
     }
 
     template<class Data>

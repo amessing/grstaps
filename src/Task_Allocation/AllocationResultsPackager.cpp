@@ -26,7 +26,7 @@ namespace grstaps {
         if (this->foundGoal) {
             std::cout << "Node Found" << std::endl;
             std::cout << "Node= " << (this->finalNode->getNodeID()) << std::endl;
-            std::cout << "Makespan = " << (finalNode->getData().getScheduleTime(1)) << std::endl;
+            std::cout << "Makespan = " << (finalNode->getData().getScheduleTime()) << std::endl;
         }
         else{
             std::cout << "Search Failed" << std::endl;

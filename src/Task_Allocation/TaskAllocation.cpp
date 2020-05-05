@@ -25,16 +25,18 @@
 
 namespace grstaps {
 
-    TaskAllocation::TaskAllocation(vector<vector<float>>* goalDistribution, vector<vector <float>>* speciesDistribution, vector<short> startAllocation, vector<vector<float>>* noncumTraitCutoff, boost::shared_ptr<vector<int>> numSpec, vector<std::string>* actionNamesStr){
+    TaskAllocation::TaskAllocation(vector<vector<float>>* goalDistribution, vector<vector <float>>* speciesDistribution, vector<short> startAllocation, vector<vector<float>>* noncumTraitCutoff, Scheduler* sched,  vector<float>* actionDur, vector<vector<int>>* orderingCon, boost::shared_ptr<vector<int>> numSpec){
+        scheduler = sched;
         goalTraitDistribution = goalDistribution;
         goalDistance = 0.0;
         speciesTraitDistribution = speciesDistribution;
-        actionIDs = actionNamesStr;
+        actionDurations = actionDur;
+        orderingConstraints = orderingCon;
         actionNoncumulativeTraitValue = noncumTraitCutoff;
-        allocation = std::move(startAllocation);
+        allocation = startAllocation;
+        allocationTraitDistribution = vector<vector<float>>(goalTraitDistribution->size(), std::vector<float>((*goalDistribution)[0].size(), 0));
         updateAllocationTraitDistribution();
         isGoal = checkGoalAllocation();
-        scheduleType =boost::shared_ptr<int>(new int(-1));
         scheduleTime = -1;
         if(numSpec !=nullptr ){
             numSpecies = numSpec;
@@ -45,15 +47,17 @@ namespace grstaps {
         }
     }
 
-    TaskAllocation::TaskAllocation(vector<vector<float>>* goalDistribution, vector<vector<float>>* speciesDistribution, vector<vector<float>>* noncumTraitCutoff, boost::shared_ptr<vector<int>> numSpec, vector<std::string>* actionNamesStr){
+    TaskAllocation::TaskAllocation(vector<vector<float>>* goalDistribution, vector<vector<float>>* speciesDistribution, vector<vector<float>>* noncumTraitCutoff, Scheduler* sched, vector<float>* actionDur, vector<vector<int>>* orderingCon, boost::shared_ptr<vector<int>> numSpec){
+        scheduler = sched;
+        actionDurations = actionDur;
+        orderingConstraints = orderingCon;
         goalTraitDistribution = goalDistribution;
         speciesTraitDistribution = speciesDistribution;
         actionNoncumulativeTraitValue = noncumTraitCutoff;
         goalDistance = 0.0;
-        actionIDs = actionNamesStr;
         allocation.resize(goalTraitDistribution->size()*speciesTraitDistribution->size(), 0);
-        scheduleType =boost::shared_ptr<int>(new int(-1));
         scheduleTime = -1;
+        allocationTraitDistribution = vector<vector<float>>(goalTraitDistribution->size(), std::vector<float>((*goalDistribution)[0].size(), 0));
         updateAllocationTraitDistribution();
         isGoal = checkGoalAllocation();
         if(numSpec != nullptr ){
@@ -67,20 +71,21 @@ namespace grstaps {
 
     TaskAllocation::TaskAllocation()= default;
 
-    TaskAllocation::TaskAllocation(TaskAllocation& copyAllocation){
-            scheduleType = copyAllocation.scheduleType;
+    TaskAllocation::TaskAllocation(const TaskAllocation& copyAllocation){
             speciesTraitDistribution = copyAllocation.speciesTraitDistribution;
             scheduler = copyAllocation.scheduler;
             numSpecies = copyAllocation.numSpecies;
 
             actionNoncumulativeTraitValue = copyAllocation.actionNoncumulativeTraitValue;
-            actionIDs = copyAllocation.actionIDs;
+            actionDurations = copyAllocation.actionDurations;
+            orderingConstraints = copyAllocation.orderingConstraints;
             goalTraitDistribution = copyAllocation.goalTraitDistribution;
 
             scheduleTime = copyAllocation.scheduleTime;
             goalDistance = copyAllocation.goalDistance;
             isGoal = copyAllocation.isGoal;
             allocation = copyAllocation.allocation;
+            allocationTraitDistribution = copyAllocation.allocationTraitDistribution;
 
         }
 
@@ -89,7 +94,7 @@ namespace grstaps {
     }
 
     void TaskAllocation::setAllocation(vector<short> newAllocation){
-        allocation = std::move(newAllocation);
+        allocation = newAllocation;
         updateAllocationTraitDistribution();
     }
 
@@ -127,10 +132,6 @@ namespace grstaps {
                 }
             }
         }
-    }
-
-    vector<std::string>* TaskAllocation::getActionIDs(){
-        return actionIDs;
     }
 
     boost::shared_ptr<vector<int>> TaskAllocation::getNumSpecies(){
@@ -192,97 +193,12 @@ namespace grstaps {
             added = true;
             isGoal = checkGoalAllocation();
         }
+        scheduleTime = -1;
         return added;
-    }
-
-    void TaskAllocation::setActionIDs(vector<std::string>* newActionIDs){
-        actionIDs = newActionIDs;
-    }
-
-    float TaskAllocation::getScheduleTime(int requestedScheduleType){
-        if(requestedScheduleType == (*scheduleType)){
-            return scheduleTime;
-        }
-        else{
-            return 0.0;
-            //scheduleType = requestedScheduleType;
-            //scheduleTime = scheduler->getScheduleTime(scheduleType, allocation, (*actionIDs));
-            //return scheduleTime;
-        }
     }
 
     void TaskAllocation::setNumSpecies(boost::shared_ptr<vector<int>> newNumSpecies){
         numSpecies = newNumSpecies;
-    }
-
-    void TaskAllocation::updateAllocationTraitDistributionAgent(int agentIndex, int taskIndex){
-        vector<float> allocationTraitDistribution{};
-        allocationTraitDistribution.resize((*speciesTraitDistribution)[0].size(), 0.0);
-        for(int k=0; k < (*speciesTraitDistribution).size(); k++) {
-            if(allocation[taskIndex* speciesTraitDistribution->size() + k] != 0) {
-                for (int i = 0; i < (*speciesTraitDistribution)[0].size(); i++) {
-                    if( k != agentIndex){
-                        allocationTraitDistribution[i] += allocation[taskIndex* speciesTraitDistribution->size() + k] * (*speciesTraitDistribution)[k][i];
-                    }
-                    else{
-                        allocationTraitDistribution[i] += (allocation[taskIndex* speciesTraitDistribution->size() + k] - 1) * (*speciesTraitDistribution)[k][i];
-                    }
-                }
-            }
-        }
-        for (int j = 0; j < allocationTraitDistribution.size(); j++){
-            if ((*actionNoncumulativeTraitValue)[taskIndex][j] != 0.0){
-                if((*speciesTraitDistribution)[agentIndex][j] >= (*actionNoncumulativeTraitValue)[taskIndex][j]){
-                    if(allocationTraitDistribution[j] < (*goalTraitDistribution)[taskIndex][j]){
-                        goalDistance -= 1;
-                    }
-                }
-            }
-            else {
-                if(allocationTraitDistribution[j] < (*goalTraitDistribution)[taskIndex][j]){
-                    goalDistance -=  ((*speciesTraitDistribution)[agentIndex][j]);
-                }
-            }
-        }
-
-        if(goalDistance < 0){
-            goalDistance = 0;
-        }
-        isGoal = checkGoalAllocation();
-    }
-
-    void TaskAllocation::updateAllocationTraitDistribution(){
-        for(auto & i : *goalTraitDistribution){
-            for(int j= 0 ; j < (*goalTraitDistribution)[0].size(); j++){
-                goalDistance += i[j];
-            }
-        }
-        vector<vector<float>> allocationTraitDistribution{};
-        allocationTraitDistribution.resize(goalTraitDistribution->size(),vector<float>((*goalTraitDistribution)[0].size(),0.0));
-        for (int i = 0; i < allocationTraitDistribution.size(); i++){
-            for (int j = 0; j < allocationTraitDistribution[0].size(); j++){
-                for(int k = 0; k < speciesTraitDistribution->size(); k++) {
-                    if ((*actionNoncumulativeTraitValue)[i][j] != 0.0) {
-                        if((*speciesTraitDistribution)[k][j] >= (*actionNoncumulativeTraitValue)[i][j]){
-                            if(allocationTraitDistribution[i][j] < (*goalTraitDistribution)[i][j]){
-                                goalDistance -= allocation[i*speciesTraitDistribution->size() + k];
-                            }
-                            allocationTraitDistribution[i][j] += allocation[i*speciesTraitDistribution->size() + k];
-                        }
-
-                    } else {
-                        if(allocationTraitDistribution[i][j] < (*goalTraitDistribution)[i][j]){
-                            goalDistance -=  ( (*speciesTraitDistribution)[k][j] * allocation[i*speciesTraitDistribution->size() + k]);
-                        }
-                        allocationTraitDistribution[i][j] += ( (*speciesTraitDistribution)[k][j] * allocation[i*speciesTraitDistribution->size() + k]);
-                    }
-                }
-            }
-        }
-        if(goalDistance < 0){
-            goalDistance = 0;
-        }
-        isGoal = checkGoalAllocation();
     }
 
     void TaskAllocation::checkSize(){
@@ -290,11 +206,10 @@ namespace grstaps {
         std::cout << " 2) vector<vector<float>>* speciesTraitDistribution{};= " << sizeof(speciesTraitDistribution) << std::endl;
         std::cout << " 3) vector<vector<float>>* actionNoncumulativeTraitValue{};= " << sizeof(actionNoncumulativeTraitValue) << std::endl;
         std::cout << " 4) Scheduler* scheduler{};= " << sizeof(scheduler) << std::endl;
-        std::cout << " 5) const vector<std::string>* actionIDs;= " << sizeof(actionIDs) << std::endl;
+        std::cout << " 5) const vector<float>* actionDurations;= " << sizeof(actionDurations) << std::endl;
         std::cout << " 6) vector<int>* numSpecies;" << sizeof(numSpecies) << std::endl;
+        std::cout << " 5) const vector<vector<float>* orderingConstraints;= " << sizeof(actionDurations) << std::endl;
 
-
-        std::cout << " 7) shared pointer scheduleType{};= " << sizeof(scheduleType) << std::endl;
         std::cout << " 8) float scheduleTime{};= " << sizeof(scheduleTime) << std::endl;
         std::cout << " 9) float goalDistance{};= " << sizeof(goalDistance) << std::endl;
         std::cout << "10) bool isGoal{};= " << sizeof(isGoal) << std::endl;
@@ -302,12 +217,110 @@ namespace grstaps {
 
         std::cout << "11) vector<short> allocation;= " << (sizeof(std::vector<short>) +(sizeof(short) * allocation.size())) << std::endl;
 
-        int total = sizeof(goalTraitDistribution) + sizeof(speciesTraitDistribution) + sizeof(actionNoncumulativeTraitValue) + sizeof(scheduler) + sizeof(actionIDs) + sizeof(numSpecies) + sizeof(scheduleType) + sizeof(scheduleTime) + sizeof(goalDistance) + sizeof(isGoal) +(sizeof(std::vector<short>) +(sizeof(short) * allocation.size()));
+        int total = sizeof(goalTraitDistribution) + sizeof(speciesTraitDistribution) + sizeof(actionNoncumulativeTraitValue) + sizeof(scheduler) + 2* sizeof(actionDurations) + sizeof(numSpecies) + sizeof(scheduleTime) + sizeof(goalDistance) + sizeof(isGoal) +(sizeof(std::vector<short>) +(sizeof(short) * allocation.size()));
         std::cout << "Total Memory Usage= "<< total << std::endl;
     }
 
-    void TaskAllocation::addAction(const vector<float>& actionRequirements, const vector<float>& noncumTraitCutoff, const std::string newActionID){
-        actionIDs->push_back(newActionID);
+    void TaskAllocation::updateAllocationTraitDistributionAgent(int agentIndex, int taskIndex){
+        for (int i = 0; i < (*speciesTraitDistribution)[0].size(); i++) {
+            if ((*actionNoncumulativeTraitValue)[taskIndex][i] != 0.0) {
+                if((*speciesTraitDistribution)[agentIndex][i] >= (*actionNoncumulativeTraitValue)[taskIndex][i]){
+                    float allocBefore = allocationTraitDistribution[taskIndex][i];
+                    allocationTraitDistribution[taskIndex][i] += 1;
+                    if(allocBefore < (*goalTraitDistribution)[taskIndex][i]){
+                            goalDistance -= 1;
+                    }
+                }
+
+            } else {
+                float allocBefore = allocationTraitDistribution[taskIndex][i];
+                allocationTraitDistribution[taskIndex][i] += ((*speciesTraitDistribution)[agentIndex][i]);
+                if(allocBefore < (*goalTraitDistribution)[taskIndex][i]){
+                    if(allocationTraitDistribution[taskIndex][i] < (*goalTraitDistribution)[taskIndex][i]){
+                        goalDistance -= ((*speciesTraitDistribution)[agentIndex][i]);
+                    }
+                    else{
+                        goalDistance -= (*goalTraitDistribution)[taskIndex][i] - allocBefore;
+                    }
+                }
+
+            }
+        }
+
+        if(goalDistance < 0){
+            goalDistance = 0;
+        }
+        isGoal = checkGoalAllocation();
+        scheduleTime = -1;
+    }
+
+    void TaskAllocation::updateAllocationTraitDistribution(){
+        allocationTraitDistribution.resize(goalTraitDistribution->size(),vector<float>((*goalTraitDistribution)[0].size(),0.0));
+        for (int i = 0; i < allocationTraitDistribution.size(); i++){
+            for (int j = 0; j < allocationTraitDistribution[0].size(); j++){
+                for(int k = 0; k < speciesTraitDistribution->size(); k++) {
+                    if ((*actionNoncumulativeTraitValue)[i][j] != 0.0) {
+                        if((*speciesTraitDistribution)[k][j] >= (*actionNoncumulativeTraitValue)[i][j]){
+                            allocationTraitDistribution[i][j] += allocation[i*speciesTraitDistribution->size() + k];
+                        }
+
+                    } else {
+                        allocationTraitDistribution[i][j] += ( (*speciesTraitDistribution)[k][j] * allocation[i*speciesTraitDistribution->size() + k]);
+                    }
+                }
+            }
+        }
+        for(int i= 0 ; i < (*goalTraitDistribution).size(); i++){
+            for(int j= 0 ; j < (*goalTraitDistribution)[0].size(); j++){
+                float dist = (*goalTraitDistribution)[i][j] - allocationTraitDistribution[i][j];
+                if( dist > 0){
+                    goalDistance += dist;
+                }
+            }
+        }
+        if(goalDistance < 0){
+            goalDistance = 0;
+        }
+        isGoal = checkGoalAllocation();
+        scheduleTime = -1;
+    }
+
+
+    vector<float>* TaskAllocation::getActionDuration(){
+        return actionDurations;
+    }
+
+    void TaskAllocation::setActionDuration(vector<float>* newActionDur){
+        actionDurations = newActionDur;
+        scheduleTime = -1;
+    }
+
+    vector<vector<int>>* TaskAllocation::getOrderingConstraints(){
+        return orderingConstraints;
+    }
+
+    void TaskAllocation::setOrderingConstraints(vector<vector<int>>* newOrderingCon){
+        orderingConstraints = newOrderingCon;
+        scheduleTime = -1;
+    }
+
+    float TaskAllocation::getScheduleTime(){
+        if(scheduleTime > 0){
+            return 1;
+            return scheduleTime;
+        }
+        else{
+            return 1;
+            //scheduleTime = scheduler->getScheduleTime(allocation, actionDurations, orderingConstraints);
+            return scheduleTime;
+        }
+    }
+
+    void TaskAllocation::addAction(const vector<float>& actionRequirements, const vector<float>& noncumTraitCutoff, const float newActionDuration, vector<vector<int>>* orderingCon){
+        if(newActionDuration <= 0){
+            actionDurations->push_back(newActionDuration);
+            orderingConstraints->insert(orderingConstraints->end(), orderingCon->begin(), orderingCon->end());
+        }
         goalTraitDistribution->push_back(actionRequirements);
         actionNoncumulativeTraitValue->push_back(noncumTraitCutoff);
 
@@ -319,12 +332,17 @@ namespace grstaps {
         for(int i=0; i < actionRequirements.size(); i++){
             goalDistance += actionRequirements[i];
         }
+        scheduleTime = -1;
     }
 
-    void TaskAllocation::addAction(vector<vector<float>>* actionRequirements, vector<vector<float>>* nonCumActionRequirements, float goalDistAdd, vector<std::string>* newActionID){
-        goalTraitDistribution = actionRequirements;
-        actionNoncumulativeTraitValue = nonCumActionRequirements;
-        actionIDs = newActionID;
+    void TaskAllocation::addAction(vector<float> actionRequirements, vector<float> nonCumActionRequirements, float goalDistAdd, const float& newActionDuration, vector<vector<int>>* orderingCon){
+        goalTraitDistribution->push_back(actionRequirements);
+        actionNoncumulativeTraitValue->push_back(nonCumActionRequirements);
+        allocationTraitDistribution.push_back(vector<float>(this->speciesTraitDistribution->size(),0));
+        if(newActionDuration <= 0){
+            actionDurations->push_back(newActionDuration);
+            orderingConstraints->insert(orderingConstraints->end(), orderingCon->begin(), orderingCon->end());
+        }
 
         vector<int> emptyVect(speciesTraitDistribution->size(), 0.0);
         allocation.insert(allocation.end(), emptyVect.begin(), emptyVect.end());
@@ -334,6 +352,7 @@ namespace grstaps {
         if(isGoal) {
             isGoal = checkGoalAllocation();
         }
+        scheduleTime = -1;
     }
 
 } //namespace grstaps

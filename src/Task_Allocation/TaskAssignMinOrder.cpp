@@ -20,13 +20,14 @@
 #include <stdexcept>
 #include <cstdlib>
 #include <utility>
-#include "grstaps/Graph/Graph.h"
-#include "grstaps/Scheduling/TAScheduleTime.h"
+#include "grstaps/Graph/Node.h"
+#include "grstaps/Task_Allocation/TaskAssignMinOrder.h"
+
 
 namespace grstaps {
 
-    float TAScheduleTime::operator()(Graph<TaskAllocation> &graph, TaskAllocation &parentNode, TaskAllocation &newNode){
-        return newNode.getScheduleTime();
-    }//
+    float TaskAssignMinOrder::operator()(Graph<TaskAllocation> &graph, TaskAllocation &parentNode, TaskAllocation &newNode){
+        return newNode.getGoalDistance();
+    }
 
 } //grstaps

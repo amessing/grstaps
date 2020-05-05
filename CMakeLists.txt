@@ -2,13 +2,12 @@ cmake_minimum_required(VERSION 3.10)
 project(grstaps LANGUAGES CXX)
 message("Building ${PROJECT_NAME}...")
 
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-set(CMAKE_CXX_FLAGS "-fprofile-arcs -ftest-coverage ")
-IF(CMAKE_COMPILER_IS_GNUCC)
-    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O0")
-    set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -O0")
-ENDIF(CMAKE_COMPILER_IS_GNUCC)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+set(optimization OFF)
+
+
+
 
 # Add external cmake modules
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
@@ -35,7 +34,7 @@ target_include_directories(_${PROJECT_NAME} PUBLIC include PRIVATE ${OMPL_INCLUD
 
 # Create executable
 if(BUILD_EXE)
-add_executable(${PROJECT_NAME} src/main.cpp include/grstaps/Graph/compression.cpp include/grstaps/Graph/compression.h)
+add_executable(${PROJECT_NAME} src/main.cpp include/grstaps/Graph/compression.cpp include/grstaps/Graph/compression.h include/grstaps/Task_Allocation/checkAllocatable.cpp include/grstaps/Task_Allocation/checkAllocatable.h src/Task_Allocation/TaskAssignMinOrder.cpp src/Task_Allocation/TaskAssignMinOrder.h tests/TestSchedule.cpp)
 set_target_properties(${PROJECT_NAME} PROPERTIES CXX_STANDARD 17 CXX_STANDARD_REQUIRED YES)
 target_link_libraries(${PROJECT_NAME} PRIVATE _${PROJECT_NAME} args box2d)
 endif(BUILD_EXE)
@@ -82,3 +81,15 @@ if(BUILD_TESTS)
     set_target_properties(${PROJECT_NAME}_test PROPERTIES CXX_STANDARD 17 CXX_STANDARD_REQUIRED YES)
     target_link_libraries(${PROJECT_NAME}_test PRIVATE _${PROJECT_NAME} box2d gtest gmock)
 endif(BUILD_TESTS)
+
+set(CMAKE_CXX_FLAGS "-fprofile-arcs -ftest-coverage ")
+
+IF(CMAKE_COMPILER_IS_GNUCC)
+    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O0")
+    set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -O0")
+ENDIF(CMAKE_COMPILER_IS_GNUCC)
+
+IF(optimization)
+    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O3")
+    set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -O3")
+ENDIF(optimization)

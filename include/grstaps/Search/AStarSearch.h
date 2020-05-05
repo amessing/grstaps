@@ -58,12 +58,13 @@ namespace grstaps {
         *  \param the nonCumTraits requirements
         *
         */
-        AStarSearch(AStarSearch<TaskAllocation> &p2, std::string& newActionIDexpander, vector<float>& traitRequirements, vector<float>& nonCumTraits, NodeExpander<TaskAllocation>* expander );
+        AStarSearch(AStarSearch<TaskAllocation> &p2, short newActionDuration, vector<float>& traitRequirements, vector<float>& nonCumTraits, NodeExpander<TaskAllocation>* expander, vector<vector<int>>* orderingConstraints);
 
         /**
        * Copy Constructor
        *
        * \param the search problem you are going to copy from
+       * \param a node expander
        *
        */
         AStarSearch(AStarSearch<Data> &, NodeExpander<TaskAllocation>*);
@@ -71,11 +72,10 @@ namespace grstaps {
         /**
          * Search through the graph and find a node
          *
-         * \param pointer to the starting node
          * \param functor that returns a bool to say if the current node is a goal
          * \param node expander that is a functor that expands a past node adding its children to the graph
          * \param a functor that formats the solution found
-         * \param a comparator functor that is used to order the nodes on the frontier
+         * \param a bool for checking if allocation is possible before search
          *
          * \returns a search results object that contains all needed return information from the search
          */

@@ -25,7 +25,7 @@
 #include "grstaps/Scheduling/Scheduler.h"
 #include <iomanip>      // std::setw
 #include <boost/shared_ptr.hpp>
-#include <grstaps/unordered_map/robin_hood.h>
+#include <../lib/unordered_map/robin_hood.h>
 
 using std::vector;
 
@@ -53,7 +53,7 @@ namespace grstaps {
         *\param a vector containing the species trait distribution
         *\param a vector containing initial allocation
         */
-        TaskAllocation(vector<vector<float>>*, vector<vector<float>>*, vector<short>, vector<vector<float>>*,  boost::shared_ptr<vector<int>> =boost::shared_ptr<vector<int>>(NULL), vector<std::string>* =NULL);
+        TaskAllocation(vector<vector<float>>*, vector<vector<float>>*, vector<short>, vector<vector<float>>*, Scheduler* =NULL,  vector<float>* =NULL, vector<vector<int>>* =NULL,  boost::shared_ptr<vector<int>> =boost::shared_ptr<vector<int>>(NULL));
 
         /**
         * constructor
@@ -61,7 +61,7 @@ namespace grstaps {
         *\param a vector containing the goaltrait distribution
         *\param a vector containing the species trait distribution
         */
-        TaskAllocation(vector<vector<float>>*, vector<vector<float>>*, vector<vector<float>>*, boost::shared_ptr<vector<int>> =boost::shared_ptr<vector<int>>(NULL), vector<std::string>* =NULL);
+        TaskAllocation(vector<vector<float>>*, vector<vector<float>>*, vector<vector<float>>*, Scheduler* =NULL, vector<float>* =NULL, vector<vector<int>>* =NULL, boost::shared_ptr<vector<int>> =boost::shared_ptr<vector<int>>(NULL));
 
         /**
         * Copy constructor
@@ -69,7 +69,7 @@ namespace grstaps {
         * \return a deep copy of the passed object
         *
         */
-        TaskAllocation(TaskAllocation&);
+        TaskAllocation(TaskAllocation const &);
 
 
            /**
@@ -81,7 +81,7 @@ namespace grstaps {
         * \return bool is this node a goal
         *
         */
-        void addAction(const vector<float>&, const vector<float>&, const std::string);
+        void addAction(const vector<float>&, const vector<float>&, const float actionDuration, vector<vector<int>>* orderingCon);
 
         /**
         * runs the scheduler on this allocation and returns the time to schedule
@@ -91,7 +91,7 @@ namespace grstaps {
         * \return bool is this node a goal
         *
         */
-        float getScheduleTime(int);
+        float getScheduleTime();
 
         /**
         * Is this node a goal node
@@ -237,19 +237,34 @@ namespace grstaps {
         robin_hood::unordered_map<std::string, int >* getSpeciesNames();
 
         /**
-        * getter for ActionNames
+        * getter for ActionDurations
         *
         *
         */
-        vector<std::string>* getActionIDs();
+        vector<float>* getActionDuration();
 
         /**
-        * setter for ActionNames
+        * setter for ActionDuration
         *
-        *\param the naes for the action ID
+        *\param the new action durations
          *
         */
-        void setActionIDs(vector<std::string>*);
+        void setActionDuration(vector<float>*);
+
+        /**
+        * getter for orderingConstraints
+        *
+        *
+        */
+        vector<vector<int>>* getOrderingConstraints();
+
+        /**
+        * setter for orderingConstraints
+        *
+        *\param the new orderingconstraints
+         *
+        */
+        void setOrderingConstraints(vector<vector<int>>*);
 
 
         /**
@@ -296,18 +311,20 @@ namespace grstaps {
         * \param the new amount to add to the goal distance
         *
         */
-        void addAction(vector<vector<float>>*, vector<vector<float>>*, float, vector<std::string>* =NULL);
+        void addAction(vector<float>, vector<float>, float, const float& =-1, vector<vector<int>>* =NULL);
 
 
     private:
-        boost::shared_ptr<int> scheduleType{};
         vector<vector<float>>* speciesTraitDistribution{};
         Scheduler* scheduler{};
         boost::shared_ptr<vector<int>> numSpecies{};
 
         vector<vector<float>>* actionNoncumulativeTraitValue{};
-        vector<std::string>* actionIDs{};
+        vector<float>* actionDurations{};
+        vector<vector<int>>* orderingConstraints{};
         vector<vector<float>>* goalTraitDistribution{};
+
+        vector<vector<float>> allocationTraitDistribution{};
 
         float scheduleTime{};
         float goalDistance{};

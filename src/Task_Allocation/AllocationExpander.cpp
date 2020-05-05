@@ -35,8 +35,8 @@ namespace grstaps {
         vector<short> allocation = data.getAllocation();
         std::string nodeID = expandNode->getNodeID();
         float currentCost = expandNode->getPathCost();
-        int numSpecies = expandNode->getData().getNumSpecies()->size();
-        float parentsGoalDistance = expandNode->getData().getGoalDistance();
+        int numSpecies = data.getNumSpecies()->size();
+        float parentsGoalDistance = data.getGoalDistance();
 
         int numTask = allocation.size()/numSpecies;
         vector<int> numSpec = *data.getNumSpecies();
