@@ -11,7 +11,10 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public
  * License for more details.
  *
- * You should have received a copy of the GNU General Public License
+ * You should have received a copy of the GNU Glocation/AllocationExpander.cpp.o
+[ 75%] Building CXX object CMakeFiles/_grstaps.dir/src/Search/UniformCostSearch.cpp.o
+[ 75%] Building CXX object CMakeFiles/_grstaps.dir/src/Search/SearchBase.cpp.o
+[ 76%] Building CXX object CMakeFiles/_grstaps.dir/src/Task_Aeneral Public License
  * along with GRSTAPS; if not, write to the Free Software Foundation,
  * Inc., #59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
@@ -22,7 +25,7 @@
 #include <vector>
 #include <string>
 #include <iostream>
-#include "grstaps/Scheduling/Scheduler.h"
+#include <grstaps/Connections/taskAllocationToScheduling.h>
 #include <iomanip>      // std::setw
 #include <boost/shared_ptr.hpp>
 #include <../lib/unordered_map/robin_hood.h>
@@ -53,7 +56,7 @@ namespace grstaps {
         *\param a vector containing the species trait distribution
         *\param a vector containing initial allocation
         */
-        TaskAllocation(vector<vector<float>>*, vector<vector<float>>*, vector<short>, vector<vector<float>>*, Scheduler* =NULL,  vector<float>* =NULL, vector<vector<int>>* =NULL,  boost::shared_ptr<vector<int>> =boost::shared_ptr<vector<int>>(NULL));
+        TaskAllocation(bool , vector<vector<float>>*, vector<vector<float>>*, vector<short>, vector<vector<float>>*, taskAllocationToScheduling* =NULL,  vector<float>* =NULL, vector<vector<int>>* =NULL,  boost::shared_ptr<vector<int>> =boost::shared_ptr<vector<int>>(NULL));
 
         /**
         * constructor
@@ -61,7 +64,7 @@ namespace grstaps {
         *\param a vector containing the goaltrait distribution
         *\param a vector containing the species trait distribution
         */
-        TaskAllocation(vector<vector<float>>*, vector<vector<float>>*, vector<vector<float>>*, Scheduler* =NULL, vector<float>* =NULL, vector<vector<int>>* =NULL, boost::shared_ptr<vector<int>> =boost::shared_ptr<vector<int>>(NULL));
+        TaskAllocation(bool, vector<vector<float>>*, vector<vector<float>>*, vector<vector<float>>*, taskAllocationToScheduling* =NULL, vector<float>* =NULL, vector<vector<int>>* =NULL, boost::shared_ptr<vector<int>> =boost::shared_ptr<vector<int>>(NULL));
 
         /**
         * Copy constructor
@@ -316,7 +319,7 @@ namespace grstaps {
 
     private:
         vector<vector<float>>* speciesTraitDistribution{};
-        Scheduler* scheduler{};
+        taskAllocationToScheduling* taToScheduling{};
         boost::shared_ptr<vector<int>> numSpecies{};
 
         vector<vector<float>>* actionNoncumulativeTraitValue{};
@@ -331,6 +334,7 @@ namespace grstaps {
         bool isGoal{};
 
         vector<short> allocation;
+        bool usingSpecies;
 
     };
 

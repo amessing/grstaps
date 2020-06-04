@@ -25,8 +25,9 @@
 
 namespace grstaps {
 
-    TaskAllocation::TaskAllocation(vector<vector<float>>* goalDistribution, vector<vector <float>>* speciesDistribution, vector<short> startAllocation, vector<vector<float>>* noncumTraitCutoff, Scheduler* sched,  vector<float>* actionDur, vector<vector<int>>* orderingCon, boost::shared_ptr<vector<int>> numSpec){
-        scheduler = sched;
+    TaskAllocation::TaskAllocation(bool useSpec, vector<vector<float>>* goalDistribution, vector<vector <float>>* speciesDistribution, vector<short> startAllocation, vector<vector<float>>* noncumTraitCutoff, taskAllocationToScheduling* taToSched,  vector<float>* actionDur, vector<vector<int>>* orderingCon, boost::shared_ptr<vector<int>> numSpec){
+        usingSpecies = useSpec;
+        taToScheduling = taToSched;
         goalTraitDistribution = goalDistribution;
         goalDistance = 0.0;
         speciesTraitDistribution = speciesDistribution;
@@ -47,8 +48,9 @@ namespace grstaps {
         }
     }
 
-    TaskAllocation::TaskAllocation(vector<vector<float>>* goalDistribution, vector<vector<float>>* speciesDistribution, vector<vector<float>>* noncumTraitCutoff, Scheduler* sched, vector<float>* actionDur, vector<vector<int>>* orderingCon, boost::shared_ptr<vector<int>> numSpec){
-        scheduler = sched;
+    TaskAllocation::TaskAllocation(bool useSpec, vector<vector<float>>* goalDistribution, vector<vector<float>>* speciesDistribution, vector<vector<float>>* noncumTraitCutoff, taskAllocationToScheduling* taToSched, vector<float>* actionDur, vector<vector<int>>* orderingCon, boost::shared_ptr<vector<int>> numSpec){
+        usingSpecies = useSpec;
+        taToScheduling = taToSched;
         actionDurations = actionDur;
         orderingConstraints = orderingCon;
         goalTraitDistribution = goalDistribution;
@@ -73,7 +75,7 @@ namespace grstaps {
 
     TaskAllocation::TaskAllocation(const TaskAllocation& copyAllocation){
             speciesTraitDistribution = copyAllocation.speciesTraitDistribution;
-            scheduler = copyAllocation.scheduler;
+            taToScheduling = copyAllocation.taToScheduling;
             numSpecies = copyAllocation.numSpecies;
 
             actionNoncumulativeTraitValue = copyAllocation.actionNoncumulativeTraitValue;
@@ -205,7 +207,7 @@ namespace grstaps {
         std::cout << " 1) vector<vector<float>>* goalTraitDistribution{}= " << sizeof(goalTraitDistribution) << std::endl;
         std::cout << " 2) vector<vector<float>>* speciesTraitDistribution{};= " << sizeof(speciesTraitDistribution) << std::endl;
         std::cout << " 3) vector<vector<float>>* actionNoncumulativeTraitValue{};= " << sizeof(actionNoncumulativeTraitValue) << std::endl;
-        std::cout << " 4) Scheduler* scheduler{};= " << sizeof(scheduler) << std::endl;
+        std::cout << " 4) Scheduler* taToSchedule{};= " << sizeof(taToScheduling) << std::endl;
         std::cout << " 5) const vector<float>* actionDurations;= " << sizeof(actionDurations) << std::endl;
         std::cout << " 6) vector<int>* numSpecies;" << sizeof(numSpecies) << std::endl;
         std::cout << " 5) const vector<vector<float>* orderingConstraints;= " << sizeof(actionDurations) << std::endl;
@@ -217,7 +219,7 @@ namespace grstaps {
 
         std::cout << "11) vector<short> allocation;= " << (sizeof(std::vector<short>) +(sizeof(short) * allocation.size())) << std::endl;
 
-        int total = sizeof(goalTraitDistribution) + sizeof(speciesTraitDistribution) + sizeof(actionNoncumulativeTraitValue) + sizeof(scheduler) + 2* sizeof(actionDurations) + sizeof(numSpecies) + sizeof(scheduleTime) + sizeof(goalDistance) + sizeof(isGoal) +(sizeof(std::vector<short>) +(sizeof(short) * allocation.size()));
+        int total = sizeof(goalTraitDistribution) + sizeof(speciesTraitDistribution) + sizeof(actionNoncumulativeTraitValue) + sizeof(taToScheduling) + 2* sizeof(actionDurations) + sizeof(numSpecies) + sizeof(scheduleTime) + sizeof(goalDistance) + sizeof(isGoal) +(sizeof(std::vector<short>) +(sizeof(short) * allocation.size()));
         std::cout << "Total Memory Usage= "<< total << std::endl;
     }
 
@@ -306,12 +308,15 @@ namespace grstaps {
 
     float TaskAllocation::getScheduleTime(){
         if(scheduleTime > 0){
-            return 1;
             return scheduleTime;
         }
         else{
-            return 1;
-            //scheduleTime = scheduler->getScheduleTime(allocation, actionDurations, orderingConstraints);
+            if(!usingSpecies){
+                scheduleTime = taToScheduling->getNonSpeciesSchedule(allocation, actionDurations, orderingConstraints, numSpecies);
+            }
+            else{
+                scheduleTime = taToScheduling->getSpeciesSchedule(allocation, actionDurations, orderingConstraints, numSpecies);
+            }
             return scheduleTime;
         }
     }

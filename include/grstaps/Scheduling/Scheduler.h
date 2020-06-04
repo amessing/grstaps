@@ -1,124 +1,264 @@
-//
-// Created by glen on 4/5/20.
-//
+/*
+ * Copyright (C)2020 Glen Neville
+ *
+ * GRSTAPS is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published
+ * by the Free Software Foundation; either version 3 of the License,
+ * or any later version.
+ *
+ * GRSTAPS is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public
+ * License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with GRSTAPS; if not, write to the Free Software Foundation,
+ * Inc., #59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+ */
+#ifndef GRSTAPS_SCHEDULER_H
+#define GRSTAPS_SCHEDULER_H
 
-#ifndef UNTITLED_SCHEDULER_H
-#define UNTITLED_SCHEDULER_H
 
+
+
+//external
+#include <boost/heap/binomial_heap.hpp>
 #include <map>
-#include <vector>
 #include <vector>
 #include <string>
 #include <iostream>
 #include <algorithm>
 
+namespace grstaps{
+    class tabu;
+    class Scheduler
+    {
+       public:
+        /**
+         *
+         * checks if two actions happen at the same time
+         *
+         * \param index of action
+         * \param index of action
+         * \return do the timeframes of these actions overlap
+         *
+         */
+        bool checkConcurrent(int first, int second);
 
-class Scheduler {
-   public:
-    /**
-     *
-     * builds the stn and returns the makespan
-     *
-     * \param the allocation
-     * \param duration of the actions
-     * \param ordering constraints
-     *
-     * \return the makespan of the schedle
-     *
-     */
-    bool schedule(std::vector<float>*, std::vector<std::vector<int>>*);
+        /**
+         *
+         * initalize schedule
+         *
+         */
+        Scheduler();
 
-    /**
-     *
-     * returns the makespan of the stn
-     *
-     * \return the makespan of the stn
-     */
-    float getMakeSpan();
+        /**
+         *
+         * copy constructor
+         *
+         * \param scheduler to copy
+         *
+         */
+        Scheduler(Scheduler& toCopy);
 
-    /**
-     *
-     * Adds a constraint to the stn between two actions
-     *
-     * \param index of action that comes first
-     * \param index of action that comes second
-     *
-     * \return successfully added
-     */
-    bool addOC(int first, int second);
+        /**
+         *
+         * builds the stn and returns the makespan
+         *
+         * \param duration of the actions
+         * \param ordering constraints
+         *
+         * \return the makespan of the schedle
+         *
+         */
+        bool schedule(const std::vector<float>& durations, std::vector<std::vector<int>> orderingConstraints);
 
+        /**
+         *
+         * returns the makespan of the stn
+         *
+         * \return the makespan of the stn
+         */
+        float getMakeSpan();
 
-    /**
-     *
-     * Changes the duration of an action
-     *
-     * \param index of action
-     * \param duration of the action
-     *
-     * \return successfully changed
-     */
-    bool increaseActionTime(int actionIndex, int duration);
+        /**
+         *
+         * Adds a constraint to the stn between two actions
+         *
+         * \param index of action that comes first
+         * \param index of action that comes second
+         *
+         * \return successfully added
+         */
+        bool addOC(int first, int second);
 
-    /**
-     *
-     * Changes the duration of an action
-     *
-     * \param index of action
-     * \param duration of the action
-     *
-     * \return successfully changed
-     */
-    bool decreaseActionTime(int actionIndex, int duration);
+        /**
+         *
+         * Changes the duration of an action
+         *
+         * \param index of action
+         * \param duration of the action
+         *
+         * \return successfully changed
+         */
+        bool increaseActionTime(int actionIndex, float duration);
 
-    /**
-     *
-     * Removes a constraint to the stn between two actions
-     *
-     * \param index of action that comes first
-     * \param index of action that comes second
-     *
-     * \return successfully added
-     */
-    bool removeOC(int first, int second);
+        /**
+         *
+         * Changes the duration of an action
+         *
+         * \param index of action
+         * \param duration of the action
+         *
+         * \return successfully changed
+         */
+        bool decreaseActionTime(int actionIndex, float duration);
 
-    /**
-     *
-     * initialize the STN
-     *
-     * \param the allocation
-     * \param duration of the actions
-     *
-     */
-    float initSTN(std::vector<float>);
+        /**
+         *
+         * Removes a constraint to the stn between two actions
+         *
+         * \param index of action that comes first
+         * \param index of action that comes second
+         *
+         * \return successfully added
+         */
+        bool removeOC(int first, int second);
 
-    /**
-     *
-     * adds an action to the schedule
-     *
-     * \param the actions duration
-     * \param the ordering constraints of the action
-     *
-     */
-    bool addAction(float duration, std::vector<int> orderingConstraints);
+        /**
+         *
+         * initialize the STN
+         *
+         * \param the allocation
+         * \param duration of the actions
+         *
+         */
+        float initSTN(const std::vector<float>&);
 
-    /**
-    *
-    * remove an action to the schedule
-    *
-    * \param the index of the action to remove
-    *
-    */
-    bool removeAction(int actionID);
+        /**
+         *
+         * adds an action to the schedule
+         *
+         * \param the actions duration
+         * \param the ordering constraints of the action
+         *
+         */
+        bool addAction(float duration, const std::vector<int>& orderingConstraints);
 
+        /**
+         *
+         * adds an action to the schedule
+         *
+         * \param the actions duration
+         * \param the ordering constraints of the action
+         * \param the disjunctive ordering constraints of the action
+         *
+         */
+        bool addAction(float duration,
+                       const std::vector<int>& orderingConstraints,
+                       std::vector<std::vector<int>> disorderingConstraints);
 
-   private:
-    std::vector<std::vector<float>> stn;
-    std::vector<std::vector<int>> beforeConstraints;
-    std::vector<std::vector<int>> afterConstraints;
-    bool scheduleValid;
+        /**
+        *
+        * remove an action to the schedule
+        *
+        * \param the index of the action to remove
+        *
+         */
+        bool removeAction(int actionID);
 
+        /**
+         *
+         * builds the stn and returns the makespan with disjunctive constraints
+         *
+         * \param duration of the actions
+         * \param ordering constraints
+         * \param disjunctive constraints
+         *
+         * \return the makespan of the schedle
+         *
+         */
+        bool schedule(const std::vector<float>&, std::vector<std::vector<int>>, std::vector<std::vector<int>>);
 
-};
+        /**
+         *
+         * add disjunctive constraints to the schedule
+         *
+         * \param constraints to add
+         *
+         * \return add sucessfully
+         *
+         */
+        bool setDisjuctive();
 
+        /**
+         *
+         * Used as a starting point for the tabu search
+         *
+         *
+         * \return a scheduler with additional ordering constraints for all disjunctive constraints
+         *
+         */
+        Scheduler getRandomDisjunct();
 
-#endif //UNTITLED_SCHEDULER_H
+        /**
+         *
+         * gives makespan of if ordering constraint was added between the two actions
+         *
+         * \param constraints to add
+         *
+         * \return makespan of schedule with additional constraint
+         *
+         */
+        float checkOC(int first, int second);
+
+        /**
+         *
+         * Prints the schedule
+         *
+         */
+        void printSchedule();
+
+        /**
+         *
+         * returns the disjunctive ordering constraints
+         *
+         * \return disjunctive constraints
+         *
+         */
+        int getDisjuctiveSize();
+
+        /**
+         *
+         * returns the disjunctive ordering as a string
+         *
+         * \return disjunctive constraints string
+         *
+         */
+        std::string getDisjuctiveID();
+
+        /**
+         *
+         * Copy the scheduler a d Switch the ith disjunctive ordering
+         *
+         * \param the number of the disjunctive ordering to switch
+         *
+         * \return disjunctive constraints string
+         *
+         */
+        Scheduler getShedSwitch(int);
+
+        bool scheduleValid{};  // is the schedule valid
+       private:
+        std::vector<std::vector<float>> stn;                  // stn representing the disjuntive graph
+        std::vector<std::vector<int>> beforeConstraints;      // constraints on actions happening before other actions
+        std::vector<std::vector<int>> afterConstraints;       // constraints on actions happening after other actions
+        std::vector<std::vector<int>> disjuctiveConstraints;  // list of disjunctive constraints
+        std::vector<int> disjuctiveOrderings;                 // the orderings on those constraints
+        double makeSpan;
+        std::string disID;
+    };
+}
+
+#include <grstaps/Scheduling/tabu.h>
+#endif //GRSTAPS_SCHEDULER_H

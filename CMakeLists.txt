@@ -34,7 +34,7 @@ target_include_directories(_${PROJECT_NAME} PUBLIC include PRIVATE ${OMPL_INCLUD
 
 # Create executable
 if(BUILD_EXE)
-add_executable(${PROJECT_NAME} src/main.cpp include/grstaps/Graph/compression.cpp include/grstaps/Graph/compression.h include/grstaps/Task_Allocation/checkAllocatable.cpp include/grstaps/Task_Allocation/checkAllocatable.h src/Task_Allocation/TaskAssignMinOrder.cpp src/Task_Allocation/TaskAssignMinOrder.h tests/TestSchedule.cpp)
+add_executable(${PROJECT_NAME} src/main.cpp include/grstaps/Graph/compression.cpp include/grstaps/Graph/compression.h include/grstaps/Task_Allocation/checkAllocatable.cpp include/grstaps/Task_Allocation/checkAllocatable.h src/Task_Allocation/TaskAssignMinOrder.cpp src/Task_Allocation/TaskAssignMinOrder.h tests/TestSchedule.cpp include/Connections/taskAllocationToScheduling.cpp include/Connections/taskAllocationToScheduling.h src/Scheduling/tabu.cpp include/grstaps/Scheduling/tabu.h)
 set_target_properties(${PROJECT_NAME} PROPERTIES CXX_STANDARD 17 CXX_STANDARD_REQUIRED YES)
 target_link_libraries(${PROJECT_NAME} PRIVATE _${PROJECT_NAME} args box2d)
 endif(BUILD_EXE)
@@ -83,6 +83,9 @@ if(BUILD_TESTS)
 endif(BUILD_TESTS)
 
 set(CMAKE_CXX_FLAGS "-fprofile-arcs -ftest-coverage ")
+
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O0")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0")
 
 IF(CMAKE_COMPILER_IS_GNUCC)
     set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O0")
