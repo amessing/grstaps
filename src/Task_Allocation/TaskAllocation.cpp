@@ -134,6 +134,7 @@ namespace grstaps {
                 }
             }
         }
+        return allocationTraitDistribution;
     }
 
     boost::shared_ptr<vector<int>> TaskAllocation::getNumSpecies(){

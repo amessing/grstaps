@@ -22,19 +22,25 @@ namespace grstaps
 {
     float taskAllocationToScheduling::getNonSpeciesSchedule(vector<short> allocation, vector<float>* actionDurations, vector<vector<int>>* orderingConstraints, boost::shared_ptr<vector<int>> numSpecies){
         std::vector<std::vector<int>> disjunctiveConstraints;
-        std::vector<std::vector<int>> includesSpecies;
         for(int species=0; species < (*numSpecies).size(); ++species){
             std::vector<int> currentConcurentUse= {};
-            for(int action=0; action < allocation.size()/(*numSpecies).size(); ++acti){
-                if(allocation[species*action] > 0){
+            int numAction = allocation.size()/(*numSpecies).size();
+            for(int action=0; action < numAction; ++action){
+                if(allocation[(*numSpecies).size()*action+species] > 0){
+                    for(int concur=0; concur < currentConcurentUse.size(); ++concur){
+                        vector<int> constraint = {currentConcurentUse[concur],action};
+                        auto found = std::find(disjunctiveConstraints.begin(), disjunctiveConstraints.end(), constraint);
+                        if(found == disjunctiveConstraints.end()){
+                            disjunctiveConstraints.push_back(constraint);
+                        }
+                    }
                     currentConcurentUse.push_back(action);
                 }
             }
-            includesSpecies.push_back(currentConcurentUse);
         }
-
-        bool valid = sched.schedule(*actionDurations, *orderingConstraints);
+        bool valid = sched.schedule(*actionDurations, *orderingConstraints, disjunctiveConstraints);
         if(valid){
+            auto sche = sched.getMakeSpan();
             return sched.getMakeSpan();
         }
         return -1;

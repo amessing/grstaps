@@ -15,6 +15,8 @@
  * along with GRSTAPS; if not, write to the Free Software Foundation,
  * Inc., #59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
+
+
 #ifndef GRSTAPS_MOTION_PLANNER_HPP
 #define GRSTAPS_MOTION_PLANNER_HPP
 
@@ -28,12 +30,14 @@
 #include <ompl/base/StateSpace.h>
 
 // local
-#include "grstaps/noncopyable.hpp"
+//#include "grstaps/noncopyable.hpp"
+//#include "grstaps/knowledge.hpp"
+#include "grstaps/location.hpp"
 
 namespace grstaps
 {
     // Forward Declarations
-    class Location;
+    //class Location;
 
     /**
      * Wrapper for Open Motion Planning Library
@@ -98,3 +102,4 @@ namespace grstaps
 }  // namespace grstaps
 
 #endif  // GRSTAPS_MOTION_PLANNER_HPP
+

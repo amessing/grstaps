@@ -1,25 +1,25 @@
 [submodule "lib/fmt"]
 	path = lib/fmt
-    url = git@github.com:amessing/fmt.git
+    url = https://github.com/amessing/fmt.git
     branch = master
 [submodule "lib/spdlog"]
 	path = lib/spdlog
-    url = git@github.com:amessing/spdlog.git
+    url = https://github.com/amessing/spdlog.git
     branch = v1.x
 [submodule "lib/googletest"]
 	path = lib/googletest
-    url = git@github.com:amessing/googletest.git
+    url = https://github.com/amessing/googletest.git
     branch = master
 [submodule "lib/lemon"]
 	path = lib/lemon
-	url = git@github.com:amessing/lemon-copy.git
+	url = https://github.com/amessing/lemon-copy.git
 [submodule "lib/args"]
 	path = lib/args
-	url = git@github.com:amessing/args.git
+	url = https://github.com/amessing/args.git
 [submodule "lib/box2d"]
 	path = lib/box2d
-	url = git@github.com:amessing/box2d.git
+	url = https://github.com/amessing/box2d.git
     branch = master
 [submodule "lib/json"]
 	path = lib/json
-	url = git@github.com:amessing/json.git
+	url = https://github.com/amessing/json.git

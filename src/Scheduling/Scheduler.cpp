@@ -42,6 +42,7 @@ namespace grstaps {
     }
 
     float Scheduler::initSTN(const std::vector<float>& durations){
+        stn = std::vector<std::vector<float>>{};
         for(float duration : durations){
             stn.push_back({0, duration});
         }
@@ -306,6 +307,7 @@ namespace grstaps {
     bool Scheduler::schedule(const std::vector<float>& durations, std::vector<std::vector<int>> orderingConstraints, std::vector<std::vector<int>> disConstraints){
         scheduleValid = false;
         initSTN(durations);
+
         beforeConstraints = std::vector<std::vector<int>>(durations.size(), std::vector<int>(0));
         afterConstraints = std::vector<std::vector<int>>(durations.size(), std::vector<int>(0));
         for(auto & orderingConstraint : orderingConstraints){
@@ -317,7 +319,9 @@ namespace grstaps {
         disjuctiveConstraints = disConstraints;
         disjuctiveOrderings.resize(disjuctiveConstraints.size());
         std::fill(disjuctiveOrderings.begin(), disjuctiveOrderings.end(),0);
-        scheduleValid = setDisjuctive();
+        if(disConstraints.size() > 0){
+            scheduleValid = setDisjuctive();
+        }
 
         return scheduleValid;
     }

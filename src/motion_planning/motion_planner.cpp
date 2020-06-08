@@ -24,8 +24,6 @@
 #include <ompl/geometric/planners/prm/LazyPRM.h>
 
 // local
-#include "grstaps/knowledge.hpp"
-#include "grstaps/location.hpp"
 #include "grstaps/motion_planning/validity_checker.hpp"
 
 namespace grstaps
@@ -61,8 +59,8 @@ namespace grstaps
 
     std::pair<bool, float> MotionPlanner::query(unsigned int from, unsigned int to)
     {
-        Knowledge& knowledge = Knowledge::instance();
-        return query(knowledge.location(from), knowledge.location(to));
+        //Knowledge& knowledge = Knowledge::instance();
+        //return query(knowledge.location(from), knowledge.location(to));
     }
 
     std::pair<bool, float> MotionPlanner::query(const Location& from, const Location& to)

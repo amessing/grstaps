@@ -26,7 +26,11 @@
 namespace grstaps {
 
     float TAScheduleTime::operator()(Graph<TaskAllocation> &graph, TaskAllocation &parentNode, TaskAllocation &newNode){
-        return newNode.getScheduleTime();
+        auto score = newNode.getScheduleTime();
+        if(score > 0){
+            return score;
+        }
+        return std::numeric_limits<float>::infinity();
     }//
 
 } //grstaps
