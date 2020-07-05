@@ -25,7 +25,7 @@ namespace grstaps {
     void AllocationResultsPackager::printResults(){
         if (this->foundGoal) {
             std::cout << "Node Found" << std::endl;
-            std::cout << "Node= " << (this->finalNode->getNodeID()) << std::endl;
+            std::cout << "Node= " << this->finalNode->getNodeID() << std::endl;
             std::cout << "Makespan = " << (finalNode->getData().getScheduleTime()) << std::endl;
         }
         else{

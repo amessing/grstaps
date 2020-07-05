@@ -25,8 +25,12 @@
 
 namespace grstaps {
 
-float TAGoalDist::operator()(Graph<TaskAllocation> &graph, TaskAllocation &parentNode, TaskAllocation &newNode){
-    return newNode.getGoalDistance();
-}
+    float allocationWeight = 1.0;
+
+    float TAGoalDist::operator()(Graph<TaskAllocation> &graph, TaskAllocation &parentNode, TaskAllocation &newNode){
+        TAScheduleTime schedule;
+        double makespan = schedule(graph, parentNode, newNode);
+        return  makespan + ( newNode.getGoalDistance() * allocationWeight );
+    }
 
 } //grstaps

@@ -34,6 +34,8 @@ using std::vector;
 
 namespace grstaps {
 
+    class taskAllocationToScheduling;
+
     /**
      * Task Allocation
      *
@@ -59,12 +61,13 @@ namespace grstaps {
         TaskAllocation(bool , vector<vector<float>>*, vector<vector<float>>*, vector<short>, vector<vector<float>>*, taskAllocationToScheduling* =NULL,  vector<float>* =NULL, vector<vector<int>>* =NULL,  boost::shared_ptr<vector<int>> =boost::shared_ptr<vector<int>>(NULL));
 
         /**
-        * constructor
+        * constructoring
         *
         *\param a vector containing the goaltrait distribution
         *\param a vector containing the species trait distribution
         */
         TaskAllocation(bool, vector<vector<float>>*, vector<vector<float>>*, vector<vector<float>>*, taskAllocationToScheduling* =NULL, vector<float>* =NULL, vector<vector<int>>* =NULL, boost::shared_ptr<vector<int>> =boost::shared_ptr<vector<int>>(NULL));
+
 
         /**
         * Copy constructor
@@ -316,6 +319,11 @@ namespace grstaps {
         */
         void addAction(vector<float>, vector<float>, float, const float& =-1, vector<vector<int>>* =NULL);
 
+        vector<short> allocation;
+        boost::shared_ptr<vector<float>> traitTeamMax{};
+        vector<vector<float>> requirementsRemaining{};
+        vector<vector<float>> allocationTraitDistribution{};
+        vector<vector<float>>* goalTraitDistribution{};
 
     private:
         vector<vector<float>>* speciesTraitDistribution{};
@@ -325,15 +333,10 @@ namespace grstaps {
         vector<vector<float>>* actionNoncumulativeTraitValue{};
         vector<float>* actionDurations{};
         vector<vector<int>>* orderingConstraints{};
-        vector<vector<float>>* goalTraitDistribution{};
-
-        vector<vector<float>> allocationTraitDistribution{};
 
         float scheduleTime{};
         float goalDistance{};
         bool isGoal{};
-
-        vector<short> allocation;
         bool usingSpecies;
 
     };

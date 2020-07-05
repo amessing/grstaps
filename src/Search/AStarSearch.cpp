@@ -89,6 +89,7 @@ namespace grstaps {
         GoalLocator<Data>& isGoal = *goal;  // Functor that tells us if a node is a goal
         NodeExpander<Data>& expandGraph = *expander;  // Functor that takes a node and a graph and expands that node to add children
         bool searchFailed = updateCurrent();
+        int amount = 1;
         while (!searchFailed && !isGoal(this->graph, currentNode)) {
             expandGraph(this->graph, this->currentNode);
             float currentCost = this->currentNode->getPathCost();
@@ -97,8 +98,8 @@ namespace grstaps {
                 frontier.push(node);
             }
             searchFailed = updateCurrent();
+            amount++;
         }
-
         results->addResults(this->graph, currentNode, searchFailed);
     }
 
@@ -112,7 +113,6 @@ namespace grstaps {
             currentNode = frontier.top();
             closedList.push(currentNode);
             frontier.pop();
-
         }
         return searchFailed;
 

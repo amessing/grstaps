@@ -20,34 +20,159 @@
 
 namespace grstaps
 {
-    float taskAllocationToScheduling::getNonSpeciesSchedule(vector<short> allocation, vector<float>* actionDurations, vector<vector<int>>* orderingConstraints, boost::shared_ptr<vector<int>> numSpecies){
+    class TaskAllocation;
+
+    float taskAllocationToScheduling::getNonSpeciesSchedule(TaskAllocation* allocObject)
+    {
         std::vector<std::vector<int>> disjunctiveConstraints;
-        for(int species=0; species < (*numSpecies).size(); ++species){
-            std::vector<int> currentConcurentUse= {};
-            int numAction = allocation.size()/(*numSpecies).size();
-            for(int action=0; action < numAction; ++action){
-                if(allocation[(*numSpecies).size()*action+species] > 0){
-                    for(int concur=0; concur < currentConcurentUse.size(); ++concur){
-                        vector<int> constraint = {currentConcurentUse[concur],action};
-                        auto found = std::find(disjunctiveConstraints.begin(), disjunctiveConstraints.end(), constraint);
-                        if(found == disjunctiveConstraints.end()){
+        for(int species = 0; species < (*allocObject->getNumSpecies()).size(); ++species)
+        {
+            concurrent.clear();
+
+            int numAction = allocObject->allocation.size() / (*allocObject->getNumSpecies()).size();
+            for(int action = 0; action < numAction; ++action)
+            {
+                if(allocObject->allocation[(*allocObject->getNumSpecies()).size() * action + species] > 0)
+                {
+                    for(int concur = 0; concur < concurrent.size(); ++concur)
+                    {
+                        vector<int> constraint = {concurrent[concur], action};
+                        auto found =
+                            std::find(disjunctiveConstraints.begin(), disjunctiveConstraints.end(), constraint);
+                        if(found == disjunctiveConstraints.end())
+                        {
                             disjunctiveConstraints.push_back(constraint);
                         }
                     }
-                    currentConcurentUse.push_back(action);
+                    concurrent.push_back(action);
                 }
             }
         }
-        bool valid = sched.schedule(*actionDurations, *orderingConstraints, disjunctiveConstraints);
-        if(valid){
-            auto sche = sched.getMakeSpan();
-            return sched.getMakeSpan();
+        if(sched.schedule(
+               *allocObject->getActionDuration(), *allocObject->getOrderingConstraints(), disjunctiveConstraints))
+        {
+            return adjustScheduleNonSpeciesSchedule(sched, allocObject);
         }
         return -1;
     }
 
-    float taskAllocationToScheduling::getSpeciesSchedule(vector<short> allocation, vector<float>* actionDurations, vector<vector<int>>* orderingConstraints, boost::shared_ptr<vector<int>> numSpecies)
+    float taskAllocationToScheduling::getSpeciesSchedule(TaskAllocation* allocObject)
     {
         throw "Not implemented yet.";
+    }
+
+    float taskAllocationToScheduling::adjustScheduleNonSpeciesSchedule(Scheduler sched, TaskAllocation* taskAlloc)
+    {
+        auto allocation = taskAlloc->getAllocation();
+
+        vector<vector<float>> stn  = sched.stn;
+        vector<int> checked(stn.size(), 0);
+        std::vector<std::vector<int>> beforeConstraints = sched.beforeConstraints;
+        std::vector<std::vector<int>> afterConstraints  = sched.afterConstraints;
+
+        for(int i = 0; i < stn.size(); ++i){
+            stn = sched.stn;
+
+            //find action ending soonest
+
+            float minEndTime             = std::numeric_limits<float>::max();
+            int currentSoonestEnd        = 0;
+            for(int j = 0; j < stn.size(); ++j){
+                if(stn[j][1] < minEndTime && !checked[j]){
+                    minEndTime        = stn[j][1];
+                    currentSoonestEnd = j;
+                }
+            }
+
+            //find concurrent actionsector<int> concurrent{currentSoonestEnd};
+            concurrent.clear();
+            concurrent.emplace_back(currentSoonestEnd);
+            for(int j = 0; j < stn.size(); ++j){
+                if((j != currentSoonestEnd) && !checked[j] &&
+                   ((stn[j][1] <= stn[currentSoonestEnd][0] && stn[j][1] > stn[currentSoonestEnd][0]) ||
+                    (stn[j][0] <= stn[currentSoonestEnd][1] && stn[j][0] >= stn[currentSoonestEnd][0]))){
+                    concurrent.emplace_back(j);
+                }
+            }
+
+
+            //calc trait ussage at time of action
+            vector<float> maxTraitTeam = *(taskAlloc->traitTeamMax);
+            for(int j = 0; j < concurrent.size(); ++j){
+                for(int k = 0; k < maxTraitTeam.size(); ++k){
+                    maxTraitTeam[k] -= taskAlloc->allocationTraitDistribution[concurrent[j]][k] +
+                                       taskAlloc->requirementsRemaining[concurrent[j]][k];
+                }
+            }
+
+            bool removeCurrent = true;
+            for(int j = 0; j < maxTraitTeam.size(); ++j){
+
+                while(maxTraitTeam[j] < 0){
+                    int toUpdate = 1000;
+                    int direction = 0;
+                    float bestSchedTime = std::numeric_limits<float>::max();
+                    float currentSched = std::numeric_limits<float>::max();
+
+                    for(int k = 0; k < concurrent.size(); ++k){
+                        for(int l = 0; l < 2; ++l){
+                            if(((*taskAlloc->goalTraitDistribution)[concurrent[k]][j] > 0) || (taskAlloc->allocationTraitDistribution[concurrent[k]][j] > 0)){
+                                if(concurrent[k] != currentSoonestEnd){
+                                    stn = sched.stn;
+                                    if(l == 0){
+                                        bool valid = sched.addOCTime(currentSoonestEnd, concurrent[k], stn, beforeConstraints, afterConstraints);
+                                        //afterConstraints[concurrent[k]].emplace_back(currentSoonestEnd);
+                                        //beforeConstraints[currentSoonestEnd].emplace_back(concurrent[k]);
+                                        currentSched = sched.getMakeSpanSTN(stn);
+                                        if(currentSched < bestSchedTime)
+                                        {
+                                            bestSchedTime   = currentSched;
+                                            toUpdate        = k;
+                                            direction = l;
+                                        }
+                                    }
+                                    else{
+                                        bool valid = sched.addOCTime(concurrent[k], currentSoonestEnd, stn, beforeConstraints, afterConstraints);
+                                        //beforeConstraints[concurrent[k]].emplace_back(currentSoonestEnd);
+                                        //afterConstraints[currentSoonestEnd].emplace_back(concurrent[k]);
+                                        currentSched = sched.getMakeSpanSTN(stn);
+                                        if(currentSched < bestSchedTime)
+                                        {
+                                            bestSchedTime   = currentSched;
+                                            toUpdate        = k;
+                                            direction = l;
+                                        }
+                                    }
+
+                                }
+                            }
+                        }
+                    }
+
+                    if(direction == 0){
+                        sched.addOC(currentSoonestEnd, concurrent[toUpdate]);
+                        for(int k = 0; k < (*taskAlloc->goalTraitDistribution)[concurrent[toUpdate]].size(); ++k){
+                            maxTraitTeam[k] += taskAlloc->allocationTraitDistribution[concurrent[toUpdate]][k] + taskAlloc->requirementsRemaining[concurrent[toUpdate]][k];
+                        }
+                        concurrent.erase(concurrent.begin() + toUpdate);
+                    }
+                    else{
+
+                        sched.addOC(concurrent[toUpdate], currentSoonestEnd);
+                        concurrent.erase(concurrent.begin() + toUpdate);
+                        j = maxTraitTeam.size();
+                        removeCurrent = false;
+                        break;
+                    }
+
+                }
+            }
+
+            if(removeCurrent){
+                checked[currentSoonestEnd] = 1;
+            }
+
+        }
+        return sched.getMakeSpan();
     }
 }

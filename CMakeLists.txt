@@ -7,8 +7,6 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(optimization OFF)
 
 
-
-
 # Add external cmake modules
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 include(FileOutputs)

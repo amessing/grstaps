@@ -19,10 +19,13 @@
 #ifndef GSTAPS_TA_GOAL_DIST
 #define GSTAPS_TA_GOAL_DIST
 
+
 #include "grstaps/Search/Heuristic.h"
 #include "grstaps/Graph/Node.h"
 #include "grstaps/Graph/Graph.h"
 #include "grstaps/Task_Allocation/TaskAllocation.h"
+#include "grstaps/Scheduling/TAScheduleTime.h"
+
 
 
 namespace grstaps {

@@ -18,24 +18,34 @@
 #ifndef GRSTAPS_TASKALLOCATIONTOSCHEDULING_H
 #define GRSTAPS_TASKALLOCATIONTOSCHEDULING_H
 
+
 #include <grstaps/Scheduling/Scheduler.h>
 #include <vector>
 #include <string>
 #include <boost/shared_ptr.hpp>
+
 
 using std::string;
 using std::vector;
 
 namespace grstaps
 {
+    class TaskAllocation;
     class taskAllocationToScheduling{
        public:
-        float getNonSpeciesSchedule(vector<short> allocation, vector<float>* actionDurations, vector<vector<int>>* orderingConstraint, boost::shared_ptr<vector<int>> numSpecies);
+        float getNonSpeciesSchedule(TaskAllocation* allocObject);
 
-        float getSpeciesSchedule(vector<short> allocation, vector<float>* actionDurations, vector<vector<int>>* orderingConstraints, boost::shared_ptr<vector<int>> numSpecies);
+        float getSpeciesSchedule(TaskAllocation* allocObject);
+
+        float adjustScheduleNonSpeciesSchedule(Scheduler sched, TaskAllocation* TaskAlloc);
        
        private:
         Scheduler sched;
+        std::vector<int> concurrent;
+        vector<vector<float>> stn;
+
     };
 }
+
+#include <grstaps/Task_Allocation/TaskAllocation.h>
 #endif  // GRSTAPS_TASKALLOCATIONTOSCHEDULING_H

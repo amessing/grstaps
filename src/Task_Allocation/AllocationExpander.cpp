@@ -52,8 +52,10 @@ namespace grstaps {
                         float heur = (*this->heuristicFunc)(graph, data, newNodeData);
                         float cost = (*this->costFunc)(graph, data, newNodeData);
                         auto newNode = nodePtr<TaskAllocation>(new Node<TaskAllocation>(newNodeID, newNodeData));
+                        newNode->setHeuristic(heur);
+                        newNode->setPathCost(heur);
                         graph.addNode(newNode, newNodeID);
-                        graph.addEdge(newNodeID, nodeID, cost - currentCost, expandNode, newNode);
+                        graph.addEdge(newNodeID, nodeID, heur - currentCost, expandNode, newNode);
                     }
                 }
             }

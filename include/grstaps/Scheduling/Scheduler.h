@@ -54,7 +54,7 @@ namespace grstaps{
 
         /**
          *
-         * copy constructor
+         * copy constructorsched = Scheduler();
          *
          * \param scheduler to copy
          *
@@ -94,6 +94,18 @@ namespace grstaps{
 
         /**
          *
+         * Adds a constraint from the passed stn between two actions
+         *
+         * \param index of action that comes first
+         * \param index of action that comes second
+         * \param the stn that you will be editing
+         *
+         * \return successfully added
+         */
+        bool addOCTime(int first, int second, std::vector<std::vector<float>>& stnCopy, std::vector<std::vector<int>>& beforeConstraintVec, std::vector<std::vector<int>>& afterConstraintVec);
+
+        /**
+         *
          * Changes the duration of an action
          *
          * \param index of action
@@ -121,9 +133,30 @@ namespace grstaps{
          * \param index of action that comes first
          * \param index of action that comes second
          *
-         * \return successfully added
          */
-        bool removeOC(int first, int second);
+        void removeOC(int first, int second);
+
+        /**
+         *
+         * Removes a constraint from the passed stn between two actions
+         *
+         * \param index of action that comes first
+         * \param index of action that comes second
+         * \param a stn that you will be editing
+         *
+         */
+        void removeOCTime(int first, int second, std::vector<std::vector<float>>& stnCopy);
+
+        /**
+         *
+         * Gets makespan of past stn
+         *
+         * \param a stn that you wish to find the makespan of
+         *
+         * \return float denoting the makespan of the stn
+         *
+         */
+        float getMakeSpanSTN(std::vector<std::vector<float>>& stnCopy);
 
         /**
          *
@@ -199,7 +232,7 @@ namespace grstaps{
          * \return a scheduler with additional ordering constraints for all disjunctive constraints
          *
          */
-        Scheduler getRandomDisjunct();
+        void getRandomDisjunct(Scheduler&);
 
         /**
          *
@@ -246,17 +279,52 @@ namespace grstaps{
          * \return disjunctive constraints string
          *
          */
-        Scheduler getShedSwitch(int);
+        bool getShedSwitch(int);
+
+        /**
+         *
+         * Returns the schedules makespan if the disjunctive ordering was switch for disIndex
+         *
+         * \param the number of the disjunctive ordering to switch
+         *
+         * \return makespan after ordering switch
+         *
+         */
+        double getShedSwitchTime(int disIndex);
+
+
+        /**
+         *
+         * Updates an stn and a set of constraints passed in adding an ordering constraint between two actions
+         *
+         * \param index of action that comes first
+         * \param index of action that comes second
+         * \param the stn that you will be editing
+         * \param the list of before constraints
+         * \param the list of after constraints
+         *
+         * \return makespan after ordering switch
+         *
+         */
+         float addOCTemp(int first, int second, std::vector<std::vector<float>> stnCopy, std::vector<std::vector<int>>& beforeConstraintVec, std::vector<std::vector<int>>& afterConstraintVec);
+
+
 
         bool scheduleValid{};  // is the schedule valid
+        std::vector<std::vector<float>> stn;                 // stn representing the disjuntive graph
+
+        std::vector<std::vector<int>> beforeConstraints;     // constraints on actions happening before other actions
+        std::vector<std::vector<int>> afterConstraints;      // constraints on actions happening after other actions
+
        private:
-        std::vector<std::vector<float>> stn;                  // stn representing the disjuntive graph
-        std::vector<std::vector<int>> beforeConstraints;      // constraints on actions happening before other actions
-        std::vector<std::vector<int>> afterConstraints;       // constraints on actions happening after other actions
         std::vector<std::vector<int>> disjuctiveConstraints;  // list of disjunctive constraints
         std::vector<int> disjuctiveOrderings;                 // the orderings on those constraints
         double makeSpan;
         std::string disID;
+        int flag = 1;
+        std::vector<std::vector<float>> copySTN;
+        std::vector<int> constraintsToUpdate;
+
     };
 }
 
