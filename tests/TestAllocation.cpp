@@ -50,21 +50,15 @@ namespace grstaps {
 
             vector<vector<float>> goalDistribution{
                     {1, 1, 1, 1, 1},
-
-
             };
 
             vector<vector<float>> speciesDistribution{
                     {1, 0, 1, 0, 1},
                     {0, 1, 0, 1, 0},
-
-
             };
 
             vector<vector<float>> noncumTraitCutoff{
                     {1, 1, 1, 1, 1}
-
-
             };
 
 
@@ -115,7 +109,7 @@ namespace grstaps {
             auto results = static_cast<AllocationResultsPackager *>(package);
             results->printResults();
 
-            /*
+
             std::string newActionID = "New Action";
             vector<float> traitRequirements{1, 1, 1, 1, 1};
             vector<float> nonCumTraits{1, 1, 1, 1, 1};
@@ -128,7 +122,6 @@ namespace grstaps {
             std::cout << "Time=" << duration.count() << std::endl;
             results = static_cast<AllocationResultsPackager *>(package);
             results->printResults();
-            */
 
             delete isGoal;
             delete expander;

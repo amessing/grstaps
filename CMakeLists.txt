@@ -22,9 +22,12 @@ option(BUILD_EXE "Build Executable" ON)
 add_subdirectory(lib)
 
 # Collect header and source files
-file(GLOB_RECURSE ${PROJECT_NAME}_HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/include/${PROJECT_NAME}/**.h)
-file(GLOB_RECURSE ${PROJECT_NAME}_HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/include/${PROJECT_NAME}/**.hpp)
-file(GLOB_RECURSE ${PROJECT_NAME}_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/**.cpp)
+file(GLOB_RECURSE ${PROJECT_NAME}_HEADERS
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/${PROJECT_NAME}/**.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/${PROJECT_NAME}/**.hpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/${PROJECT_NAME}/**/**.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/${PROJECT_NAME}/**/**.hpp)
+file(GLOB_RECURSE ${PROJECT_NAME}_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/**.cpp ${CMAKE_CURRENT_SOURCE_DIR}/src/**/**.cpp)
 list(REMOVE_ITEM ${PROJECT_NAME}_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp)
 
 # Create library
@@ -35,9 +38,9 @@ target_include_directories(_${PROJECT_NAME} PUBLIC include PRIVATE ${OMPL_INCLUD
 
 # Create executable
 if(BUILD_EXE)
-add_executable(${PROJECT_NAME} src/main.cpp include/grstaps/Graph/compression.cpp include/grstaps/Graph/compression.h)
+add_executable(${PROJECT_NAME} src/main.cpp)
 set_target_properties(${PROJECT_NAME} PROPERTIES CXX_STANDARD 17 CXX_STANDARD_REQUIRED YES)
-target_link_libraries(${PROJECT_NAME} PRIVATE _${PROJECT_NAME} args box2d)
+target_link_libraries(${PROJECT_NAME} PRIVATE _${PROJECT_NAME} args box2d nlohmann_json)
 endif(BUILD_EXE)
 
 if(BUILD_DOC)

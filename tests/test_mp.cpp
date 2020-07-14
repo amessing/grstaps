@@ -15,6 +15,7 @@
  * along with GRSTAPS; if not, write to the Free Software Foundation,
  * Inc., #59 Temple Plac
  */
+#if 0
 // external
 
 #include <gtest/gtest.h>
@@ -30,6 +31,7 @@ namespace grstaps
         {
             std::vector<b2PolygonShape> obstacles;
 
+            /*
             // Obstacle 1
             {
                 b2PolygonShape obstacle;
@@ -70,8 +72,11 @@ namespace grstaps
                 obstacles.push_back(obstacle);
             }
 
+            */
+
             //MotionPlanner& mp = MotionPlanner::instance();
             //mp.setMap(obstacles, 0, 10);
         }
     }  // namespace test
 }  // namespace grstaps
+#endif

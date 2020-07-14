@@ -1,119 +1,83 @@
-/*
- * Copyright (C) 2020 Andrew Messing
- *
- * grstaps is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published
- * by the Free Software Foundation; either version 3 of the License,
- * or any later version.
- *
- * grstaps is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public
- * License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with grstaps; if not, write to the Free Software Foundation,
- * Inc., #59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
- */
 #ifndef GRSTAPS_PLAN_HPP
 #define GRSTAPS_PLAN_HPP
 
-// global
-#include <memory>
-#include <vector>
-
+#include "grstaps/task_planning/causal_link.hpp"
+#include "grstaps/task_planning/sas_task.hpp"
+#include "grstaps/task_planning/utils.hpp"
 
 namespace grstaps
 {
-    // Forward Declaration
-    class Action;
-    class CausalLink;
-    class OpenCondition;
-    class Ordering;
-
-    /**
-     * A partial-order plan
-     */
-    class Plan
+    class TOpenCond
     {
     public:
-        /**
-         * Constructor
-         *
-         * \param parent The parent of this plan
-         * \param action The new action added
-         */
-        Plan(Plan* parent, std::shared_ptr<Action> action);
+        TStep step;
+        uint16_t condNumber;
 
-        /**
-         * Adds the list of child plans
-         */
-        void addChildren(const std::vector<std::shared_ptr<Plan>>& children);
-
-        /**
-         * \returns Whether this node has been expanded
-         */
-        inline bool expanded() const
-        {
-            return m_children.size() > 0;
-        }
-
-        /**
-         * \returns Whether this plan has open conditions
-         */
-        inline bool hasOpenConditions() const
-        {
-            return m_open_conditions.size() > 0;
-        }
-
-        /**
-         * \returns Whether this is the root node
-         */
-        inline bool isRoot() const
-        {
-            return m_parent == nullptr;
-        }
-
-        /**
-         * \returns Whether this plan is a solution
-         */
-        bool isSolution() const;
-
-        /**
-         * \returns The path cost
-         */
-        float g() const;
-
-        /**
-         * \returns The heuristic value
-         */
-        float h() const;
-
-        /**
-         * \returns The total cost of this plan (f = g + h)
-         */
-        float f() const;
-    private:
-        unsigned int m_id;
-        Plan* m_parent; //!< The parent of this plan
-        std::vector<std::shared_ptr<Plan>> m_children; //!< List of the children of this plan
-        std::shared_ptr<Action> m_new_action; //!< The new action added to the parent plan
-        std::vector<Ordering> m_orderings; //!< List of the new order
-        std::vector<CausalLink> m_causal_links; //!< List of the new causal links
-        std::vector<OpenCondition> m_open_conditions; //!< List of the open conditions
-        float m_g; //!< The path cost
-        float m_h; //!< The heuristic value
-
-        static unsigned int m_next_plan_id; //!< The identifier for the next plan
+        TOpenCond(TStep s, uint16_t c);
     };
 
-    /**
-     * A comparator for the priority queue in fcpop
-     */
-    class ComparePlanPtr : public std::less<std::shared_ptr<Plan>>
+    class Plan
     {
-        bool operator()(const std::shared_ptr<Plan>& lhs, const std::shared_ptr<Plan>& rhs) const;
+    private:
+        void clearChildren();
+
+    public:
+        Plan* parentPlan;                        // Pointer to its parent plan
+        std::vector<Plan*>* childPlans;            // Vector of child plans. This vector is nullptr if
+        // the plan has not been expanded yet
+        SASAction* action;                        // New action added
+        float fixedEnd;                            // Fixed time for the end of the action. If the action is not fixed this value is -1
+        std::vector<TOrdering> orderings;        // New orderings (first time point [lower 16 bits] -> second time point [higher 16 bits])
+        std::vector<CausalLink> causalLinks;    // New causal links
+        std::vector<TOpenCond>* openCond;        // Vector of open conditions (nullptr if all conditions are supported)
+        bool unsatisfiedNumericConditions;
+        bool repeatedState;
+        float gc;
+        float h;
+        float hAux;
+        uint16_t hLand;
+        uint16_t g;
+        uint32_t id;
+        bool task_allocatable;
+
+        Plan(SASAction* action, Plan* parentPlan, uint32_t idPlan);
+
+        Plan(SASAction* action, Plan* parentPlan, float fixedEnd, uint32_t idPlan);
+
+        ~Plan();
+
+        void addChildren(std::vector<Plan*>& suc);
+
+        int compare(Plan* p, int queue);
+
+        std::string toString();
+
+        inline bool expanded()
+        {
+            return childPlans != nullptr;
+        }
+
+        inline bool hasOpenConditions()
+        {
+            return openCond != nullptr;
+        }
+
+        void addOpenCondition(uint16_t condNumber, uint16_t stepNumber);
+
+        inline bool isRoot()
+        {
+            if(parentPlan == nullptr) return true;
+            if(fixedEnd >= 0) return parentPlan->isRoot();
+            else return false;
+        }
+
+        inline bool isSolution()
+        {
+            return action != nullptr && action->isGoal && !unsatisfiedNumericConditions;
+        }
+
+        float getH(int queue);
+        //void checkUsefulPlan();
     };
 }
-
-#endif //GRSTAPS_PLAN_HPP
+#endif // GRSTAPS_PLAN_HPP

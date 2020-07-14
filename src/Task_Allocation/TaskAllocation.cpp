@@ -230,7 +230,13 @@ namespace grstaps {
                 }
             }
         }
+        if(actionNoncumulativeTraitValue->size() > 200000)
+        {
+            int breakpoint = 0;
+        }
+
         for (int j = 0; j < allocationTraitDistribution.size(); j++){
+            std::cout << actionNoncumulativeTraitValue->size() << " " << actionNoncumulativeTraitValue->operator[](taskIndex).size() << std::endl;
             if ((*actionNoncumulativeTraitValue)[taskIndex][j] != 0.0){
                 if((*speciesTraitDistribution)[agentIndex][j] >= (*actionNoncumulativeTraitValue)[taskIndex][j]){
                     if(allocationTraitDistribution[j] < (*goalTraitDistribution)[taskIndex][j]){

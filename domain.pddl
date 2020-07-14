@@ -1,7 +1,7 @@
 (domain (define survivor)
 	(:requirements :typing)
 	(:types
-		location movable enum_number- object
+		location movable enum_number - object
 		inside_warehouse outside_warehouse - location
 		hospital survivor_start potential_fire - outside_warehouse
 		fire damaged_building - potential_fire
@@ -22,7 +22,6 @@
 		(movable ?m - movable)
 		(used ?m - medicine)
 		(healed ?s - survivor)
-		(used ?m - medicine)
 		(mutex ?m - movable)
 		(onFire ?f - potential_fire)
 		(rubbleCleared ?b - damaged_building)
@@ -48,6 +47,9 @@
 		:parameters (?m - medicine ?sc - small_crate)
 		:duration (= ?duration (motion_time MEDICINE_START SMALL_CRATE_PACKAGING))
 		:condition (and 
+						(at start (not (mutex ?sc)))
+						(at start (not (mutex ?m)))
+
 						; The crate and the medicine need to be at their respective starting location
 						(at start (= (location ?m) MEDICINE_START))
 						(at start (= (location ?sc) SMALL_CRATE_PACKAGING))

@@ -18,19 +18,23 @@
 
 #ifndef GRSTAPS_ALLOCEXPANDERCPP
 #define GRSTAPS_ALLOCEXPANDERCPP
+
 #include "grstaps/Task_Allocation/AllocationExpander.h"
 
 
-namespace grstaps {
+namespace grstaps
+{
 
 
-    template<typename Data>
-    using nodePtr = typename boost::shared_ptr<Node<Data>>;
+    template <typename Data> using nodePtr = typename boost::shared_ptr<Node<Data>>;
 
-    AllocationExpander::AllocationExpander(Heuristic* heur, Cost* cos): NodeExpander(heur, cos){}
+    AllocationExpander::AllocationExpander(Heuristic* heur, Cost* cos)
+        : NodeExpander(heur, cos)
+    {}
 
     //check to prevent duplicate
-    bool AllocationExpander::operator()(Graph<TaskAllocation>& graph, nodePtr<TaskAllocation>& expandNode){
+    bool AllocationExpander::operator()(Graph<TaskAllocation>& graph, nodePtr<TaskAllocation>& expandNode)
+    {
         TaskAllocation data = expandNode->getData();
         vector<short> allocation = data.getAllocation();
         std::string nodeID = expandNode->getNodeID();
@@ -38,17 +42,21 @@ namespace grstaps {
         int numSpecies = expandNode->getData().getNumSpecies()->size();
         float parentsGoalDistance = expandNode->getData().getGoalDistance();
 
-        int numTask = allocation.size()/numSpecies;
+        int numTask = allocation.size() / numSpecies;
         vector<int> numSpec = *data.getNumSpecies();
-        for(int i=0; i < numTask; i++){
-            for(int j=0; j < numSpecies; j++){
-                int index = i *numSpecies + j;
+        for(int i = 0; i < numTask; ++i)
+        {
+            for(int j = 0; j < numSpecies; ++j)
+            {
+                int index = i * numSpecies + j;
                 std::string newNodeID = editID(allocation, nodeID, index);
 
-                if(!graph.nodeExist(newNodeID) && (int(newNodeID[(i*numSpecies)+j]- '0') <= (numSpec)[j] )) {
+                if(!graph.nodeExist(newNodeID) && (int(newNodeID[(i * numSpecies) + j] - '0') <= (numSpec)[j]))
+                {
                     TaskAllocation newNodeData(data);
                     newNodeData.addAgent(j, i);
-                    if(newNodeData.getGoalDistance() < parentsGoalDistance) {
+                    if(newNodeData.getGoalDistance() < parentsGoalDistance)
+                    {
                         float heur = (*this->heuristicFunc)(graph, data, newNodeData);
                         float cost = (*this->costFunc)(graph, data, newNodeData);
                         auto newNode = nodePtr<TaskAllocation>(new Node<TaskAllocation>(newNodeID, newNodeData));
@@ -64,17 +72,21 @@ namespace grstaps {
 
     }
 
-    std::string AllocationExpander::editID(vector<short>& allocation, std::string parentNodeID, int indexExp) {
+    std::string AllocationExpander::editID(vector<short>& allocation, std::string parentNodeID, int indexExp)
+    {
         int idSize = parentNodeID.length() / (allocation.size());
         string newNodeID = parentNodeID;
         int index = idSize * indexExp + idSize - 1;
         int add = 1;
-        for (int i = 0; i < idSize; i++) {
+        for(int i = 0; i < idSize; i++)
+        {
             int newDigit = int(newNodeID[index]) - 48 + add;
-            if(newDigit== 10){
-                newDigit =0;
+            if(newDigit == 10)
+            {
+                newDigit = 0;
             }
-            else {
+            else
+            {
                 newNodeID[index] = char(newDigit + 48);
                 index--;
                 add = 0;

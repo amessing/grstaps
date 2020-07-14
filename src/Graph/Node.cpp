@@ -81,8 +81,8 @@ namespace grstaps {
     }
 
     template<class Data>
-    void Node<Data>::setData(Data& data) {
-        nodeData = std::move(data);
+    void Node<Data>::setData(const Data& data) {
+        nodeData = data;
     }
 
     template<class Data>

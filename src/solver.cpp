@@ -42,35 +42,42 @@ namespace grstaps
 
     std::shared_ptr<Solution> Solver::solve(const nlohmann::json& config)
     {
-        m_task_planner->createRoot(m_problem->initialState());
-
+        Plan* base;
+        std::vector<Plan*> successors;
+        Plan* solution;
         while(!m_task_planner->emptySearchSpace())
         {
-            std::shared_ptr<Plan> node = m_task_planner->poll();
+            base = nullptr;
+            successors.clear();
+            solution = nullptr;
+            m_task_planner->getNextSuccessors(base, successors, solution);
 
-            std::vector<std::shared_ptr<Plan>> children = m_task_planner->possibleSuccessors(node);
-
-            int num_children = children.size();
-            std::vector<bool> valid(num_children, false);
+            int num_children = successors.size();
 
             // openmp line
             for(int i = 0; i < num_children; ++i)
             {
                 // task allocation & scheduling
-                // Compute h
+                // Compute h and update
             }
 
-            // Sort based on h?
+            // Filter based on task allocation and sort based on h
+            std::vector<Plan*> valid_successors;
+            std::copy_if(successors.begin(), successors.end(), std::back_inserter(valid_successors),
+                [](Plan* p){return p->task_allocatable; });
+            // TODO: check if this is correct or backwards
+            std::sort(valid_successors.begin(), valid_successors.end(),
+                [](Plan* lhs, Plan* rhs){ return lhs->h > rhs->h;});
 
             for(int i = 0; i < num_children; ++i)
             {
-                if(valid[i] && children[i]->isSolution())
+                if(successors[i]->isSolution())
                 {
                     // create and return solution
                 }
             }
 
-            m_task_planner->addSuccessors(node, children, valid);
+            m_task_planner->update(base, valid_successors);
         }
 
         return nullptr;

@@ -1,3 +1,4 @@
+#if 0
 /*
  * Copyright (C) 2020 Andrew Messing
  *
@@ -120,3 +121,4 @@ namespace grstaps
 }
 
 #endif //GRSTAPS_PROBLEM_HPP
+#endif
