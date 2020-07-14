@@ -91,6 +91,7 @@ namespace grstaps {
         nodePtr<Data> currentNode;
         boost::heap::binomial_heap< nodePtr<Data>, boost::heap::compare<NodeCompareF<Data>> > frontier;
         boost::heap::binomial_heap< nodePtr<Data>, boost::heap::compare<NodeCompareF<Data>> > closedList;
+        int numNodes;
 
     };
 }// namespace grstaps

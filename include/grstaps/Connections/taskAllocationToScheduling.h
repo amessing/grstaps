@@ -23,6 +23,7 @@
 #include <vector>
 #include <string>
 #include <boost/shared_ptr.hpp>
+#include <grstaps/motion_planning/motion_planner.hpp>
 
 
 using std::string;
@@ -33,16 +34,67 @@ namespace grstaps
     class TaskAllocation;
     class taskAllocationToScheduling{
        public:
+
+        /**
+        * Constructor
+        *
+        * \param the motion planner pointer to use for planning
+        *
+        */
+        taskAllocationToScheduling(MotionPlanner* mPlanner= NULL, vector<int>* startingLoc= NULL, vector<int>* actionLoc= NULL);
+
+        /**
+        * Get the schedule for a task allocation that does not use species
+        *
+        * \param the allocation that needs to be scheduled
+         *
+         * \return the makespan of the schedule
+        *
+        */
+
         float getNonSpeciesSchedule(TaskAllocation* allocObject);
 
+        /**
+        * Get the schedule for a task allocation that does use species
+        *
+        * \param the allocation that needs to be scheduled
+         *
+         * \return the makespan of the schedule
+        *
+        */
+        //todo finish this
         float getSpeciesSchedule(TaskAllocation* allocObject);
 
-        float adjustScheduleNonSpeciesSchedule(Scheduler sched, TaskAllocation* TaskAlloc);
-       
+        /**
+        * Adjust the schedule to account for non allocated actions
+        *
+         * \param the schedule that needs to be adjusted
+        * \param the allocation that needs to be scheduled
+         *
+        *
+        */
+        //todo finish this
+        void adjustScheduleNonSpeciesSchedule(TaskAllocation* TaskAlloc);
+
+        /**
+        * Adjust the schedule to account for motion planning
+        *
+         * \param the schedule that needs to be adjusted
+        * \param the allocation that needs to be scheduled
+         *
+        *
+        */
+        //todo finish this
+        float addMotionPlanningNonSpeciesSchedule(TaskAllocation* TaskAlloc);
+
        private:
         Scheduler sched;
         std::vector<int> concurrent;
         vector<vector<float>> stn;
+        MotionPlanner* motionPlanner;
+        vector<int>* startingLocations;
+        vector<int>* actionLocations;
+        vector<int> actionOrder;
 
     };
 }

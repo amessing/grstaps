@@ -28,6 +28,7 @@
 #include <string>
 #include <iostream>
 #include <algorithm>
+#include <../lib/unordered_map/robin_hood.h>
 
 namespace grstaps{
     class tabu;
@@ -106,6 +107,19 @@ namespace grstaps{
 
         /**
          *
+         * Adds a constraint from the passed stn between two actions
+         *
+         * \param index of action that comes first
+         * \param index of action that comes second
+         * \param the stn that you will be editing
+         *
+         * \return successfully added
+         */
+        float addOCTime2(int first, int second, float newMakespan);
+
+
+        /**
+         *
          * Changes the duration of an action
          *
          * \param index of action
@@ -146,6 +160,18 @@ namespace grstaps{
          *
          */
         void removeOCTime(int first, int second, std::vector<std::vector<float>>& stnCopy);
+
+        /**
+         *
+         * Removes a constraint from the passed stn between two actions
+         *
+         * \param index of action that comes first
+         * \param index of action that comes second
+         * \param a stn that you will be editing
+         *
+         */
+        float removeOCTime2(int first, int second);
+
 
         /**
          *
@@ -240,10 +266,10 @@ namespace grstaps{
          *
          * \param constraints to add
          *
-         * \return makespan of schedule with additional constraint
+         * \return adding the ordering constraint will be valid
          *
          */
-        float checkOC(int first, int second);
+        bool checkOC(int first, int second);
 
         /**
          *
@@ -312,7 +338,6 @@ namespace grstaps{
 
         bool scheduleValid{};  // is the schedule valid
         std::vector<std::vector<float>> stn;                 // stn representing the disjuntive graph
-
         std::vector<std::vector<int>> beforeConstraints;     // constraints on actions happening before other actions
         std::vector<std::vector<int>> afterConstraints;      // constraints on actions happening after other actions
 
@@ -320,10 +345,12 @@ namespace grstaps{
         std::vector<std::vector<int>> disjuctiveConstraints;  // list of disjunctive constraints
         std::vector<int> disjuctiveOrderings;                 // the orderings on those constraints
         double makeSpan;
+        int lastAction;
         std::string disID;
         int flag = 1;
         std::vector<std::vector<float>> copySTN;
         std::vector<int> constraintsToUpdate;
+        robin_hood::unordered_map<int, std::vector<float>> editedActionTimes;
 
     };
 }

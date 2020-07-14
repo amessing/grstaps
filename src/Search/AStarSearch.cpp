@@ -27,6 +27,7 @@ namespace grstaps {
     AStarSearch<Data>::AStarSearch(Graph<Data> &graph, nodePtr<Data> &initPtr) : SearchBase<Data>(graph, initPtr) {
         currentNode = initPtr; // variable the holds the current explored node
         frontier.push(initPtr);
+        numNodes = 0;
     }
 
     template<class Data>
@@ -89,7 +90,6 @@ namespace grstaps {
         GoalLocator<Data>& isGoal = *goal;  // Functor that tells us if a node is a goal
         NodeExpander<Data>& expandGraph = *expander;  // Functor that takes a node and a graph and expands that node to add children
         bool searchFailed = updateCurrent();
-        int amount = 1;
         while (!searchFailed && !isGoal(this->graph, currentNode)) {
             expandGraph(this->graph, this->currentNode);
             float currentCost = this->currentNode->getPathCost();
@@ -98,8 +98,8 @@ namespace grstaps {
                 frontier.push(node);
             }
             searchFailed = updateCurrent();
-            amount++;
         }
+        std::cout << numNodes << std::endl;
         results->addResults(this->graph, currentNode, searchFailed);
     }
 
@@ -113,6 +113,8 @@ namespace grstaps {
             currentNode = frontier.top();
             closedList.push(currentNode);
             frontier.pop();
+            numNodes++;
+
         }
         return searchFailed;
 

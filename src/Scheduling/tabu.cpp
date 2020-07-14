@@ -16,6 +16,8 @@ namespace grstaps
 
             tabu_list.clear();
             int countTime = 0;
+
+            //here
             initialSched.getRandomDisjunct(currentSched);
             double score;
             bestSolverScore = std::numeric_limits<double>::max();
@@ -34,6 +36,7 @@ namespace grstaps
                     bestSolverScore = score;
                     countTime       = 0;
                     if(bestSolverScore < bestSolutionScore){
+                        //hereScheduler
                         bestSolution      = currentSched;
                         bestSolutionScore = bestSolverScore;
                     }
@@ -60,8 +63,7 @@ namespace grstaps
 
         for(int i = 0; i < currentSched.getDisjuctiveSize(); i++)
         {
-            //Scheduler currentSchedCopy(currentSched);
-            //float currentMakespan =  currentSchedCopy.getShedSwitch(i);
+
             if(currentDisID[i] == 1){
                 id = currentDisID;
                 id[i] = 0;
@@ -81,15 +83,12 @@ namespace grstaps
                 currentMakespan = foundMakespans.at(id);
             }
 
-            if(currentMakespan > 0)
+            if(currentMakespan > 0 && (bestScore > currentMakespan))
             {
-                if((bestScore > currentMakespan && found == tabu_list.end()) || (bestScore > currentMakespan && found->second <= it))
-                {
                     bestDisSwitch = i;
                     bestScore     = currentMakespan;
                     tabu_list[id] = (it + TABU_LENGTH);
                     foundMakespans[id] = currentMakespan;
-                }
             }
         }
         if(bestDisSwitch < 0)
@@ -98,29 +97,4 @@ namespace grstaps
     }
 }
 
-/*
-Scheduler tabu::getBestNearbySolution(int it)
-{
-    double bestScore         = std::numeric_limits<double>::max();
-    Scheduler bestChildSched = currentSched;
-    for(int i = 0; i < currentSched.getDisjuctiveSize(); i++)
-    {
-        Scheduler s = currentSched.getShedSwitch(i);
-        if(s.scheduleValid)
-        {
-            double currentScore = s.getMakeSpan();
-            std::string id      = s.getDisjuctiveID();
-            double penalScore   = currentScore;
-            if((bestScore > penalScore && tabu_list.find(id) == tabu_list.end() || bestScore > penalScore && tabu_list.find(id)->second <= it) || currentScore < bestSolverScore)
-            {
-                bestChildSched = s;
-                bestScore      = penalScore;
-                tabu_list[id]  = (it + TABU_LENGTH);
-            }
-        }
-    }
-    return bestChildSched;
-}
-}
-*/
 #endif

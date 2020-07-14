@@ -22,6 +22,12 @@ namespace grstaps
 {
     class TaskAllocation;
 
+    taskAllocationToScheduling::taskAllocationToScheduling(MotionPlanner* mPlanner, vector<int>* startingLoc, vector<int>* actionLoc){
+        motionPlanner = mPlanner;
+        startingLocations = startingLoc;
+        actionLocations = actionLoc;
+    }
+
     float taskAllocationToScheduling::getNonSpeciesSchedule(TaskAllocation* allocObject)
     {
         std::vector<std::vector<int>> disjunctiveConstraints;
@@ -51,7 +57,8 @@ namespace grstaps
         if(sched.schedule(
                *allocObject->getActionDuration(), *allocObject->getOrderingConstraints(), disjunctiveConstraints))
         {
-            return adjustScheduleNonSpeciesSchedule(sched, allocObject);
+            adjustScheduleNonSpeciesSchedule(allocObject);
+            return addMotionPlanningNonSpeciesSchedule( allocObject);
         }
         return -1;
     }
@@ -61,17 +68,17 @@ namespace grstaps
         throw "Not implemented yet.";
     }
 
-    float taskAllocationToScheduling::adjustScheduleNonSpeciesSchedule(Scheduler sched, TaskAllocation* taskAlloc)
+    void taskAllocationToScheduling::adjustScheduleNonSpeciesSchedule(TaskAllocation* taskAlloc)
     {
         auto allocation = taskAlloc->getAllocation();
 
-        vector<vector<float>> stn  = sched.stn;
-        vector<int> checked(stn.size(), 0);
+        vector<int> checked(sched.stn.size(), 0);
+
         std::vector<std::vector<int>> beforeConstraints = sched.beforeConstraints;
         std::vector<std::vector<int>> afterConstraints  = sched.afterConstraints;
 
         for(int i = 0; i < stn.size(); ++i){
-            stn = sched.stn;
+            vector<vector<float>> stn = sched.stn;
 
             //find action ending soonest
 
@@ -83,6 +90,7 @@ namespace grstaps
                     currentSoonestEnd = j;
                 }
             }
+            actionOrder.emplace_back(currentSoonestEnd);
 
             //find concurrent actionsector<int> concurrent{currentSoonestEnd};
             concurrent.clear();
@@ -109,6 +117,7 @@ namespace grstaps
             for(int j = 0; j < maxTraitTeam.size(); ++j){
 
                 while(maxTraitTeam[j] < 0){
+                    stn = sched.stn;
                     int toUpdate = 1000;
                     int direction = 0;
                     float bestSchedTime = std::numeric_limits<float>::max();
@@ -118,12 +127,10 @@ namespace grstaps
                         for(int l = 0; l < 2; ++l){
                             if(((*taskAlloc->goalTraitDistribution)[concurrent[k]][j] > 0) || (taskAlloc->allocationTraitDistribution[concurrent[k]][j] > 0)){
                                 if(concurrent[k] != currentSoonestEnd){
-                                    stn = sched.stn;
+
                                     if(l == 0){
-                                        bool valid = sched.addOCTime(currentSoonestEnd, concurrent[k], stn, beforeConstraints, afterConstraints);
-                                        //afterConstraints[concurrent[k]].emplace_back(currentSoonestEnd);
-                                        //beforeConstraints[currentSoonestEnd].emplace_back(concurrent[k]);
-                                        currentSched = sched.getMakeSpanSTN(stn);
+                                        currentSched = sched.addOCTemp(currentSoonestEnd, concurrent[k], stn, beforeConstraints, afterConstraints);
+
                                         if(currentSched < bestSchedTime)
                                         {
                                             bestSchedTime   = currentSched;
@@ -132,10 +139,8 @@ namespace grstaps
                                         }
                                     }
                                     else{
-                                        bool valid = sched.addOCTime(concurrent[k], currentSoonestEnd, stn, beforeConstraints, afterConstraints);
-                                        //beforeConstraints[concurrent[k]].emplace_back(currentSoonestEnd);
-                                        //afterConstraints[currentSoonestEnd].emplace_back(concurrent[k]);
-                                        currentSched = sched.getMakeSpanSTN(stn);
+                                        currentSched = sched.addOCTemp(currentSoonestEnd, concurrent[k], stn, beforeConstraints, afterConstraints);
+
                                         if(currentSched < bestSchedTime)
                                         {
                                             bestSchedTime   = currentSched;
@@ -151,6 +156,9 @@ namespace grstaps
 
                     if(direction == 0){
                         sched.addOC(currentSoonestEnd, concurrent[toUpdate]);
+                        beforeConstraints[currentSoonestEnd].emplace_back(concurrent[toUpdate]);
+                        afterConstraints[concurrent[toUpdate]].emplace_back(currentSoonestEnd);
+
                         for(int k = 0; k < (*taskAlloc->goalTraitDistribution)[concurrent[toUpdate]].size(); ++k){
                             maxTraitTeam[k] += taskAlloc->allocationTraitDistribution[concurrent[toUpdate]][k] + taskAlloc->requirementsRemaining[concurrent[toUpdate]][k];
                         }
@@ -160,6 +168,8 @@ namespace grstaps
 
                         sched.addOC(concurrent[toUpdate], currentSoonestEnd);
                         concurrent.erase(concurrent.begin() + toUpdate);
+                        afterConstraints[currentSoonestEnd].emplace_back(concurrent[toUpdate]);
+                        beforeConstraints[concurrent[toUpdate]].emplace_back(currentSoonestEnd);
                         j = maxTraitTeam.size();
                         removeCurrent = false;
                         break;
@@ -173,6 +183,35 @@ namespace grstaps
             }
 
         }
-        return sched.getMakeSpan();
+        //return sched.getMakeSpan();
+    }
+
+    float taskAllocationToScheduling::addMotionPlanningNonSpeciesSchedule(TaskAllocation* TaskAlloc){
+        if(motionPlanner == NULL){
+            return sched.getMakeSpan();
+        }
+        else{
+            vector<int> currentLocations = *startingLocations;
+            for(int i=0 ; i < actionOrder.size(); ++i){
+                float maxTravelTime = 0;
+                for(int j=0; TaskAlloc->getNumSpecies()->size(); j++){
+                    if(TaskAlloc->allocation[actionOrder[i] * TaskAlloc->getNumSpecies()->size() + j] == 1){
+                        std::pair<bool, float> travelTime = motionPlanner->query((unsigned int) currentLocations[j], (unsigned int) (*actionLocations)[actionOrder[i]]);
+                        if(travelTime.first == 1){
+                            if(travelTime.second > maxTravelTime){
+                                maxTravelTime = travelTime.second;
+                                currentLocations[j] = (*actionLocations)[actionOrder[i]];
+                            }
+                        }
+                        else{
+                            return  std::numeric_limits<float>::max();
+                        }
+                    }
+                }
+                sched.increaseActionTime(actionOrder[i], maxTravelTime);
+            }
+            return sched.getMakeSpan();
+        }
+
     }
 }

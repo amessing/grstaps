@@ -29,6 +29,7 @@ namespace grstaps {
     Scheduler::Scheduler(){
         scheduleValid = true;
         makeSpan = -1;
+        lastAction = -1;
         constraintsToUpdate.reserve(1000);
     }
 
@@ -40,6 +41,7 @@ namespace grstaps {
         disjuctiveOrderings = toCopy.disjuctiveOrderings;
         scheduleValid = toCopy.scheduleValid;
         makeSpan = toCopy.makeSpan;
+        lastAction = toCopy.lastAction;
         disID = toCopy.disID;
         copySTN = toCopy.stn;
     }
@@ -58,9 +60,10 @@ namespace grstaps {
                 return makeSpan;
             }
             float max = 0;
-            for(auto & i : stn){
-                if(max < i[1]){
-                    max = i[1];
+            for(int i = 0; i < stn.size(); ++i){
+                if(max < stn[i][1]){
+                    max = stn[i][1];
+                    lastAction = i;
                 }
             }
             makeSpan= max;
@@ -98,6 +101,10 @@ namespace grstaps {
                 float duration = stn[second][1] - stn[second][0];
                 stn[second][0] = stn[first][1];
                 stn[second][1] = stn[second][0] + duration;
+                if(makeSpan != -1 && stn[second][1] > makeSpan ){
+                    makeSpan = stn[second][1];
+                    lastAction = second;
+                }
                 for(int i = 0; i < beforeConstraints[second].size(); ++i)
                 {
                     constraintsToUpdate.emplace_back(second);
@@ -121,46 +128,43 @@ namespace grstaps {
     }
 
     float Scheduler::addOCTemp(int first, int second, std::vector<std::vector<float>> stnCopy, std::vector<std::vector<int>>& beforeConstraintVec, std::vector<std::vector<int>>& afterConstraintVec) {
-            constraintsToUpdate.clear();
-            int originalFirst = first;
-            int originalSecond = second;
-            constraintsToUpdate.push_back(first);
-            constraintsToUpdate.push_back(second);
-            int constrainToAdjust = 0;
-            float makeSpanNew = makeSpan;
-            while(constrainToAdjust < constraintsToUpdate.size())
+        //auto stnCopy = stnC;
+        constraintsToUpdate.clear();
+        int originalFirst = first;
+        int originalSecond = second;
+        constraintsToUpdate.push_back(first);
+        constraintsToUpdate.push_back(second);
+        int constrainToAdjust = 0;
+        while(constrainToAdjust < constraintsToUpdate.size())
+        {
+            if(stnCopy[second][0] < stnCopy[first][1])
             {
-                if(stnCopy[second][0] < stnCopy[first][1])
+                float duration     = stnCopy[second][1] - stnCopy[second][0];
+                stnCopy[second][0] = stnCopy[first][1];
+                stnCopy[second][1] = stnCopy[second][0] + duration;
+                for(int i = 0; i < beforeConstraints[second].size(); ++i)
                 {
-                    float duration     = stnCopy[second][1] - stnCopy[second][0];
-                    stnCopy[second][0] = stnCopy[first][1];
-                    stnCopy[second][1] = stnCopy[second][0] + duration;
-                    if( stnCopy[second][1] > makeSpanNew){
-                        makeSpanNew = stnCopy[second][1];
-                    }
-                    for(int i = 0; i < beforeConstraints[second].size(); ++i)
+                    if(second != originalSecond || beforeConstraints[second][i] != originalFirst)
                     {
-                        if(second != originalSecond || beforeConstraints[second][i] != originalFirst)
-                        {
-                            constraintsToUpdate.emplace_back(second);
-                            constraintsToUpdate.emplace_back(beforeConstraints[second][i]);
-                        }
-                    }
-                }
-                // constraintsToUpdate.erase(constraintsToUpdate.begin());
-                constrainToAdjust += 2;
-                if(constrainToAdjust < constraintsToUpdate.size())
-                {
-                    first  = constraintsToUpdate[constrainToAdjust];
-                    second = constraintsToUpdate[constrainToAdjust + 1];
-                    if(second == originalFirst)
-                    {
-                        return -1;
+                        constraintsToUpdate.emplace_back(second);
+                        constraintsToUpdate.emplace_back(beforeConstraints[second][i]);
                     }
                 }
             }
-            return makeSpanNew;
+            // constraintsToUpdate.erase(constraintsToUpdate.begin());
+            constrainToAdjust += 2;
+            if(constrainToAdjust < constraintsToUpdate.size())
+            {
+                first  = constraintsToUpdate[constrainToAdjust];
+                second = constraintsToUpdate[constrainToAdjust + 1];
+                if(second == originalFirst)
+                {
+                    return std::numeric_limits<float>::max();
+                }
+            }
         }
+        return getMakeSpanSTN(copySTN);
+    }
 
     bool Scheduler::addOCTime(int first, int second, std::vector<std::vector<float>>& stnCopy, std::vector<std::vector<int>>& beforeConstraintVec, std::vector<std::vector<int>>& afterConstraintVec) {
         constraintsToUpdate.clear();
@@ -197,7 +201,6 @@ namespace grstaps {
                 }
             }
         }
-        makeSpan = -1;
         return true;
     }
 
@@ -251,6 +254,9 @@ namespace grstaps {
                     {
                         float newduration = stn[second][1] - stn[second][0];
                         stn[second][0]    = maxDelay;
+                        if(stn[second][1] == makeSpan){
+                            makeSpan = -1;
+                        }
                         stn[second][1]    = stn[second][0] + newduration;
                         for(int i = 0; i < beforeConstraints[second].size(); ++i)
                         {
@@ -268,7 +274,6 @@ namespace grstaps {
                     }
                 }
             }
-            makeSpan = -1;
     }
 
     void Scheduler::removeOCTime(int first, int second, std::vector<std::vector<float>>& stnCopy){
@@ -466,6 +471,7 @@ namespace grstaps {
         scheduleValid = true;
         initSTN(durations);
         makeSpan = -1;
+        lastAction = -1;
         beforeConstraints = std::vector<std::vector<int>>(durations.size(), std::vector<int>(0));
         afterConstraints = std::vector<std::vector<int>>(durations.size(), std::vector<int>(0));
         for(auto & orderingConstraint : orderingConstraints){
@@ -498,44 +504,41 @@ namespace grstaps {
         return scheduleValid;
     }
 
-    float Scheduler::checkOC(int first, int second) {
-        std::vector<std::vector<int>> constraintsToUpdates;
-        auto stnCopy = stn;
+    bool Scheduler::checkOC(int first, int second) {
+        constraintsToUpdate.clear();
+        constraintsToUpdate.push_back(first);
+        constraintsToUpdate.push_back(second);
+
         int originalFirst = first;
         int originalSecond = second;
-        constraintsToUpdates.push_back({first, second});
-        robin_hood::unordered_map<double, int> checkedAlready;
-        checkedAlready[double(first + 1/(double(second)+2))] = 1;
         int constrainToAdjust = 0;
-        while(constrainToAdjust < constraintsToUpdates.size()){
-            if( stnCopy[second][0] <  stnCopy[first][1]){
-                float duration = stnCopy[second][1] - stnCopy[second][0];
-                stnCopy[second][0] = stnCopy[first][1];
-                stnCopy[second][1] = stnCopy[second][0] + duration;
-                for(int i = 0; i < beforeConstraints[second].size(); ++i){
-                    constraintsToUpdates.push_back({second, beforeConstraints[second][i]});
-                }
-                if(second == originalFirst){
-                    constraintsToUpdates.push_back({originalFirst, originalSecond});
+
+        while(constrainToAdjust < constraintsToUpdate.size())
+        {
+            if(stn[second][0] < stn[first][1])
+            {
+                for(int i = 0; i < beforeConstraints[second].size(); ++i)
+                {
+                    if(second != originalSecond || beforeConstraints[second][i] != originalFirst)
+                    {
+                        constraintsToUpdate.emplace_back(second);
+                        constraintsToUpdate.emplace_back(beforeConstraints[second][i]);
+                    }
                 }
             }
-            checkedAlready[double(first + 1/(double(second)+2))] = 1;
-            //constraintsToUpdate.erase(constraintsToUpdate.begin());
-            constrainToAdjust += 1;
-            if(constrainToAdjust != constraintsToUpdates.size())
+            // constraintsToUpdate.erase(constraintsToUpdate.begin());
+            constrainToAdjust += 2;
+            if(constrainToAdjust < constraintsToUpdate.size())
             {
-                first  = constraintsToUpdates[constrainToAdjust][0];
-                second = constraintsToUpdates[constrainToAdjust][1];
-                if(checkedAlready.find(double(first + 1/(double(second)+2))) != checkedAlready.end()){
+                first  = constraintsToUpdate[constrainToAdjust];
+                second = constraintsToUpdate[constrainToAdjust + 1];
+                if(second == originalFirst)
+                {
                     return false;
                 }
             }
-
         }
-        constraintsToUpdates.clear();
-        makeSpan = -1;
         return true;
-
     }
 
     void Scheduler::printSchedule(){
@@ -583,31 +586,21 @@ namespace grstaps {
     }
 
     double Scheduler::getShedSwitchTime(int disIndex){
-        bool valid;
-        copySTN = stn;
+        float newMakespan;
+        //copySTN = stn;
         if(disjuctiveOrderings[disIndex] ==0){
-            //copySched.removeOC(disjuctiveConstraints[disIndex][0], disjuctiveConstraints[disIndex][1]);
-            removeOCTime(disjuctiveConstraints[disIndex][0], disjuctiveConstraints[disIndex][1], copySTN);
-            //valid = copySched.addOC(disjuctiveConstraints[disIndex][1],disjuctiveConstraints[disIndex][0]);
-            valid = addOCTime(disjuctiveConstraints[disIndex][1], disjuctiveConstraints[disIndex][0],copySTN, beforeConstraints, afterConstraints);
-            if(valid){
-                return getMakeSpanSTN(copySTN);
-            }
-            else{
-                return  -1;
-            }
+            float newMakespan = removeOCTime2(disjuctiveConstraints[disIndex][0], disjuctiveConstraints[disIndex][1]);
+            //removeOCTime(disjuctiveConstraints[disIndex][0], disjuctiveConstraints[disIndex][1], copySTN);
+            newMakespan = addOCTime2(disjuctiveConstraints[disIndex][1], disjuctiveConstraints[disIndex][0], newMakespan);
+            //valid = addOCTime(disjuctiveConstraints[disIndex][1], disjuctiveConstraints[disIndex][0],copySTN, beforeConstraints, afterConstraints);
+            return makeSpan;
         }
         else{
-            //copySched.removeOC(disjuctiveConstraints[disIndex][1], disjuctiveConstraints[disIndex][0]);
-            removeOCTime(disjuctiveConstraints[disIndex][1], disjuctiveConstraints[disIndex][0], copySTN);
-            //valid = copySched.addOC(disjuctiveConstraints[disIndex][0],disjuctiveConstraints[disIndex][1]);
-            valid = addOCTime(disjuctiveConstraints[disIndex][0],disjuctiveConstraints[disIndex][1], copySTN, beforeConstraints, afterConstraints);
-            if(valid){
-                return getMakeSpanSTN(copySTN);
-            }
-            else{
-                return  -1;
-            }
+            float newMakespan = removeOCTime2(disjuctiveConstraints[disIndex][1], disjuctiveConstraints[disIndex][0]);
+            //removeOCTime(disjuctiveConstraints[disIndex][1], disjuctiveConstraints[disIndex][0], copySTN);
+            newMakespan = addOCTime2(disjuctiveConstraints[disIndex][0],disjuctiveConstraints[disIndex][1], makeSpan);
+            //valid = addOCTime(disjuctiveConstraints[disIndex][0],disjuctiveConstraints[disIndex][1], copySTN, beforeConstraints, afterConstraints);
+            return newMakespan;
         }
 
     }
@@ -637,10 +630,8 @@ namespace grstaps {
                 else
                 {
                     int order = rand() % 2;
-                    bool allowedFirst =
-                        copySched.checkOC(disjuctiveConstraints[i][0], disjuctiveConstraints[i][1]) >= 0;
-                    bool allowedSecond =
-                        copySched.checkOC(disjuctiveConstraints[i][1], disjuctiveConstraints[i][0]) >= 0;
+                    bool allowedFirst = copySched.checkOC(disjuctiveConstraints[i][0], disjuctiveConstraints[i][1]);
+                    bool allowedSecond = copySched.checkOC(disjuctiveConstraints[i][1], disjuctiveConstraints[i][0]);
 
                     if( allowedFirst && (order == 0 || (!allowedSecond)))
                     {
@@ -680,7 +671,189 @@ namespace grstaps {
         }
     }
 
+    float Scheduler::addOCTime2(int first, int second, float newMakespan) {
+        constraintsToUpdate.clear();
+
+        int originalFirst = first;
+        int originalSecond = second;
+        constraintsToUpdate.push_back(first);
+        constraintsToUpdate.push_back(second);
+        int constrainToAdjust = 0;
+
+        while(constrainToAdjust < constraintsToUpdate.size())
+        {
+            auto editedSecond = editedActionTimes.find(second);
+            auto editedFirst =editedActionTimes.find(first);
+
+            float secondStart;
+            float secondEnd;
+            float firstStart;
+            float firstEnd;
+
+            if(editedSecond != editedActionTimes.end()){
+                secondStart = editedSecond->second[0];
+                secondEnd = editedSecond->second[1];
+            }
+            else{
+                secondStart = stn[second][0];
+                secondEnd = stn[second][1];
+            }
+
+            if( editedFirst != editedActionTimes.end()){
+                firstStart = editedFirst->second[0];
+                firstEnd = editedFirst->second[1];
+            }
+            else{
+                firstStart = stn[first][0];
+                firstEnd = stn[first][1];
+            }
+            
+            if(secondStart < firstEnd)
+            {
+                float duration     = secondEnd - secondStart;
+                editedActionTimes[second] = {firstEnd, firstEnd + duration};
+
+                if(newMakespan != -1 && secondEnd > newMakespan ){
+                    newMakespan = secondEnd;
+                }
+                for(int i = 0; i < beforeConstraints[second].size(); ++i)
+                {
+                    if(second != originalSecond || beforeConstraints[second][i] != originalFirst)
+                    {
+                        constraintsToUpdate.emplace_back(second);
+                        constraintsToUpdate.emplace_back(beforeConstraints[second][i]);
+                    }
+                }
+            }
+            // constraintsToUpdate.erase(constraintsToUpdate.begin());
+            constrainToAdjust += 2;
+            if(constrainToAdjust < constraintsToUpdate.size())
+            {
+                first  = constraintsToUpdate[constrainToAdjust];
+                second = constraintsToUpdate[constrainToAdjust + 1];
+                if(second == originalFirst)
+                {
+                    return -1;
+                }
+            }
+        }
+
+        return newMakespan;
+    }
+
+    float Scheduler::removeOCTime2(int first, int second){
+        constraintsToUpdate.clear();
+        float currentDelay = 0;
+        robin_hood::unordered_map<int, std::vector<float>> editedActionTimes;
+
+        float maxDelay = makeSpan;
+        if(stn[first][1] == stn[second][0])
+        {
+            for(int i: afterConstraints[second])
+            {
+                if(i != first && stn[i][1] > maxDelay)
+                {
+                    maxDelay = stn[i][1];
+                }
+            }
+            float duration = stn[second][1] - stn[second][0];
+            editedActionTimes[second] = {maxDelay, maxDelay + duration};
+
+            for(int i = 0; i < beforeConstraints[second].size(); ++i)
+            {
+                constraintsToUpdate.emplace_back(second);
+                constraintsToUpdate.emplace_back(beforeConstraints[second][i]);
+            }
+            if(!constraintsToUpdate.empty())
+            {
+                first  = constraintsToUpdate[0];
+                second = constraintsToUpdate[1];
+            }
+            int constrainToAdjust = 0;
+
+            float secondStart;
+            float secondEnd;
+            float firstStart;
+            float firstEnd;
+
+            while(constrainToAdjust < constraintsToUpdate.size())
+            {
+                auto editedSecond = editedActionTimes.find(second);
+                auto editedFirst =editedActionTimes.find(first);
+
+                if(editedSecond != editedActionTimes.end()){
+                    secondStart = editedSecond->second[0];
+                    secondEnd = editedSecond->second[1];
+                }
+                else{
+                    secondStart = stn[second][0];
+                    secondEnd = stn[second][1];
+                }
+
+                if( editedFirst != editedActionTimes.end()){
+                    firstStart = editedFirst->second[0];
+                    firstEnd = editedFirst->second[1];
+                }
+                else{
+                    firstStart = stn[first][0];
+                    firstEnd = stn[first][1];
+                }
+
+                maxDelay = 0;
+                currentDelay = 0;
+                for(int i: afterConstraints[second])
+                {
+                    auto aftConTime = editedActionTimes.find(i);
+                    if( aftConTime != editedActionTimes.end()){
+                        currentDelay = aftConTime->second[1];
+                    }
+                    else{
+                        currentDelay = stn[i][1];
+                    }
+                    if(currentDelay > maxDelay)
+                    {
+                        maxDelay = currentDelay;
+                    }
+                }
+                if(secondStart != maxDelay)
+                {
+                    float newduration = secondEnd - secondStart;
+                    editedActionTimes[second] = {maxDelay, maxDelay + newduration};
+                    for(int i = 0; i < beforeConstraints[second].size(); ++i)
+                    {
+                        constraintsToUpdate.emplace_back(second);
+                        constraintsToUpdate.emplace_back(beforeConstraints[second][i]);
+                    }
+                }
+
+                constrainToAdjust += 2;
+                if(constrainToAdjust < constraintsToUpdate.size())
+                {
+                    first  = constraintsToUpdate[constrainToAdjust];
+                    second = constraintsToUpdate[constrainToAdjust + 1];
+                }
+            }
+
+            maxDelay = 0;
+            float actionTime = 0;
+            for(int i=0; i < stn.size(); ++i){
+                auto actTime = editedActionTimes.find(i);
+                if( actTime != editedActionTimes.end()){
+                    actionTime = actTime->second[1];
+                }
+                else{
+                    actionTime = stn[i][1];
+                }
+                if(actionTime > maxDelay){
+                    maxDelay = actionTime;
+                }
+            }
+        }
+        return maxDelay;
+    }
+
 }
+
 
 
 
