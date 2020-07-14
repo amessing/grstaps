@@ -91,25 +91,25 @@ namespace grstaps {
     TaskAllocation::TaskAllocation()= default;
 
     TaskAllocation::TaskAllocation(const TaskAllocation& copyAllocation){
-            usingSpecies = copyAllocation.usingSpecies;
-            speciesTraitDistribution = copyAllocation.speciesTraitDistribution;
-            taToScheduling = copyAllocation.taToScheduling;
-            numSpecies = copyAllocation.numSpecies;
+        usingSpecies = copyAllocation.usingSpecies;
+        speciesTraitDistribution = copyAllocation.speciesTraitDistribution;
+        taToScheduling = copyAllocation.taToScheduling;
+        numSpecies = copyAllocation.numSpecies;
 
-            actionNoncumulativeTraitValue = copyAllocation.actionNoncumulativeTraitValue;
-            actionDurations = copyAllocation.actionDurations;
-            orderingConstraints = copyAllocation.orderingConstraints;
-            goalTraitDistribution = copyAllocation.goalTraitDistribution;
+        actionNoncumulativeTraitValue = copyAllocation.actionNoncumulativeTraitValue;
+        actionDurations = copyAllocation.actionDurations;
+        orderingConstraints = copyAllocation.orderingConstraints;
+        goalTraitDistribution = copyAllocation.goalTraitDistribution;
 
-            scheduleTime = copyAllocation.scheduleTime;
-            goalDistance = copyAllocation.goalDistance;
-            isGoal = copyAllocation.isGoal;
-            allocation = copyAllocation.allocation;
-            allocationTraitDistribution = copyAllocation.allocationTraitDistribution;
-            traitTeamMax = copyAllocation.traitTeamMax;
-            requirementsRemaining = copyAllocation.requirementsRemaining;
+        scheduleTime = copyAllocation.scheduleTime;
+        goalDistance = copyAllocation.goalDistance;
+        isGoal = copyAllocation.isGoal;
+        allocation = copyAllocation.allocation;
+        allocationTraitDistribution = copyAllocation.allocationTraitDistribution;
+        traitTeamMax = copyAllocation.traitTeamMax;
+        requirementsRemaining = copyAllocation.requirementsRemaining;
 
-        }
+    }
 
     bool TaskAllocation::checkGoalAllocation(){
         return goalDistance <=0;

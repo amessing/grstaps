@@ -1,3 +1,4 @@
+#if 0
 /*
  * Copyright (C) 2020 Andrew Messing
  *
@@ -26,62 +27,98 @@
 // external
 #include <nlohmann/json.hpp>
 
+// local
+#include "grstaps/task_planning/utils.hpp"
+#include "grstaps/action.hpp"
+#include "grstaps/location.hpp"
+#include "grstaps/robot.hpp"
+
 namespace grstaps
 {
-    // Forward Declarations
-    class Action;
-    class Location;
-    class Object;
-    class Robot;
-
+    /**
+     * Creates a HMA-CTAMP problem
+     *
+     * todo: type trait magic
+     */
+    template <typename StateDecoder>
     class Problem
     {
+    protected:
+        using StateDecoderType = StateDecoder;
     public:
-        /**
-         * Factory function to create a Problem
-         *
-         * \param config The configuration for generating a problem
-         */
-        static std::shared_ptr<Problem> createSurvivorProblem(const nlohmann::json& config);
-
-        /**
-         * Writes the problem config
-         */
-        void write(const std::string& filepath);
-
-        /**
-         * \returns The action specified by the \p id
-         */
-        const Action& action(unsigned int id) const;
-
-        /**
-         * \returns The location specified by the \p id
-         */
-        const Location& location(unsigned int id) const;
-
-        /**
-         * \returns The object specified by the \p id
-         */
-        const Object& object(unsigned int id) const;
-
-        /**
-         * \returns The robot specified by the \p id
-         */
-        const Robot& robot(unsigned int id) const;
-
-    private:
         /**
          * Default Constructor
          */
         Problem() = default;
 
-        std::vector<Action> m_actions;
-        std::vector<Location> m_locations;
-        std::vector<Object> m_objects;
-        std::vector<Robot> m_robot;
+        /**
+         * Initializes this problem
+         *
+         * \param config The configuration for generating a problem
+         */
+        void init(const nlohmann::json& config) = 0;
 
-        nlohmann::json m_config;
+        /**
+         * Writes the problem config
+         */
+        virtual void write(const std::string& filepath) const = 0;
+
+        /**
+         * \returns The action specified by the \p id
+         */
+        const Action& action(unsigned int id) const
+        {
+            return m_actions[id];
+        }
+
+        /**
+         * \returns The location specified by the \p id
+         */
+        const Location& location(unsigned int id) const
+        {
+            return m_locations[id];
+        }
+
+        /**
+         * \returns The robot specified by the \p id
+         */
+        const Robot& robot(unsigned int id) const
+        {
+            return m_robots[id];
+        }
+
+        /**
+         * \returns The initial state of the problem
+         */
+        const StateAssignment& initialState() const
+        {
+            return m_initial_state;
+        }
+
+        /**
+         * \returns The goal of the problem
+         */
+        const StateAssignment& goal() const
+        {
+             return m_goal;
+        }
+
+        const StateDecoder& stateDecoder() const
+        {
+            return *m_state_decoder;
+        }
+
+    protected:
+        std::vector<Action> m_actions; //!< A list of the actions that can be used to solve this problem
+        std::vector<Location> m_locations; //!< A list of the locations that either robots or objects can be at
+        std::vector<Robot> m_robots; //!< A list of the robots
+
+        StateAssignment m_initial_state; //!< The initial state of the problem
+        StateAssignment m_goal; //!< The state assignment representing the goal
+
+        std::unique_ptr<StateDecoder> m_state_decoder;
     };
 }
 
 #endif //GRSTAPS_PROBLEM_HPP
+#endif

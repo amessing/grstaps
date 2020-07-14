@@ -32,7 +32,7 @@ namespace grstaps
      */
     class ValidityChecker : public ompl::base::StateValidityChecker
     {
-       public:
+    public:
         /**
          * Constructor
          */
@@ -44,7 +44,7 @@ namespace grstaps
          */
         virtual bool isValid(const ompl::base::State* state) const override;
 
-       private:
+    private:
         std::vector<b2PolygonShape> m_obstacles;
     };
 }  // namespace grstaps

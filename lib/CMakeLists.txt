@@ -26,7 +26,7 @@ set(JSON_BuildTests OFF CACHE INTERNAL "")
 add_subdirectory(json)
 
 # Graph Theory
-add_subdirectory(lemon)
+# add_subdirectory(lemon)
 
 # Logging
 add_subdirectory(spdlog)

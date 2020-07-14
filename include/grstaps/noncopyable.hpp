@@ -26,8 +26,25 @@ namespace grstaps
     class Noncopyable
     {
        public:
+        /**
+         * Default Constructor
+         */
         Noncopyable()  = default;
+
+        /**
+         * Move Constructor
+         */
+        Noncopyable(Noncopyable&&) = default;
+
+        /**
+         * Destructor
+         */
         ~Noncopyable() = default;
+
+        /**
+         * Move assignment operator
+         */
+        Noncopyable& operator=(Noncopyable&&) = default;
 
        private:
         Noncopyable(const Noncopyable&) = delete;

@@ -59,6 +59,7 @@ namespace grstaps
 
     std::pair<bool, float> MotionPlanner::query(unsigned int from, unsigned int to)
     {
+        // TODO
         //Knowledge& knowledge = Knowledge::instance();
         //return query(knowledge.location(from), knowledge.location(to));
     }

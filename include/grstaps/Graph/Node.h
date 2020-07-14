@@ -135,7 +135,7 @@ public:
      * \param pointer to the nodes data
      *
     */
-    void setData(Data&);
+    void setData(const Data&);
 
     /**
      *

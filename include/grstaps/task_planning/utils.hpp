@@ -1,45 +1,61 @@
-/*
- * Copyright (C) 2020 Andrew Messing
- *
- * grstaps is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published
- * by the Free Software Foundation; either version 3 of the License,
- * or any later version.
- *
- * grstaps is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public
- * License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with grstaps; if not, write to the Free Software Foundation,
- * Inc., #59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
- */
-
 #ifndef GRSTAPS_UTILS_HPP
 #define GRSTAPS_UTILS_HPP
 
-// global
+#include <limits>
 #include <cstdint>
-#include <utility>
-#include <vector>
 
-namespace grstaps
-{
-    using StateVariable = uint16_t;
-    using StateVariableValue = uint16_t;
-    using Fluent = std::pair<StateVariable, StateVariableValue>;
-    using StateAssignment = std::vector<Fluent>;
+#define DOMAIN_CONCURRENT	0
+#define DOMAIN_DEAD_ENDS	1
+#define DOMAIN_REVERSIBLE	2
 
-    inline StateVariable variable(Fluent f)
-    {
-        return f.first;
-    }
+#define SEARCH_G_HFF		0
+#define SEARCH_G_2HFF		1
+#define SEARCH_HFF			2
+#define SEARCH_G_3HFF		3
+#define SEARCH_G_HLAND_HFF	4
+#define SEARCH_G_2HAUX		5
+#define SEARCH_G_HLAND		10
+#define SEARCH_G_3HLAND		11
+#define SEARCH_HLAND		12
+#define SEARCH_G			20
+#define SEARCH_PLATEAU		32
+#define SEARCH_MASK_PLATEAU	31
 
-    inline StateVariableValue value(Fluent f)
-    {
-        return f.second;
-    }
+const float 		EPSILON 			= 0.002f;
+const unsigned int 	MAX_UNSIGNED_INT 	= std::numeric_limits<unsigned int>::max();
+const int32_t 		MAX_INT32 			= std::numeric_limits<int32_t>::max();
+const float			FLOAT_INFINITY		= std::numeric_limits<float>::infinity();
+const uint16_t		MAX_UINT16			= 65535;
+
+typedef uint64_t	TMutex;
+typedef uint32_t 	TOrdering;
+typedef uint32_t 	TVarValue;
+typedef uint16_t	TTimePoint;
+typedef uint16_t	TStep;
+typedef uint16_t	TVariable;
+typedef uint16_t	TValue;
+
+inline TTimePoint stepToStartPoint(TStep step) {	// Step number -> start time point
+    return step << 1;
 }
 
+inline TTimePoint stepToEndPoint(TStep step) {		// Step number -> end time point
+    return (step << 1) + 1;
+}
+
+inline TStep timePointToStep(TTimePoint t) {
+    return t >> 1;
+}
+
+inline TTimePoint firstPoint(TOrdering ordering) {
+    return ordering & 0xFFFF;
+}
+
+inline TTimePoint secondPoint(TOrdering ordering) {
+    return ordering >> 16;
+}
+
+inline TOrdering getOrdering(TTimePoint p1, TTimePoint p2) {
+    return (((TOrdering)p2) << 16) + p1;
+}
 #endif //GRSTAPS_UTILS_HPP

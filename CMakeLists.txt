@@ -13,15 +13,18 @@ include(FileOutputs)
 
 option(BUILD_DOC "Build Documentation" OFF)
 option(BUILD_TESTS "Build Unit Tests" ON)
-option(BUILD_EXE "Build Executable" OFF)
+option(BUILD_EXE "Build Executable" ON)
 
 # Add external libraries
 add_subdirectory(lib)
 
 # Collect header and source files
-file(GLOB_RECURSE ${PROJECT_NAME}_HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/include/${PROJECT_NAME}/**.h)
-file(GLOB_RECURSE ${PROJECT_NAME}_HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/include/${PROJECT_NAME}/**.hpp)
-file(GLOB_RECURSE ${PROJECT_NAME}_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/**.cpp)
+file(GLOB_RECURSE ${PROJECT_NAME}_HEADERS
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/${PROJECT_NAME}/**.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/${PROJECT_NAME}/**.hpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/${PROJECT_NAME}/**/**.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/${PROJECT_NAME}/**/**.hpp)
+file(GLOB_RECURSE ${PROJECT_NAME}_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/**.cpp ${CMAKE_CURRENT_SOURCE_DIR}/src/**/**.cpp)
 list(REMOVE_ITEM ${PROJECT_NAME}_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp)
 
 # Create library
@@ -32,9 +35,9 @@ target_include_directories(_${PROJECT_NAME} PUBLIC include PRIVATE ${OMPL_INCLUD
 
 # Create executable
 if(BUILD_EXE)
-add_executable(${PROJECT_NAME} src/main.cpp include/grstaps/Graph/compression.cpp include/grstaps/Graph/compression.h include/grstaps/Task_Allocation/checkAllocatable.cpp include/grstaps/Task_Allocation/checkAllocatable.h src/Task_Allocation/TaskAssignMinOrder.cpp src/Task_Allocation/TaskAssignMinOrder.h tests/TestSchedule.cpp include/Connections/taskAllocationToScheduling.cpp include/Connections/taskAllocationToScheduling.h src/Scheduling/tabu.cpp include/grstaps/Scheduling/tabu.h)
+add_executable(${PROJECT_NAME} src/main.cpp)
 set_target_properties(${PROJECT_NAME} PROPERTIES CXX_STANDARD 17 CXX_STANDARD_REQUIRED YES)
-target_link_libraries(${PROJECT_NAME} PRIVATE _${PROJECT_NAME} args box2d)
+target_link_libraries(${PROJECT_NAME} PRIVATE _${PROJECT_NAME} args box2d nlohmann_json)
 endif(BUILD_EXE)
 
 if(BUILD_DOC)
@@ -77,7 +80,7 @@ if(BUILD_TESTS)
 
     add_executable(${PROJECT_NAME}_test ${${PROJECT_NAME}_TEST_SOURCES} ${testDataOutputs})
     set_target_properties(${PROJECT_NAME}_test PROPERTIES CXX_STANDARD 17 CXX_STANDARD_REQUIRED YES)
-    target_link_libraries(${PROJECT_NAME}_test PRIVATE _${PROJECT_NAME} box2d gtest gmock)
+    target_link_libraries(${PROJECT_NAME}_test PRIVATE _${PROJECT_NAME} box2d nlohmann_json gtest gmock)
 endif(BUILD_TESTS)
 
 set(CMAKE_CXX_FLAGS "-fprofile-arcs -ftest-coverage ")
