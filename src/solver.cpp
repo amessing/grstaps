@@ -23,6 +23,18 @@
 #include "grstaps/problem.hpp"
 #include "grstaps/task_planning/plan.hpp"
 #include "grstaps/task_planning/task_planner.hpp"
+#include "grstaps/solution.hpp"
+#include <grstaps/Task_Allocation/checkAllocatable.h>
+#include <grstaps/Graph/Node.h>
+#include <grstaps/Graph/Graph.h>
+#include <grstaps/Search/UniformCostSearch.h>
+#include <grstaps/Task_Allocation/AllocationExpander.h>
+#include <grstaps/Task_Allocation/TaskAllocation.h>
+#include <grstaps/Task_Allocation/AllocationIsGoal.h>
+#include <grstaps/Task_Allocation/AllocationResultsPackager.h>
+#include <grstaps/Scheduling/TAScheduleTime.h>
+#include <grstaps/Task_Allocation/TAGoalDist.h>
+#include <grstaps/Search/AStarSearch.h>
 
 namespace grstaps
 {
@@ -33,6 +45,9 @@ namespace grstaps
 
          // Task planner
         TaskPlanner task_planner(problem.task());
+        Plan* base;
+        std::vector<Plan*> successors;
+        Plan* solution;
 
         // Motion Planning
         MotionPlanner& motion_planner = MotionPlanner::instance();
@@ -41,14 +56,16 @@ namespace grstaps
         motion_planner.setMap(problem.obstacles(), boundary_min, boundary_max);
 
         // Task Allocation
+        taskAllocationToScheduling taToSched;
+        bool usingSpecies = false;
+        Heuristic *heur = new TAGoalDist();
+        Cost *cos = new TAScheduleTime();
+        GoalLocator<TaskAllocation> *isGoal = new AllocationIsGoal();
+        NodeExpander<TaskAllocation> *expander = new AllocationExpander(heur, cos);
+        SearchResultPackager<TaskAllocation> *package = new AllocationResultsPackager();
+        shared_ptr<vector<int>> numSpec =  shared_ptr<vector<int>>(new vector<int>(problem.robotTraits().size(),1));
+        auto robotTraits = &problem.robotTraits();
 
-        // Scheduling
-
-
-
-        Plan* base;
-        std::vector<Plan*> successors;
-        Plan* solution;
         while(!task_planner.emptySearchSpace())
         {
             base = nullptr;
@@ -58,15 +75,38 @@ namespace grstaps
 
             int num_children = successors.size();
 
-            // openmp line
+            std::vector<Plan*> valid_successors;
+            std::vector<TaskAllocation*> allocations;
+
+            vector<int> remove;
             for(int i = 0; i < num_children; ++i)
             {
-                // task allocation & scheduling
-                // Compute h and update
+
+                boost::shared_ptr<vector<vector<int>>> orderingCon;
+                boost::shared_ptr<vector<float>> durations;
+                shared_ptr<vector<vector<float>>> noncumTraitCutoff;
+                boost::shared_ptr<vector<vector<float>>> goalDistribution;
+
+                TaskAllocation ta(usingSpecies, goalDistribution, robotTraits, noncumTraitCutoff, (&taToSched), durations, orderingCon, numSpec);
+
+                auto node1 = boost::shared_ptr<Node<TaskAllocation>>(new Node<TaskAllocation>(std::string(ta.getID()), ta));
+                node1->setData(ta);
+                Graph<TaskAllocation> allocationGraph;
+                allocationGraph.addNode(node1);
+
+                AStarSearch<TaskAllocation> graphAllocateAndSchedule(allocationGraph, node1);
+                graphAllocateAndSchedule.search(isGoal, expander, package);
+                if(package->foundGoal){
+                    successors[i]->h = package->finalNode->getPathCost();
+                }
+                else{
+                    remove.push_back(i);
+                }
+            }
+            for(int i = remove.size(); i > 0; ++i){
+                successors.erase(successors.begin() + remove[i-1]);
             }
 
-            // Filter based on task allocation and sort based on h
-            std::vector<Plan*> valid_successors;
             std::copy_if(successors.begin(), successors.end(), std::back_inserter(valid_successors),
                 [](Plan* p){return p->task_allocatable; });
             // TODO: check if this is correct or backwards
@@ -77,13 +117,24 @@ namespace grstaps
             {
                 if(successors[i]->isSolution())
                 {
-                    // create and return solution
+                    delete heur;
+                    delete cos;
+                    delete isGoal;
+                    delete expander;
+                    delete package;
+                    std::shared_ptr<Solution> m_solution(new Solution(std::shared_ptr<Plan>(successors[i]), std::shared_ptr<TaskAllocation>(allocations[i])));
+                    return m_solution;
                 }
             }
 
             task_planner.update(base, valid_successors);
         }
 
+        delete heur;
+        delete cos;
+        delete isGoal;
+        delete expander;
+        delete package;
         return nullptr;
     }
 }

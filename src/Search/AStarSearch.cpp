@@ -27,23 +27,27 @@ namespace grstaps {
     AStarSearch<Data>::AStarSearch(Graph<Data> &graph, nodePtr<Data> &initPtr) : SearchBase<Data>(graph, initPtr) {
         currentNode = initPtr; // variable the holds the current explored node
         frontier.push(initPtr);
-        numNodes = 0;
     }
 
     template<class Data>
     AStarSearch<Data>::AStarSearch(AStarSearch<Data> &p2, NodeExpander<TaskAllocation>* expander) : SearchBase<Data>() {
+        this->graph = Graph<Data>();
+
         for (auto itr = p2.frontier.begin(); itr != p2.frontier.end(); ++itr) {
-            nodePtr<Data> nodeToAdd = nodePtr<Data>(new Node<Data>(itr));
+            nodePtr<Data> nodeToAdd  = nodePtr<Data>(new Node<Data>(itr));
             this->graph.addNode(nodeToAdd);
             frontier.push(nodeToAdd);
         }
-        for (auto itr = closedList.begin(); itr != closedList.end(); ++itr) {
-            nodePtr<Data> nodeToExpand = nodePtr<Data>(new Node<Data>(itr));
-            (*expander)(this->graph, nodeToExpand);
+
+        for (auto itr = p2.closedList.begin(); itr != p2.closedList.end(); ++itr) {
+            nodePtr<Data> nodeToAdd = nodePtr<Data>(new Node<Data>(itr));
+            this->graph.addNode(nodeToAdd);
+            closedList.push(nodeToAdd);
         }
 
-        currentNode = this->graph.findNode(p2->currentNode->getNodeID());
-        this->initialNodePtr = this->graph.findNode(p2->initialNodePtr->getNodeID());
+
+        currentNode = this->graph.findNode(p2.currentNode->getNodeID());
+        this->initialNodePtr = this->graph.findNode(p2.currentNode->getNodeID());
     }
 
     template<> AStarSearch<TaskAllocation>::AStarSearch(AStarSearch<TaskAllocation> &p2, short newActionDuration, vector<float>& traitRequirements, vector<float>& nonCumTraits, NodeExpander<TaskAllocation>* expander, vector<vector<int>>* orderingConstraints ) : SearchBase<TaskAllocation>() {
@@ -52,37 +56,38 @@ namespace grstaps {
         for(int i=0; i < traitRequirements.size(); i++){
             goalDistAdd += traitRequirements[i];
         }
-        for (auto itr = p2.frontier.begin(); itr != p2.frontier.end(); ++itr) {
-            nodePtr<TaskAllocation> nodeToAdd = nodePtr<TaskAllocation>(new Node<TaskAllocation>(*p2.frontier.top()));
-            nodeToAdd->setID((nodeToAdd->getNodeID() + string ( nodeToAdd->getData().getSpeciesTraitDistribution()->size(), '0')));
+
+        boost::shared_ptr<vector<vector<float>>> goalTrait = boost::shared_ptr<vector<vector<float>>>( new vector<vector<float>>(*p2.initialNodePtr->getData().getGoalTraitDistribution()));
+        boost::shared_ptr<vector<float>> durations = boost::shared_ptr<vector<float>>( new vector<float>(*p2.initialNodePtr->getData().getActionDuration()));
+        boost::shared_ptr<vector<vector<int>>> orderings = boost::shared_ptr<vector<vector<int>>>(new vector<vector<int>>(*p2.initialNodePtr->getData().getOrderingConstraints()));
+
+        TaskAllocation copy((p2.currentNode)->getData());
+        nodePtr<TaskAllocation> nodeToAdd = nodePtr<TaskAllocation>(new Node<TaskAllocation>(p2.currentNode->getNodeID() + string ( copy.getSpeciesTraitDistribution()->size(), '0'), copy));
+
+        nodeToAdd->getData().setGoalTraitDistribution(goalTrait);
+        nodeToAdd->getData().setActionDuration(durations);
+        nodeToAdd->getData().setOrderingConstraints(orderings);
+
+        (nodeToAdd->getData()).addAction(traitRequirements, nonCumTraits, goalDistAdd,  newActionDuration, orderingConstraints);
+        this->graph.addNode(nodeToAdd);
+        frontier.push(nodeToAdd);
+
+        for (auto itr = p2.frontier.ordered_begin(); itr != p2.frontier.ordered_end(); ++itr) {
+            TaskAllocation copy((*itr)->getData());
+            nodePtr<TaskAllocation> nodeToAdd = nodePtr<TaskAllocation>(new Node<TaskAllocation>((*itr)->getNodeID() + string ( copy.getSpeciesTraitDistribution()->size(), '0'), copy));
+
+            nodeToAdd->getData().setGoalTraitDistribution(goalTrait);
+            nodeToAdd->getData().setActionDuration(durations);
+            nodeToAdd->getData().setOrderingConstraints(orderings);
+
             (nodeToAdd->getData()).addAction(traitRequirements, nonCumTraits, goalDistAdd,  newActionDuration, orderingConstraints);
             this->graph.addNode(nodeToAdd);
             frontier.push(nodeToAdd);
         }
         this->initialNodePtr = this->frontier.top();
         this->currentNode = this->frontier.top();
-        /*
-        for (auto itr = p2.closedList.begin(); itr != p2.closedList.end(); ++itr)
-        {
-            for(int i = 0; i < numSpec; i++)
-            {
-                auto newTA               = nodeData;
-                vector<short> allocation = (**itr).getData().getAllocation();
-                vector<short> emptyVect(numSpec, 0);
-                allocation.insert(allocation.end(), emptyVect.begin(), emptyVect.end());
-                newTA.setAllocation(allocation);
-
-                newTA.addAgent(i, actionRequirements.size() - 1);
-                std::string newID               = newTA.getID();
-                nodePtr<TaskAllocation> newNode = nodePtr<TaskAllocation>(new Node<TaskAllocation>(newID, newTA));
-                this->graph.addNode(newNode);
-                frontier.push(newNode);
-            }
-        }
-        this->initialNodePtr = this->frontier.top();
-        this->currentNode = this->frontier.top();
-        */
-        //this->graph.addNode(this->currentNode);
+        closedList.push(currentNode);
+        frontier.pop();
     }
 
     template<class Data>
@@ -99,7 +104,6 @@ namespace grstaps {
             }
             searchFailed = updateCurrent();
         }
-        std::cout << numNodes << std::endl;
         results->addResults(this->graph, currentNode, searchFailed);
     }
 
@@ -113,7 +117,6 @@ namespace grstaps {
             currentNode = frontier.top();
             closedList.push(currentNode);
             frontier.pop();
-            numNodes++;
 
         }
         return searchFailed;

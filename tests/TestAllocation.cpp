@@ -11,7 +11,9 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public
  * License for more details.
  *
- * You should have received a copy of the GNU General Public License
+ * You should have receiv            std::copy_if(successors.begin(), successors.end(), std::back_inserter(valid_successors),
+                [](Plan* p){return p->task_allocatable; });
+            // TODO: check if this is correct or backwardsed a copy of the GNU General Public License
  * along with GRSTAPS; if not, write to the Free Software Foundation,
  * Inc., #59 Temple Plac
  */
@@ -195,7 +197,8 @@ namespace grstaps {
             vector<float> durations{10, 10, 10 , 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10 , 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10 , 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10 , 10, 10, 10, 10, 10, 10, 10, 10};
             taskAllocationToScheduling taToSched;
             bool usingSpecies = false;
-            TaskAllocation ta(usingSpecies, (&goalDistribution), (&speciesDistribution), (&noncumTraitCutoff), (&taToSched), (&durations), &orderingCon, numSpec);
+            // THEIR IS AN ERROR HERE i AM AWARE OF
+            TaskAllocation ta(usingSpecies, boost::shared_ptr<vector<vector<float>>>(&goalDistribution), (&speciesDistribution), boost::shared_ptr<vector<vector<float>>>(&noncumTraitCutoff), (&taToSched), boost::shared_ptr<vector<float>>(&durations), boost::shared_ptr<vector<vector<int>>>(&orderingCon), numSpec);
             auto node1 = boost::shared_ptr<Node<TaskAllocation>>(new Node<TaskAllocation>(std::string(ta.getID()), ta));
 
             node1->setData(ta);
@@ -211,14 +214,13 @@ namespace grstaps {
 
             AStarSearch<TaskAllocation> searcher(graphTest, node1);
 
-
+            AllocationResultsPackager *results = static_cast<AllocationResultsPackager *>(package);
             if(check && isAllocatable(goalDistribution, speciesDistribution, noncumTraitCutoff, numSpec)){
                 auto start = std::chrono::high_resolution_clock::now();
                 searcher.search(isGoal, expander, package);
                 auto stop = std::chrono::high_resolution_clock::now();
                 auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
                 std::cout << "Time=" << duration.count() << std::endl;
-                AllocationResultsPackager *results = static_cast<AllocationResultsPackager *>(package);
                 results->printResults();
             }
             else{
@@ -227,21 +229,20 @@ namespace grstaps {
                 auto stop = std::chrono::high_resolution_clock::now();
                 auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
                 std::cout << "Time=" << duration.count() << std::endl;
-                AllocationResultsPackager *results = static_cast<AllocationResultsPackager *>(package);
                 results->printResults();
             }
 
+
             /*
-            vector<float> newAction{0,0, 0,0,0,0,0,0,1,1};
+            vector<float> newAction{0,0, 0, 1,0,0,0,0,0,0};
+            vector<float> newNonCum{0,0, 0, 1,0,0,0,0,0,0};
             string newId = "Action2";
-            AStarSearch<TaskAllocation> searcherCopy(searcher, newId, newAction, newAction, expander );
+            AStarSearch<TaskAllocation> searcherCopy(searcher, 10, newAction, newNonCum, expander, &orderingCon);
             searcherCopy.search(isGoal, expander, package);
             results = static_cast<AllocationResultsPackager *>(package);
             cout << "Copy Node" << endl;
             results->printResults();
-            */
-
-
+             */
 
             delete isGoal;
             delete expander;

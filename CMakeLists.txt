@@ -4,7 +4,7 @@ message("Building ${PROJECT_NAME}...")
 
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-set(optimization ON)
+set(optimization OFF)
 
 
 # Add external cmake modules
@@ -37,7 +37,7 @@ target_include_directories(_${PROJECT_NAME} PUBLIC include PRIVATE ${OMPL_INCLUD
 
 # Create executable
 if(BUILD_EXE)
-add_executable(${PROJECT_NAME} src/main.cpp)
+add_executable(${PROJECT_NAME} src/main.cpp src/solution.cpp src/solution.h)
 set_target_properties(${PROJECT_NAME} PROPERTIES CXX_STANDARD 17 CXX_STANDARD_REQUIRED YES)
 target_link_libraries(${PROJECT_NAME} PRIVATE _${PROJECT_NAME} args box2d nlohmann_json)
 endif(BUILD_EXE)

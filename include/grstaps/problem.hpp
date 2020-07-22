@@ -45,14 +45,14 @@ namespace grstaps
 
         Problem() = default;
         void setLocations(const std::vector<Location>& locations);
-        void setRobotTraitVector(const std::vector<TraitVector>& robot_traits);
+        void setRobotTraitVector(std::vector<TraitVector>& robot_traits);
         void setTask(SASTask* task);
         void setObstacles(const std::vector<b2PolygonShape>& obstacles);
         void setConfig(const nlohmann::json& config);
 
         const std::vector<Location>& locations() const;
         const Location& location(uint i) const;
-        const std::vector<TraitVector>& robotTraits() const;
+        std::vector<TraitVector>& robotTraits();
         const TraitVector& robotTrait(uint i) const;
         const SASTask* task() const;
         const std::vector<b2PolygonShape>& obstacles() const;

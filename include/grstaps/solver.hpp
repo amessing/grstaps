@@ -27,8 +27,12 @@
 
 namespace grstaps
 {
+    class MotionPlanner;
     class Problem;
+    class Scheduler;
     class Solution;
+    class TaskAllocation;
+    class TaskPlanner;
 
     /**
      * Wrapper for all the modules used to solve the problem

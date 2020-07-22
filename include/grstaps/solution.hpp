@@ -20,7 +20,9 @@
 
 // global
 #include <memory>
+#include <grstaps/Task_Allocation/TaskAllocation.h>
 
+// Task Allocation
 namespace grstaps
 {
     // Forward Declarations
@@ -37,22 +39,22 @@ namespace grstaps
          *
          * \param plan A partial-order plan
          */
-        Solution(std::shared_ptr<Plan> plan);
+        Solution(std::shared_ptr<Plan> plan, std::shared_ptr<TaskAllocation> allocation);
 
         /**
          * Writes the solution to file
          *
          * \param filepath The path to the file which to write the plan
          */
-        void write(const std::string& filepath);
+        //void write(const std::string& filepath);
 
         /**
          * \returns The partial-order plan from this solution
          */
-        const Plan& plan() const;
+        //const Plan& plan() const;
     private:
         std::shared_ptr<Plan> m_plan; //!< A partial-order plan
-        // Task Allocation
+        std::shared_ptr<grstaps::TaskAllocation> m_allocation;
         // Schedule
         // Motion Plans
     };

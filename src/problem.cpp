@@ -24,7 +24,7 @@ namespace grstaps
         m_locations = locations;
     }
 
-    void Problem::setRobotTraitVector(const std::vector<Problem::TraitVector>& robot_traits)
+    void Problem::setRobotTraitVector(std::vector<Problem::TraitVector>& robot_traits)
     {
         m_robot_traits = robot_traits;
     }
@@ -54,7 +54,7 @@ namespace grstaps
         return m_locations[i];
     }
 
-    const std::vector<Problem::TraitVector>& Problem::robotTraits() const
+    std::vector<Problem::TraitVector>& Problem::robotTraits()
     {
         return m_robot_traits;
     }
