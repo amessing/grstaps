@@ -18,8 +18,14 @@ namespace grstaps
         this->task = task;
         this->forceAtEndConditions = forceAtEndConditions;
         tilActions = a;
-        if (state == nullptr) landmarks.initialize(task, a);
-        else landmarks.initialize(state, task, a);
+        if (state == nullptr)
+        {
+            landmarks.initialize(task, a);
+        }
+        else
+        {
+            landmarks.initialize(state, task, a);
+        }
     }
 
     bool Evaluator::informativeLandmarks() {

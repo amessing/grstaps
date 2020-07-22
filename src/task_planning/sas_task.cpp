@@ -62,7 +62,7 @@ namespace grstaps
         return std::to_string(index) + ":" + name;
     }
 
-    std::string SASVariable::toString(std::vector <SASValue>& values)
+    std::string SASVariable::toString(std::vector<SASValue>& values)
     {
         std::string s = toString();
         for(unsigned int i = 0; i < possibleValues.size(); i++)
@@ -72,7 +72,7 @@ namespace grstaps
         return s;
     }
 
-    std::string SASVariable::toStringInitialState(std::vector <SASValue>& values)
+    std::string SASVariable::toStringInitialState(std::vector<SASValue>& values)
     {
         std::string s = "";
         for(unsigned int i = 0; i < value.size(); i++)
@@ -136,7 +136,8 @@ namespace grstaps
             {
                 if(this->value[i] == value)
                 { break; }
-                std::cout << "Contradictory value " << value << " in time " << time << " for variable " << name << std::endl;
+                std::cout << "Contradictory value " << value << " in time " << time << " for variable " << name
+                          << std::endl;
                 assert(false);
             }
         }
@@ -177,7 +178,7 @@ namespace grstaps
 /* CLASS: SASNumericExpression                          */
 /********************************************************/
 
-    std::string SASNumericExpression::toString(std::vector <NumericVariable>* numVariables)
+    std::string SASNumericExpression::toString(std::vector<NumericVariable>* numVariables)
     {
         std::string s;
         switch(type)
@@ -214,7 +215,7 @@ namespace grstaps
 /* CLASS: SASDuration                                   */
 /********************************************************/
 
-    std::string SASDuration::toString(std::vector <NumericVariable>* numVariables)
+    std::string SASDuration::toString(std::vector<NumericVariable>* numVariables)
     {
         return SASTask::toStringTime(time) + "(" + SASTask::toStringComparator(comp) + " ?duration " +
                exp.toString(numVariables) + ")";
@@ -235,7 +236,7 @@ namespace grstaps
 /* CLASS: SASNumericCondition                           */
 /********************************************************/
 
-    std::string SASNumericCondition::toString(std::vector <NumericVariable>* numVariables)
+    std::string SASNumericCondition::toString(std::vector<NumericVariable>* numVariables)
     {
         std::string s = "(" + SASTask::toStringComparator(comp);
         for(unsigned int i = 0; i < terms.size(); i++)
@@ -249,7 +250,7 @@ namespace grstaps
 /* CLASS: SASNumericEffect                              */
 /********************************************************/
 
-    std::string SASNumericEffect::toString(std::vector <NumericVariable>* numVariables)
+    std::string SASNumericEffect::toString(std::vector<NumericVariable>* numVariables)
     {
         return "(" + SASTask::toStringAssignment(op) + " " + (*numVariables)[var].toString() + " " +
                exp.toString(numVariables) + ")";
@@ -423,7 +424,7 @@ namespace grstaps
 // Computes the list of actions that requires a (= var value)
     void SASTask::computeRequirers()
     {
-        requirers = new std::vector < SASAction * > *[variables.size()];
+        requirers = new std::vector<SASAction*>* [variables.size()];
         for(unsigned int i = 0; i < variables.size(); i++)
         {
             requirers[i] = new std::vector<SASAction*>[values.size()];
@@ -466,7 +467,7 @@ namespace grstaps
 // Computes the list of actions that produces (= var value)
     void SASTask::computeProducers()
     {
-        producers = new std::vector < SASAction * > *[variables.size()];
+        producers = new std::vector<SASAction*>* [variables.size()];
         for(unsigned int i = 0; i < variables.size(); i++)
         {
             producers[i] = new std::vector<SASAction*>[values.size()];
@@ -881,7 +882,7 @@ namespace grstaps
     }
 
 // Computes the duration of an action
-    float SASTask::getActionDuration(SASAction* a, float* s)
+    float SASTask::getActionDuration(SASAction* a, float* s) const
     {
         if(a->duration.size() > 1)
         {
@@ -891,14 +892,14 @@ namespace grstaps
         }
         else
         {
-            SASDuration* duration = &(a->duration[0]);
-            if(duration->time == 'E' || duration->time == 'A')
+            const SASDuration& duration = a->duration[0];
+            if(duration.time == 'E' || duration.time == 'A')
             {
                 std::cout << "At-end or over-all durations not supported yet" << std::endl;
                 assert(false);
                 return EPSILON;
             }
-            else if(duration->comp != '=')
+            else if(duration.comp != '=')
             {
                 std::cout << "Inequalities in duration not supported yet" << std::endl;
                 assert(false);
@@ -910,13 +911,13 @@ namespace grstaps
             }
             else
             {
-                return evaluateNumericExpression(&(duration->exp), s, 0);
+                return evaluateNumericExpression(&(duration.exp), s, 0);
             }
         }
     }
 
 // Checks if a numeric condition holds in the given numeric state
-    bool SASTask::holdsNumericCondition(SASNumericCondition& cond, float* s, float duration)
+    bool SASTask::holdsNumericCondition(SASNumericCondition& cond, float* s, float duration) const
     {
         float v1 = evaluateNumericExpression(&(cond.terms[0]), s, duration);
         float v2 = evaluateNumericExpression(&(cond.terms[1]), s, duration);
@@ -940,12 +941,20 @@ namespace grstaps
     }
 
 // Evaluates a numeric expression in a given state and with the given action duration
-    float SASTask::evaluateNumericExpression(SASNumericExpression* e, float* s, float duration)
+    float SASTask::evaluateNumericExpression(const SASNumericExpression* e, float* s, float duration) const
     {
-        if(e->type == 'N')
-        { return e->value; }            // NUMBER
-        if(e->type == 'V') return s[e->var];            // VAR
-        if(e->type == 'D') return duration;
+        if(e->type == 'N') // NUMBER
+        {
+            return e->value;
+        }
+        if(e->type == 'V') // VAR
+        {
+            return s[e->var];
+        }
+        if(e->type == 'D')
+        {
+            return duration;
+        }
         if(e->type == '#')
         {
             std::cout << "#t in duration not supported yet" << std::endl;
@@ -1313,8 +1322,9 @@ namespace grstaps
                      toStringGoalDescription(&(c->goal[1]));
                 break;
             case 'T':
-                s += "always-within " + std::to_string(c->time[0]) + " " + toStringGoalDescription(&(c->goal[0])) + " " +
-                     toStringGoalDescription(&(c->goal[1]));
+                s +=
+                    "always-within " + std::to_string(c->time[0]) + " " + toStringGoalDescription(&(c->goal[0])) + " " +
+                    toStringGoalDescription(&(c->goal[1]));
                 break;
             case 'D':
                 s += "hold-during " + std::to_string(c->time[0]) + " " + std::to_string(c->time[1]) + " " +
@@ -1391,7 +1401,9 @@ namespace grstaps
         for(unsigned int i = 0; i < goalList.size(); i++)
         {
             if(goalList[i] == vv)
-            { return; }
+            {
+                return;
+            }
         }
         goalList.push_back(vv);
     }

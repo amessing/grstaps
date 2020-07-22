@@ -44,34 +44,54 @@ namespace grstaps
         bool isInitialState(TState* state);
 
         inline void uncheck()
-        { checked = false; }
+        {
+            checked = false;
+        }
 
         inline void check()
-        { checked = true; }
+        {
+            checked = true;
+        }
 
-        inline bool isChecked()
-        { return checked; }
+        inline bool isChecked() const
+        {
+            return checked;
+        }
 
-        inline bool isSingle()
-        { return single; }
+        inline bool isSingle() const
+        {
+            return single;
+        }
 
-        inline unsigned int numPrev()
-        { return prev.size(); }
+        inline unsigned int numPrev() const
+        {
+            return prev.size();
+        }
 
-        inline unsigned int numNext()
-        { return next.size(); }
+        inline unsigned int numNext() const
+        {
+            return next.size();
+        }
 
-        inline TVariable getVar()
-        { return vars[0]; }
+        inline TVariable getVar() const
+        {
+            return vars[0];
+        }
 
-        inline TValue getValue()
-        { return values[0]; }
+        inline TValue getValue() const
+        {
+            return values[0];
+        }
 
-        inline LandmarkCheck* getNext(unsigned int i)
-        { return next[i]; }
+        inline LandmarkCheck* getNext(unsigned int i) const
+        {
+            return next[i];
+        }
 
-        inline LandmarkCheck* getPrev(unsigned int i)
-        { return prev[i]; }
+        inline LandmarkCheck* getPrev(unsigned int i) const
+        {
+            return prev[i];
+        }
 
         std::string toString(SASTask* task, bool showNext);
     };
@@ -104,16 +124,20 @@ namespace grstaps
 
         std::string toString(SASTask* task);
 
-        inline unsigned int getNumNodes()
-        { return nodes.size(); }
+        inline unsigned int getNumNodes() const
+        {
+            return nodes.size();
+        }
 
-        inline uint16_t countUncheckedNodes()
+        inline uint16_t countUncheckedNodes() const
         {
             uint16_t n = 0;
             for(unsigned int i = 0; i < nodes.size(); i++)
             {
                 if(!nodes[i]->isChecked())
-                { n++; }
+                {
+                    n++;
+                }
             }
             return n;
         }

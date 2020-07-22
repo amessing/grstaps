@@ -30,7 +30,7 @@ namespace grstaps
     /**
      * Container for a location
      */
-    class Location : public Noncopyable
+    class Location
     {
        public:
         /**

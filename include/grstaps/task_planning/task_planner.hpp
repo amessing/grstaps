@@ -37,8 +37,7 @@ namespace grstaps
                                                        float timePoint, std::string name, bool isTIL);
         void addFrontierNodes(Plan* p);
     public:
-        TaskPlanner(SASTask* task, float timeout);
-        virtual ~TaskPlanner();
+        TaskPlanner(SASTask* task, float timeout=-1.0f);
         void getNextSuccessors(Plan* base, std::vector<Plan*>& successors, Plan* solution);
         void update(Plan* base, std::vector<Plan*>& successors);
         bool emptySearchSpace();

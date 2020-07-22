@@ -21,6 +21,7 @@
 #define GRSTAPS_MOTION_PLANNER_HPP
 
 // global
+#include <mutex>
 #include <utility>
 
 // external
@@ -58,7 +59,7 @@ namespace grstaps
          * Sets the obstacles in the map
          *
          * \param obstacles The list of obstacles in the environment
-         * \param boundary_min The minumum value for the x or y axes
+         * \param boundary_min The minimum value for the x or y axes
          * \param boundary_max The maximum value for the x or y axes
          */
         void setMap(const std::vector<b2PolygonShape>& obstacles, float boundary_min, float boundary_max);
@@ -98,6 +99,7 @@ namespace grstaps
         ompl::base::StateSpacePtr m_space;  //!< Outline of the space
         ompl::base::SpaceInformationPtr
             m_space_information;  //!< Information about the space (includes validity checker)
+        std::mutex m_mutex;
     };
 }  // namespace grstaps
 

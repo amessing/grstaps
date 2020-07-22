@@ -15,41 +15,88 @@
  * along with grstaps; if not, write to the Free Software Foundation,
  * Inc., #59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
-#if 0
+
 // external
+#include <fmt/format.h>
 #include <gtest/gtest.h>
 #include <nlohmann/json.hpp>
 
+
 // local
-#include <grstaps/constants.hpp>
-#include <grstaps/survivor_problem.hpp>
+#include <grstaps/location.hpp>
+#include <grstaps/problem.hpp>
+#include <grstaps/solver.hpp>
+#include <grstaps/task_planning/sas_task.hpp>
 
 namespace grstaps
 {
     namespace test
     {
-        TEST(Problem, survivor)
+        TEST(Problem, simple)
         {
-            nlohmann::json config =
-                {
-                    {constants::k_min_num_hospitals, 1},
-                    {constants::k_max_num_hospitals, 3},
-                    {constants::k_min_num_survivors, 3},
-                    {constants::k_max_num_survivors, 10},
-                    {constants::k_min_num_fire, 3},
-                    {constants::k_max_num_fire, 10},
-                    {constants::k_min_num_damaged_buildings, 3},
-                    {constants::k_max_num_damaged_buildings, 10},
-                    {constants::k_extra_medicine, 3},
-                    {constants::k_extra_small_crates, 3},
-                    {constants::k_extra_large_crates, 3},
-                    {constants::k_extra_small_water_containers, 3},
-                    {constants::k_extra_large_water_containers, 3},
-                };
+            Problem problem;
 
-            SurvivorProblem problem;
-            problem.init(config);
+            std::vector<Location> locations = {
+                Location("source", 0.5, 0.5),
+                Location("target", 1.5, 1.5)
+            };
+            problem.setLocations(locations);
+
+            std::vector<Problem::TraitVector> robot_traits = {
+                { 0.25 },
+                { 0.25 },
+                { 0.25 }
+            };
+            problem.setRobotTraitVector(robot_traits);
+
+            // Create task
+            auto task = new SASTask;
+
+            uint num_boxes = 3;
+
+            // Variables
+            std::vector<SASVariable*> vars;
+            // Box
+            // Location
+            for(uint i = 0; i < num_boxes; ++i)
+            {
+                SASVariable* var = task->createNewVariable(fmt::format("box_{}_location", i));
+                for(uint j = 0; j < locations.size(); ++i)
+                {
+                    var->addPossibleValue(j);
+                }
+                vars.push_back(var);
+            }
+
+            // Action
+            // Move Box
+            for(uint i = 0; i < num_boxes; ++i)
+            {
+                SASAction* action = task->createNewAction(fmt::format("move_box_{}", i));
+
+                // Box 'i' starts at the source
+                SASCondition condition(i, 0);
+                action->startCond.push_back(condition);
+
+                // Box 'i' ends at the target
+                SASCondition effect(i, 1);
+                action->endEff.push_back(effect);
+            }
+            problem.setTask(task);
+
+            // No obstacles
+            nlohmann::json config;
+
+            // Config
+            config["mp_boundary_min"] = 0;
+            config["mp_boundary_max"] = 2;
+            problem.setConfig(config);
+            // Save problem
+
+            Solver solver;
+            std::shared_ptr<Solution> solution = solver.solve(problem);
+            // Evaluate solution
+            // Save solution to file
         }
     }
 }
-#endif

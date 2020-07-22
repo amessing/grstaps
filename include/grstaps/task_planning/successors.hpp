@@ -106,10 +106,14 @@ namespace grstaps
         bool helpfulActions;
 
         inline bool visitedAction(SASAction* a)
-        { return checkedAction[a->index] == currentIteration; }
+        {
+            return checkedAction[a->index] == currentIteration;
+        }
 
         inline void setVisitedAction(SASAction* a)
-        { checkedAction[a->index] = currentIteration; }
+        {
+            checkedAction[a->index] = currentIteration;
+        }
 
         void computeBasePlanEffects();                        // Fill the planEffects matrix with the effects produced by the base plan
         void fullActionCheck(SASAction* a);
@@ -190,13 +194,17 @@ namespace grstaps
             for(unsigned int i = 0; i < cond->size(); i++)
             {
                 if((*cond)[i].var == var)
-                { return &((*cond)[i]); }
+                {
+                    return &((*cond)[i]);
+                }
             }
             cond = &(a->overCond);    // Check over-all conditions then
             for(unsigned int i = 0; i < cond->size(); i++)
             {
                 if((*cond)[i].var == var)
-                { return &((*cond)[i]); }
+                {
+                    return &((*cond)[i]);
+                }
             }
             return nullptr;
         }
@@ -207,7 +215,9 @@ namespace grstaps
             for(unsigned int i = 0; i < eff->size(); i++)
             {
                 if((*eff)[i].var == var)
-                { return &((*eff)[i]); }
+                {
+                    return &((*eff)[i]);
+                }
             }
             return nullptr;
         }

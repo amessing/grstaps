@@ -13,7 +13,7 @@ namespace grstaps
         this->value = value;
     }
 
-    RPG::RPG(std::vector<std::vector<TValue>>& varValues,
+    RPG::RPG(const std::vector<std::vector<TValue>>& varValues,
              SASTask* task,
              bool forceAtEndConditions,
              std::vector<SASAction*>* tilActions)

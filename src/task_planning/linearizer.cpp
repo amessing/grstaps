@@ -569,12 +569,6 @@ namespace grstaps
                                               bool* invalidPlan,
                                               std::vector<TTimePoint>* linearOrder)
     {
-        /*
-        cout << "Linear order: [";
-        for (unsigned int i = 0; i < linearOrder->size(); i++)
-            cout << linearOrder->at(i) << " ";
-        cout << "]" << endl;
-        */
         *repeat = false;
         pq.clear();
         if(plan != nullptr)

@@ -1,4 +1,3 @@
-#if 0
 /*
  * Copyright (C) 2020 Andrew Messing
  *
@@ -25,100 +24,49 @@
 #include <vector>
 
 // external
+#include <box2d/b2_polygon_shape.h>
 #include <nlohmann/json.hpp>
 
 // local
-#include "grstaps/task_planning/utils.hpp"
-#include "grstaps/action.hpp"
 #include "grstaps/location.hpp"
-#include "grstaps/robot.hpp"
+#include "grstaps/task_planning/sas_task.hpp"
+#include "grstaps/task_planning/utils.hpp"
 
 namespace grstaps
 {
     /**
      * Creates a HMA-CTAMP problem
-     *
-     * todo: type trait magic
      */
-    template <typename StateDecoder>
     class Problem
     {
-    protected:
-        using StateDecoderType = StateDecoder;
     public:
-        /**
-         * Default Constructor
-         */
+        using TraitVector = std::vector<float>;
+
+
         Problem() = default;
+        void setLocations(const std::vector<Location>& locations);
+        void setRobotTraitVector(const std::vector<TraitVector>& robot_traits);
+        void setTask(SASTask* task);
+        void setObstacles(const std::vector<b2PolygonShape>& obstacles);
+        void setConfig(const nlohmann::json& config);
 
-        /**
-         * Initializes this problem
-         *
-         * \param config The configuration for generating a problem
-         */
-        void init(const nlohmann::json& config) = 0;
+        const std::vector<Location>& locations() const;
+        const Location& location(uint i) const;
+        const std::vector<TraitVector>& robotTraits() const;
+        const TraitVector& robotTrait(uint i) const;
+        const SASTask* task() const;
+        const std::vector<b2PolygonShape>& obstacles() const;
+        const nlohmann::json& config() const;
 
-        /**
-         * Writes the problem config
-         */
-        virtual void write(const std::string& filepath) const = 0;
-
-        /**
-         * \returns The action specified by the \p id
-         */
-        const Action& action(unsigned int id) const
-        {
-            return m_actions[id];
-        }
-
-        /**
-         * \returns The location specified by the \p id
-         */
-        const Location& location(unsigned int id) const
-        {
-            return m_locations[id];
-        }
-
-        /**
-         * \returns The robot specified by the \p id
-         */
-        const Robot& robot(unsigned int id) const
-        {
-            return m_robots[id];
-        }
-
-        /**
-         * \returns The initial state of the problem
-         */
-        const StateAssignment& initialState() const
-        {
-            return m_initial_state;
-        }
-
-        /**
-         * \returns The goal of the problem
-         */
-        const StateAssignment& goal() const
-        {
-             return m_goal;
-        }
-
-        const StateDecoder& stateDecoder() const
-        {
-            return *m_state_decoder;
-        }
+        SASTask* task();
 
     protected:
-        std::vector<Action> m_actions; //!< A list of the actions that can be used to solve this problem
-        std::vector<Location> m_locations; //!< A list of the locations that either robots or objects can be at
-        std::vector<Robot> m_robots; //!< A list of the robots
-
-        StateAssignment m_initial_state; //!< The initial state of the problem
-        StateAssignment m_goal; //!< The state assignment representing the goal
-
-        std::unique_ptr<StateDecoder> m_state_decoder;
+        std::vector<Location> m_locations; //!< coordinates and name of location
+        std::vector<TraitVector> m_robot_traits; //!< List of vectors of robot traits
+        SASTask* m_task; // A SAS Task for the Task planner
+        std::vector<b2PolygonShape> m_obstacles; //!< Obstacles in the map
+        nlohmann::json m_config;
     };
 }
 
 #endif //GRSTAPS_PROBLEM_HPP
-#endif

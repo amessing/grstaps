@@ -321,19 +321,21 @@ namespace grstaps
 
         float computeActionCost(SASAction* a, float* numState, float makespan);
 
-        float evaluateNumericExpression(SASNumericExpression* e, float* s, float duration);
+        float evaluateNumericExpression(const SASNumericExpression* e, float* s, float duration) const;
 
-        float getActionDuration(SASAction* a, float* s);
+        float getActionDuration(SASAction* a, float* s) const;
 
-        bool holdsNumericCondition(SASNumericCondition& cond, float* s, float duration);
+        bool holdsNumericCondition(SASNumericCondition& cond, float* s, float duration) const;
 
         inline float evaluateMetric(float* numState, float makespan)
         {
             return evaluateMetric(&metric, numState, makespan);
         }
 
-        inline bool hasPermanentMutexAction()
-        { return !permanentMutexActions.empty(); }
+        inline bool hasPermanentMutexAction() const
+        {
+            return !permanentMutexActions.empty();
+        }
 
         std::vector<TVarValue>* getListOfGoals();
 

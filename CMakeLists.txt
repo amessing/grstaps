@@ -13,7 +13,7 @@ include(FileOutputs)
 
 option(BUILD_DOC "Build Documentation" OFF)
 option(BUILD_TESTS "Build Unit Tests" ON)
-option(BUILD_EXE "Build Executable" ON)
+option(BUILD_EXE "Build Executable" OFF)
 
 # Add external libraries
 add_subdirectory(lib)
@@ -24,13 +24,15 @@ file(GLOB_RECURSE ${PROJECT_NAME}_HEADERS
         ${CMAKE_CURRENT_SOURCE_DIR}/include/${PROJECT_NAME}/**.hpp
         ${CMAKE_CURRENT_SOURCE_DIR}/include/${PROJECT_NAME}/**/**.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/${PROJECT_NAME}/**/**.hpp)
-file(GLOB_RECURSE ${PROJECT_NAME}_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/**.cpp ${CMAKE_CURRENT_SOURCE_DIR}/src/**/**.cpp)
+file(GLOB_RECURSE ${PROJECT_NAME}_SOURCES
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/**.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/**/**.cpp)
 list(REMOVE_ITEM ${PROJECT_NAME}_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp)
 
 # Create library
 add_library(_${PROJECT_NAME} ${${PROJECT_NAME}_HEADERS} ${${PROJECT_NAME}_SOURCES})
 set_target_properties(_${PROJECT_NAME} PROPERTIES CXX_STANDARD 17 CXX_STANDARD_REQUIRED YES)
-target_link_libraries(_${PROJECT_NAME} PRIVATE box2d fmt lemon nlohmann_json ${OMPL_LIBRARIES} spdlog stdc++fs)
+target_link_libraries(_${PROJECT_NAME} PRIVATE box2d fmt nlohmann_json ${OMPL_LIBRARIES} spdlog stdc++fs)
 target_include_directories(_${PROJECT_NAME} PUBLIC include PRIVATE ${OMPL_INCLUDE_DIRS})
 
 # Create executable
@@ -80,7 +82,7 @@ if(BUILD_TESTS)
 
     add_executable(${PROJECT_NAME}_test ${${PROJECT_NAME}_TEST_SOURCES} ${testDataOutputs})
     set_target_properties(${PROJECT_NAME}_test PROPERTIES CXX_STANDARD 17 CXX_STANDARD_REQUIRED YES)
-    target_link_libraries(${PROJECT_NAME}_test PRIVATE _${PROJECT_NAME} box2d nlohmann_json gtest gmock)
+    target_link_libraries(${PROJECT_NAME}_test PRIVATE _${PROJECT_NAME} box2d fmt gtest gmock nlohmann_json)
 endif(BUILD_TESTS)
 
 set(CMAKE_CXX_FLAGS "-fprofile-arcs -ftest-coverage ")

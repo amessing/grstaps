@@ -62,7 +62,7 @@ namespace grstaps
     public:
         std::vector<SASAction*> relaxedPlan;
 
-        RPG(std::vector< std::vector<TValue> > &varValues, SASTask* task, bool forceAtEndConditions,
+        RPG(const std::vector< std::vector<TValue> > &varValues, SASTask* task, bool forceAtEndConditions,
             std::vector<SASAction*>* tilActions);
         RPG(TState* state, SASTask* task, bool forceAtEndConditions, std::vector<SASAction*>* tilActions);
         bool isExecutable(SASAction* a);

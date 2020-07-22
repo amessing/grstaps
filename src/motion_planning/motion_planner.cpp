@@ -59,13 +59,14 @@ namespace grstaps
 
     std::pair<bool, float> MotionPlanner::query(unsigned int from, unsigned int to)
     {
+        throw "Incomplete Function";
         // TODO
-        //Knowledge& knowledge = Knowledge::instance();
         //return query(knowledge.location(from), knowledge.location(to));
     }
 
     std::pair<bool, float> MotionPlanner::query(const Location& from, const Location& to)
     {
+        std::lock_guard<std::mutex> lock(m_mutex);
         // Create the robot's starting state
         ob::ScopedState<> start(m_space);
         start->as<ob::RealVectorStateSpace::StateType>()->values[0] = from.x();

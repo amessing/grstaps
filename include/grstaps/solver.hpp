@@ -27,12 +27,8 @@
 
 namespace grstaps
 {
-    class MotionPlanner;
     class Problem;
-    class Scheduler;
     class Solution;
-    class TaskAllocation;
-    class TaskPlanner;
 
     /**
      * Wrapper for all the modules used to solve the problem
@@ -41,31 +37,18 @@ namespace grstaps
     {
     public:
         /**
-         * Constructor
-         *
-         * \param problem The problem to solve
+         * Default Constructor
          */
-        Solver(std::shared_ptr<Problem> problem,
-            std::shared_ptr<MotionPlanner> motion_planner,
-            std::shared_ptr<Scheduler> scheduler,
-            std::shared_ptr<TaskAllocation> task_allocator,
-            std::shared_ptr<TaskPlanner> task_planner);
+        Solver() = default;
 
         /**
          * Runs the system
          *
-         * \param config Configuration for how the solver should solve the problem (for comparison tests)
+         * \param problem The problem to solve
          *
          * \returns The solution if one can be found
          */
-        std::shared_ptr<Solution> solve(const nlohmann::json& config);
-
-    private:
-        std::shared_ptr<Problem> m_problem;
-        std::shared_ptr<MotionPlanner> m_motion_planner;
-        std::shared_ptr<Scheduler> m_scheduler;
-        std::shared_ptr<TaskAllocation> m_task_allocation;
-        std::shared_ptr<TaskPlanner> m_task_planner;
+        std::shared_ptr<Solution> solve(Problem& problem);
     };
 }
 
