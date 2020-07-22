@@ -98,8 +98,6 @@ namespace grstaps {
 //#include "../src/Search/AStarSearch.cpp"
 #endif //GRSTAPS_ASTAR
 
-#ifndef GRSTAPS_ASTARCPP
-
-#include "../src/Search/AStarSearch.cpp"
-
-#endif
+//#ifndef GRSTAPS_ASTARCPP
+//#include "../src/Search/AStarSearch.cpp"
+//#endif

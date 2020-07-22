@@ -28,9 +28,7 @@ namespace grstaps
 
     template <typename Data> using nodePtr = typename boost::shared_ptr<Node<Data>>;
 
-    AllocationExpander::AllocationExpander(Heuristic* heur, Cost* cos)
-        : NodeExpander(heur, cos)
-    {}
+    AllocationExpander::AllocationExpander(Heuristic* heur, Cost* cos): NodeExpander(heur, cos){}
 
     //check to prevent duplicate
     bool AllocationExpander::operator()(Graph<TaskAllocation>& graph, nodePtr<TaskAllocation>& expandNode)

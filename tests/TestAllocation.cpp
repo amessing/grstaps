@@ -30,7 +30,6 @@
 #include <grstaps/Task_Allocation/checkAllocatable.h>
 #include <grstaps/Graph/Node.h>
 #include <grstaps/Graph/Graph.h>
-#include <grstaps/Search/UniformCostSearch.h>
 #include <grstaps/Task_Allocation/AllocationExpander.h>
 #include <grstaps/Task_Allocation/TaskAllocation.h>
 #include <grstaps/Task_Allocation/AllocationIsGoal.h>
@@ -38,9 +37,6 @@
 #include <grstaps/Scheduling/TAScheduleTime.h>
 #include <grstaps/Task_Allocation/TAGoalDist.h>
 #include <grstaps/Search/AStarSearch.h>
-#include <grstaps/Scheduling/Scheduler.h>
-#include <grstaps/Search/BestFirstSearch.h>
-#include <fstream>
 
 
 
