@@ -49,7 +49,7 @@ namespace grstaps {
             const std::string id = "Node0";
             float cost = 5.5;
 
-            vector<vector<float>> goalDistribution{
+            boost::shared_ptr<vector<vector<float>>> goalDistribution=  boost::shared_ptr<vector<vector<float>>>(new vector<vector<float>>( vector<vector<float>>{
                 {0,0, 0, 1,0,0,0,0,0,0},
                 {0,0, 0, 1,0,0,0,0,0,0},
                 {0,0, 0, 1,0,0,0,0,0,0},
@@ -94,7 +94,7 @@ namespace grstaps {
                 {0,0, 0, 1,0,0,0,0,0,0},
                 {0,0, 0, 1,0,0,0,0,0,0},
                 {0,0, 0, 1,0,0,0,0,0,0},
-            };
+            }));
 
             vector<vector<float>> speciesDistribution{
                     {0,0, 0, 1,0,0,0,0,0,0},
@@ -107,7 +107,7 @@ namespace grstaps {
                     {0,0, 0, 1,0,0,0,0,0,0},
             };
 
-            vector<vector<float>> noncumTraitCutoff{
+            boost::shared_ptr<vector<vector<float>>> noncumTraitCutoff =  boost::shared_ptr<vector<vector<float>>>(new vector<vector<float>>( vector<vector<float>>{
                 {0,0, 0,0,0,0,0,0,0,0},
                 {0,0, 0,0,0,0,0,0,0,0},
                 {0,0, 0,0,0,0,0,0,0,0},
@@ -157,7 +157,7 @@ namespace grstaps {
                 {0,0, 0,0,0,0,0,0,0,0}
 
 
-            };
+            }));
 
             boost::shared_ptr<vector<int>> numSpec = boost::shared_ptr<vector<int>>(new vector<int>{ 1, 1, 1, 1, 1, 1, 1, 1});
             vector<float> newCutoff{0,0,0,0,0,0,0,0,0,0};
@@ -188,30 +188,32 @@ namespace grstaps {
 
             };
 
-            vector<vector<int>> orderingCon = vector<vector<int>>{};
+            boost::shared_ptr<vector<vector<int>>> orderingCon = boost::shared_ptr<vector<vector<int>>>(new vector<vector<int>>{});
 
-            vector<float> durations{10, 10, 10 , 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10 , 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10 , 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10 , 10, 10, 10, 10, 10, 10, 10, 10};
+            boost::shared_ptr<vector<float>> durations = boost::shared_ptr<vector<float>>(new vector<float>(vector<float>{10, 10, 10 , 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10 , 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10 , 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10 , 10, 10, 10, 10, 10, 10, 10, 10}));
             taskAllocationToScheduling taToSched;
             bool usingSpecies = false;
-            // THEIR IS AN ERROR HERE i AM AWARE OF
-            TaskAllocation ta(usingSpecies, boost::shared_ptr<vector<vector<float>>>(&goalDistribution), (&speciesDistribution), boost::shared_ptr<vector<vector<float>>>(&noncumTraitCutoff), (&taToSched), boost::shared_ptr<vector<float>>(&durations), boost::shared_ptr<vector<vector<int>>>(&orderingCon), numSpec);
+
+            TaskAllocation ta(usingSpecies, goalDistribution, (&speciesDistribution), noncumTraitCutoff, (&taToSched), durations, orderingCon, numSpec);
             auto node1 = boost::shared_ptr<Node<TaskAllocation>>(new Node<TaskAllocation>(std::string(ta.getID()), ta));
 
             node1->setData(ta);
             Graph<TaskAllocation> graphTest;
             graphTest.addNode(node1);
 
-            Heuristic *heur = new TAGoalDist();
-            Cost *cos = new TAScheduleTime();
-            GoalLocator<TaskAllocation> *isGoal = new AllocationIsGoal();
-            NodeExpander<TaskAllocation> *expander = new AllocationExpander(heur, cos);
+            const boost::shared_ptr<Heuristic> heur = boost::shared_ptr<Heuristic>(new TAGoalDist());
+            const boost::shared_ptr<Cost> cos = boost::shared_ptr<Cost>(new TAScheduleTime());
+
+            const boost::shared_ptr<GoalLocator<TaskAllocation>> isGoal = boost::shared_ptr<GoalLocator<TaskAllocation>>(new AllocationIsGoal());
+            const boost::shared_ptr<AllocationExpander> expander = boost::shared_ptr<AllocationExpander>( new AllocationExpander(heur, cos));
+
             SearchResultPackager<TaskAllocation> *package = new AllocationResultsPackager();
 
 
             AStarSearch<TaskAllocation> searcher(graphTest, node1);
 
             AllocationResultsPackager *results = static_cast<AllocationResultsPackager *>(package);
-            if(check && isAllocatable(goalDistribution, speciesDistribution, noncumTraitCutoff, numSpec)){
+            if(check && isAllocatable(*goalDistribution, speciesDistribution, *noncumTraitCutoff, numSpec)){
                 auto start = std::chrono::high_resolution_clock::now();
                 searcher.search(isGoal, expander, package);
                 auto stop = std::chrono::high_resolution_clock::now();
@@ -240,8 +242,6 @@ namespace grstaps {
             results->printResults();
              */
 
-            delete isGoal;
-            delete expander;
             delete package;
         }
     }

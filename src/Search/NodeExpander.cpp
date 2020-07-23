@@ -33,7 +33,7 @@ namespace grstaps {
 
 
     template<class Data>
-    NodeExpander<Data>::NodeExpander(Heuristic* heur, Cost* cost): heuristicFunc(heur), costFunc(cost){
+    NodeExpander<Data>::NodeExpander( boost::shared_ptr<Heuristic> heur,  boost::shared_ptr<Cost> cost): heuristicFunc(heur), costFunc(cost){
 
     }
 

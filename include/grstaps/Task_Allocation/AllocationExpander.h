@@ -49,7 +49,7 @@ namespace grstaps {
         * \param the cost object
         *
         */
-        AllocationExpander(Heuristic*, Cost*);
+        AllocationExpander(boost::shared_ptr<Heuristic>, boost::shared_ptr<Cost>);
 
 
         /**

@@ -49,7 +49,7 @@ namespace grstaps {
             * \param cost object
             *
             */
-            NodeExpander(Heuristic*, Cost*);
+            NodeExpander(boost::shared_ptr<Heuristic> ,  boost::shared_ptr<Cost>);
 
             /**
             * Constructor

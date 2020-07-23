@@ -65,11 +65,13 @@ namespace grstaps
         // Option 3: object and then * when passing them (if they won't be destroyed)
 
         // Also can any of them be const? That will help with multithreading in the future (fewer mutexes)
-        Heuristic *heur = new TAGoalDist();
-        Cost *cos = new TAScheduleTime();
-        GoalLocator<TaskAllocation> *isGoal = new AllocationIsGoal();
-        NodeExpander<TaskAllocation> *expander = new AllocationExpander(heur, cos);
+        const boost::shared_ptr<Heuristic> heur = boost::shared_ptr<Heuristic>(new TAGoalDist());
+        const boost::shared_ptr<Cost> cos = boost::shared_ptr<Cost>(new TAScheduleTime());
+
+        const boost::shared_ptr<GoalLocator<TaskAllocation>> isGoal = boost::shared_ptr<GoalLocator<TaskAllocation>>(new AllocationIsGoal());
+        const boost::shared_ptr<NodeExpander<TaskAllocation>> expander = boost::shared_ptr<NodeExpander<TaskAllocation>>( new AllocationExpander(heur, cos));
         SearchResultPackager<TaskAllocation> *package = new AllocationResultsPackager();
+
         auto numSpec = make_shared<vector<int>>(problem.robotTraits().size(),1);
         auto robotTraits = &problem.robotTraits();
 
@@ -101,6 +103,7 @@ namespace grstaps
                 allocationGraph.addNode(node1);
 
                 AStarSearch<TaskAllocation> graphAllocateAndSchedule(allocationGraph, node1);
+
                 graphAllocateAndSchedule.search(isGoal, expander, package);
                 if(package->foundGoal)
                 {
@@ -125,10 +128,6 @@ namespace grstaps
             {
                 if(successors[i]->isSolution())
                 {
-                    delete heur;
-                    delete cos;
-                    delete isGoal;
-                    delete expander;
                     delete package;
                     auto m_solution = std::make_shared<Solution>(std::shared_ptr<Plan>(successors[i]), std::shared_ptr<TaskAllocation>(allocations[i]));
                     return m_solution;
@@ -138,10 +137,6 @@ namespace grstaps
             task_planner.update(base, valid_successors);
         }
 
-        delete heur;
-        delete cos;
-        delete isGoal;
-        delete expander;
         delete package;
         return nullptr;
     }
