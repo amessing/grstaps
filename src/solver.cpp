@@ -58,12 +58,19 @@ namespace grstaps
         // Task Allocation
         taskAllocationToScheduling taToSched;
         bool usingSpecies = false;
+
+        // Do these need to be raw pointers?
+        // Option 1: leave them
+        // Option 2: unique_ptr/shared_ptr
+        // Option 3: object and then * when passing them (if they won't be destroyed)
+
+        // Also can any of them be const? That will help with multithreading in the future (fewer mutexes)
         Heuristic *heur = new TAGoalDist();
         Cost *cos = new TAScheduleTime();
         GoalLocator<TaskAllocation> *isGoal = new AllocationIsGoal();
         NodeExpander<TaskAllocation> *expander = new AllocationExpander(heur, cos);
         SearchResultPackager<TaskAllocation> *package = new AllocationResultsPackager();
-        shared_ptr<vector<int>> numSpec =  shared_ptr<vector<int>>(new vector<int>(problem.robotTraits().size(),1));
+        auto numSpec = make_shared<vector<int>>(problem.robotTraits().size(),1);
         auto robotTraits = &problem.robotTraits();
 
         while(!task_planner.emptySearchSpace())
@@ -78,28 +85,29 @@ namespace grstaps
             std::vector<Plan*> valid_successors;
             std::vector<TaskAllocation*> allocations;
 
-            vector<int> remove;
+            vector<int> remove; // redundant
             for(int i = 0; i < num_children; ++i)
             {
-
-                boost::shared_ptr<vector<vector<int>>> orderingCon;
-                boost::shared_ptr<vector<float>> durations;
-                shared_ptr<vector<vector<float>>> noncumTraitCutoff;
-                boost::shared_ptr<vector<vector<float>>> goalDistribution;
+                boost::shared_ptr<std::vector<std::vector<int>>> orderingCon;
+                boost::shared_ptr<std::vector<float>> durations;
+                shared_ptr<std::vector<std::vector<float>>> noncumTraitCutoff;
+                boost::shared_ptr<std::vector<std::vector<float>>> goalDistribution;
 
                 TaskAllocation ta(usingSpecies, goalDistribution, robotTraits, noncumTraitCutoff, (&taToSched), durations, orderingCon, numSpec);
 
-                auto node1 = boost::shared_ptr<Node<TaskAllocation>>(new Node<TaskAllocation>(std::string(ta.getID()), ta));
+                auto node1 = boost::make_shared<Node<TaskAllocation>>(ta.getID(), ta);
                 node1->setData(ta);
                 Graph<TaskAllocation> allocationGraph;
                 allocationGraph.addNode(node1);
 
                 AStarSearch<TaskAllocation> graphAllocateAndSchedule(allocationGraph, node1);
                 graphAllocateAndSchedule.search(isGoal, expander, package);
-                if(package->foundGoal){
+                if(package->foundGoal)
+                {
                     successors[i]->h = package->finalNode->getPathCost();
                 }
-                else{
+                else
+                {
                     remove.push_back(i);
                 }
             }
@@ -122,7 +130,7 @@ namespace grstaps
                     delete isGoal;
                     delete expander;
                     delete package;
-                    std::shared_ptr<Solution> m_solution(new Solution(std::shared_ptr<Plan>(successors[i]), std::shared_ptr<TaskAllocation>(allocations[i])));
+                    auto m_solution = std::make_shared<Solution>(std::shared_ptr<Plan>(successors[i]), std::shared_ptr<TaskAllocation>(allocations[i]));
                     return m_solution;
                 }
             }
