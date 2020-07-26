@@ -65,11 +65,11 @@ namespace grstaps
         // Option 3: object and then * when passing them (if they won't be destroyed)
 
         // Also can any of them be const? That will help with multithreading in the future (fewer mutexes)
-        const boost::shared_ptr<Heuristic> heur = boost::shared_ptr<Heuristic>(new TAGoalDist());
-        const boost::shared_ptr<Cost> cos = boost::shared_ptr<Cost>(new TAScheduleTime());
+        boost::shared_ptr<Heuristic> heur = boost::shared_ptr<Heuristic>(new TAGoalDist());
+        boost::shared_ptr<Cost> cos = boost::shared_ptr<Cost>(new TAScheduleTime());
 
-        const boost::shared_ptr<GoalLocator<TaskAllocation>> isGoal = boost::shared_ptr<GoalLocator<TaskAllocation>>(new AllocationIsGoal());
-        const boost::shared_ptr<NodeExpander<TaskAllocation>> expander = boost::shared_ptr<NodeExpander<TaskAllocation>>( new AllocationExpander(heur, cos));
+        boost::shared_ptr<GoalLocator<TaskAllocation>> isGoal = boost::shared_ptr<GoalLocator<TaskAllocation>>(new AllocationIsGoal());
+        boost::shared_ptr<NodeExpander<TaskAllocation>> expander = boost::shared_ptr<NodeExpander<TaskAllocation>>( new AllocationExpander(heur, cos));
         SearchResultPackager<TaskAllocation> *package = new AllocationResultsPackager();
 
         auto numSpec = make_shared<vector<int>>(problem.robotTraits().size(),1);
@@ -87,13 +87,27 @@ namespace grstaps
             std::vector<Plan*> valid_successors;
             std::vector<TaskAllocation*> allocations;
 
-            vector<int> remove; // redundant
             for(int i = 0; i < num_children; ++i)
             {
+
                 boost::shared_ptr<std::vector<std::vector<int>>> orderingCon;
                 boost::shared_ptr<std::vector<float>> durations;
                 shared_ptr<std::vector<std::vector<float>>> noncumTraitCutoff;
                 boost::shared_ptr<std::vector<std::vector<float>>> goalDistribution;
+
+                Plan* base = successors[i];
+                while(base == nullptr){
+                    durations->push_back(base->action->duration[0].exp.value);
+                    for(unsigned int j = 0; j < base->orderings.size(); j++)
+                    {
+                        orderingCon->push_back({firstPoint(base->orderings[j]), secondPoint(base->orderings[j])});
+                    }
+                    noncumTraitCutoff->push_back(problem.actionRequirements[base->action->index]);
+                    goalDistribution->push_back(problem.actionNonCumRequirements[base->action->index]);
+
+                    base = base->parentPlan;
+
+                }
 
                 TaskAllocation ta(usingSpecies, goalDistribution, robotTraits, noncumTraitCutoff, (&taToSched), durations, orderingCon, numSpec);
 
@@ -111,11 +125,8 @@ namespace grstaps
                 }
                 else
                 {
-                    remove.push_back(i);
+                    valid_successors.push_back(successors[i]);
                 }
-            }
-            for(int i = remove.size(); i > 0; ++i){
-                successors.erase(successors.begin() + remove[i-1]);
             }
 
             std::copy_if(successors.begin(), successors.end(), std::back_inserter(valid_successors),

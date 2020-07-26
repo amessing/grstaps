@@ -79,7 +79,7 @@ namespace grstaps {
          *
          * \returns a search results object that contains all needed return information from the search
          */
-        virtual void search(const boost::shared_ptr<GoalLocator<TaskAllocation>> goal, const boost::shared_ptr<NodeExpander<TaskAllocation>>, SearchResultPackager<Data>*);
+        virtual void search(boost::shared_ptr<GoalLocator<TaskAllocation>> goal, boost::shared_ptr<NodeExpander<TaskAllocation>>, SearchResultPackager<Data>*);
 
         /**
          * Update the Current node
@@ -164,7 +164,7 @@ namespace grstaps {
     */
 
     template<class Data>
-    void AStarSearch<Data>::search(const boost::shared_ptr<GoalLocator<TaskAllocation>> goal, const boost::shared_ptr<NodeExpander<TaskAllocation>> expander, SearchResultPackager<Data>* results) {
+    void AStarSearch<Data>::search(boost::shared_ptr<GoalLocator<TaskAllocation>> goal, boost::shared_ptr<NodeExpander<TaskAllocation>> expander, SearchResultPackager<Data>* results) {
         bool searchFailed = updateCurrent();
         while (!searchFailed && !(*goal)(this->graph, currentNode)) {
             (*expander)(this->graph, this->currentNode);

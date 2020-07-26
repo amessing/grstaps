@@ -45,7 +45,7 @@ namespace grstaps {
                 /**
             * Constructor
             *
-            * \param heuristic object
+            * \param heuristic objectconst
             * \param cost object
             *
             */

@@ -24,6 +24,14 @@ namespace grstaps
         m_locations = locations;
     }
 
+    void Problem::setActionRequirements(const std::vector<std::vector<float>>& actionReq){
+        actionRequirements = actionReq;
+    }
+
+    void Problem::setActionNonCumRequirements(const std::vector<std::vector<float>>& actionNonCumReq){
+        actionNonCumRequirements = actionNonCumReq;
+    }
+
     void Problem::setRobotTraitVector(std::vector<Problem::TraitVector>& robot_traits)
     {
         m_robot_traits = robot_traits;
@@ -83,4 +91,5 @@ namespace grstaps
     {
         return m_config;
     }
+
 }

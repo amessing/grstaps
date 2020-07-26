@@ -49,6 +49,8 @@ namespace grstaps
         void setTask(SASTask* task);
         void setObstacles(const std::vector<b2PolygonShape>& obstacles);
         void setConfig(const nlohmann::json& config);
+        void setActionRequirements(const std::vector<std::vector<float>>& actionReq);
+        void setActionNonCumRequirements(const std::vector<std::vector<float>>& actionNonCumReq);
 
         const std::vector<Location>& locations() const;
         const Location& location(uint i) const;
@@ -59,6 +61,8 @@ namespace grstaps
         const nlohmann::json& config() const;
 
         SASTask* task();
+        std::vector<std::vector<float>>& actionRequirements;
+        std::vector<std::vector<float>>& actionNonCumRequirements;
 
     protected:
         std::vector<Location> m_locations; //!< coordinates and name of location
@@ -66,6 +70,7 @@ namespace grstaps
         SASTask* m_task; // A SAS Task for the Task planner
         std::vector<b2PolygonShape> m_obstacles; //!< Obstacles in the map
         nlohmann::json m_config;
+
     };
 }
 
