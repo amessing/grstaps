@@ -128,10 +128,10 @@ namespace grstaps
             //std::copy_if(successors.begin(), successors.end(), std::back_inserter(valid_successors),
             //    [](Plan* p){return p->task_allocatable; });
             // TODO: check if this is correct or backwards
-            std::sort(valid_successors.begin(), valid_successors.end(),
-                [](Plan* lhs, Plan* rhs){ return lhs->h > rhs->h;});
+            //std::sort(valid_successors.begin(), valid_successors.end(),
+            //    [](Plan* lhs, Plan* rhs){ return lhs->h > rhs->h;});
 
-            for(int i = 0; i < num_children; ++i)
+            for(int i = 0; i < valid_successors.size(); ++i)
             {
                 if(valid_successors[i]->isSolution())
                 {
