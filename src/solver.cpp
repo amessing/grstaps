@@ -106,7 +106,6 @@ namespace grstaps
                     goalDistribution->push_back(problem.actionNonCumRequirements[base->action->index]);
 
                     base = base->parentPlan;
-
                 }
 
                 TaskAllocation ta(usingSpecies, goalDistribution, robotTraits, noncumTraitCutoff, (&taToSched), durations, orderingCon, numSpec);
@@ -126,15 +125,15 @@ namespace grstaps
                 }
             }
 
-            std::copy_if(successors.begin(), successors.end(), std::back_inserter(valid_successors),
-                [](Plan* p){return p->task_allocatable; });
+            //std::copy_if(successors.begin(), successors.end(), std::back_inserter(valid_successors),
+            //    [](Plan* p){return p->task_allocatable; });
             // TODO: check if this is correct or backwards
             std::sort(valid_successors.begin(), valid_successors.end(),
                 [](Plan* lhs, Plan* rhs){ return lhs->h > rhs->h;});
 
             for(int i = 0; i < num_children; ++i)
             {
-                if(successors[i]->isSolution())
+                if(valid_successors[i]->isSolution())
                 {
                     delete package;
                     auto m_solution = std::make_shared<Solution>(std::shared_ptr<Plan>(successors[i]), std::shared_ptr<TaskAllocation>(allocations[i]));
