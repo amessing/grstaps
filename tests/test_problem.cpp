@@ -95,7 +95,8 @@ namespace grstaps
 
             Solver solver;
             std::shared_ptr<Solution> solution = solver.solve(problem);
-            // Evaluate solution
+            // Evaluate solutionC++ exception with description "std::bad_alloc" thrown in the test body.
+
             // Save solution to file
         }
     }

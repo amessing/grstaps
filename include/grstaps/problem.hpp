@@ -41,7 +41,8 @@ namespace grstaps
     {
     public:
         using TraitVector = std::vector<float>;
-
+        using NonCumVector = std::vector<float>;
+        using RequirementsVector = std::vector<float>;
 
         Problem() = default;
         void setLocations(const std::vector<Location>& locations);
@@ -61,8 +62,8 @@ namespace grstaps
         const nlohmann::json& config() const;
 
         SASTask* task();
-        std::vector<std::vector<float>>& actionRequirements;
-        std::vector<std::vector<float>>& actionNonCumRequirements;
+        std::vector<RequirementsVector> actionRequirements;
+        std::vector<NonCumVector> actionNonCumRequirements;
 
     protected:
         std::vector<Location> m_locations; //!< coordinates and name of location
