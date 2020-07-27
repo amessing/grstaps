@@ -96,7 +96,7 @@ namespace grstaps
                 boost::shared_ptr<std::vector<std::vector<float>>> goalDistribution;
 
                 Plan* base = successors[i];
-                while(base == nullptr){
+                while(base != nullptr){
                     durations->push_back(base->action->duration[0].exp.value);
                     for(unsigned int j = 0; j < base->orderings.size(); j++)
                     {
@@ -122,9 +122,6 @@ namespace grstaps
                 if(package->foundGoal)
                 {
                     successors[i]->h = package->finalNode->getPathCost();
-                }
-                else
-                {
                     valid_successors.push_back(successors[i]);
                 }
             }
