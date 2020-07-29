@@ -61,7 +61,7 @@ namespace grstaps
             for(uint i = 0; i < num_boxes; ++i)
             {
                 SASVariable* var = task->createNewVariable(fmt::format("box_{}_location", i));
-                for(uint j = 0; j < locations.size(); ++i)
+                for(uint j = 0; j < locations.size(); ++j)
                 {
                     var->addPossibleValue(j);
                 }
