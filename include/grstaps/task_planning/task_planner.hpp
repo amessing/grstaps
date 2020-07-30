@@ -21,7 +21,7 @@ namespace grstaps
 
     class TaskPlanner : public Noncopyable
     {
-    private:
+       private:
         SASTask* m_task;
         Plan* m_initial_plan;
         TState* m_initial_state;
@@ -33,15 +33,20 @@ namespace grstaps
         clock_t m_start_time;
 
         SASAction* createInitialAction();
-        SASAction* createFictitiousAction(float actionDuration, std::vector<unsigned int> &varList,
-                                                       float timePoint, std::string name, bool isTIL);
+        SASAction* createFictitiousAction(float actionDuration,
+                                          std::vector<unsigned int>& varList,
+                                          float timePoint,
+                                          std::string name,
+                                          bool isTIL);
         void addFrontierNodes(Plan* p);
-    public:
-        TaskPlanner(SASTask* task, float timeout=-1.0f);
-        void getNextSuccessors(Plan* base, std::vector<Plan*>& successors, Plan* solution);
+
+       public:
+        TaskPlanner(SASTask* task, float timeout = -1.0f);
+        Plan* bestPlan();
+        std::vector<Plan*> getNextSuccessors(Plan* base);
         void update(Plan* base, std::vector<Plan*>& successors);
         bool emptySearchSpace();
     };
-}
+}  // namespace grstaps
 
-#endif //GRSTAPS_TASK_PLANNER_HPP
+#endif  // GRSTAPS_TASK_PLANNER_HPP

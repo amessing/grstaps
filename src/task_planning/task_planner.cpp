@@ -125,37 +125,35 @@ namespace grstaps
         }
     }
 
-    void TaskPlanner::getNextSuccessors(Plan* base, std::vector<Plan*>& successors, Plan* solution)
+    Plan* TaskPlanner::bestPlan()
     {
-        successors.clear();
-        base = m_quality_selector.poll();
+        return m_quality_selector.poll();
+    }
+
+    std::vector<Plan*> TaskPlanner::getNextSuccessors(Plan* base)
+    {
         if(base == nullptr)
         {
-            return;
+            return std::vector<Plan*>();
         }
         if(base->expanded())  // Should only happen if concurrent?
         {
+            // Cause exception bc the base pointer needs to change
+            throw "expanded";
             unsigned int numChildren = base->childPlans->size();
             for(unsigned int i = 0; i < numChildren; i++)
             {
                 m_quality_selector.add(base->childPlans->at(i));
             }
             // run again
-            getNextSuccessors(base, successors, solution);
-            return;
+            return getNextSuccessors(base);
         }
         else
         {
+            std::vector<Plan*> successors;
             m_successors->computeSuccessors(base, &successors);
             ++m_expanded_nodes;
-            if(m_successors->solution != nullptr)
-            {
-                solution = m_successors->solution;
-            }
-            else
-            {
-                solution = nullptr;
-            }
+            return successors;
         }
     }
 
@@ -164,7 +162,6 @@ namespace grstaps
         base->addChildren(successors);
         for(Plan* p: successors)
         {
-            p->parentPlan = base;
             m_quality_selector.add(p);
         }
     }

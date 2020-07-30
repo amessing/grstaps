@@ -46,8 +46,6 @@ namespace grstaps
         // Task planner
         TaskPlanner task_planner(problem.task());
         Plan* base;
-        std::vector<Plan*> successors;
-        Plan* solution;
 
         // Motion Planning
         MotionPlanner& motion_planner = MotionPlanner::instance();
@@ -79,10 +77,9 @@ namespace grstaps
 
         while(!task_planner.emptySearchSpace())
         {
-            successors.clear();
-            task_planner.getNextSuccessors(base, successors, solution);
-
-            int num_children = successors.size();
+            base                          = task_planner.bestPlan();
+            std::vector<Plan*> successors = task_planner.getNextSuccessors(base);
+            int num_children              = successors.size();
 
             std::vector<Plan*> valid_successors;
             std::vector<TaskAllocation*> allocations;
