@@ -32,14 +32,17 @@ list(REMOVE_ITEM ${PROJECT_NAME}_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cp
 # Create library
 add_library(_${PROJECT_NAME} ${${PROJECT_NAME}_HEADERS} ${${PROJECT_NAME}_SOURCES})
 set_target_properties(_${PROJECT_NAME} PROPERTIES CXX_STANDARD 17 CXX_STANDARD_REQUIRED YES)
-target_link_libraries(_${PROJECT_NAME} PRIVATE box2d fmt nlohmann_json ${OMPL_LIBRARIES} spdlog stdc++fs)
+target_link_libraries(_${PROJECT_NAME} PRIVATE
+        box2d fmt nlohmann_json ${OMPL_LIBRARIES} spdlog stdc++fs)
 target_include_directories(_${PROJECT_NAME} PUBLIC include PRIVATE ${OMPL_INCLUDE_DIRS})
 
 # Create executable
 if(BUILD_EXE)
 add_executable(${PROJECT_NAME} src/main.cpp)
 set_target_properties(${PROJECT_NAME} PROPERTIES CXX_STANDARD 17 CXX_STANDARD_REQUIRED YES)
-target_link_libraries(${PROJECT_NAME} PRIVATE _${PROJECT_NAME} args box2d nlohmann_json)
+target_link_libraries(${PROJECT_NAME} PRIVATE
+        args box2d nlohmann_json
+        _${PROJECT_NAME})
 endif(BUILD_EXE)
 
 if(BUILD_DOC)
@@ -82,7 +85,9 @@ if(BUILD_TESTS)
 
     add_executable(${PROJECT_NAME}_test ${${PROJECT_NAME}_TEST_SOURCES} ${testDataOutputs})
     set_target_properties(${PROJECT_NAME}_test PROPERTIES CXX_STANDARD 17 CXX_STANDARD_REQUIRED YES)
-    target_link_libraries(${PROJECT_NAME}_test PRIVATE _${PROJECT_NAME} box2d fmt gtest gmock nlohmann_json)
+    target_link_libraries(${PROJECT_NAME}_test PRIVATE
+            box2d fmt gtest gmock nlohmann_json
+            _${PROJECT_NAME})
 endif(BUILD_TESTS)
 
 set(CMAKE_CXX_FLAGS "-fprofile-arcs -ftest-coverage ")

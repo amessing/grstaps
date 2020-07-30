@@ -47,9 +47,13 @@ namespace grstaps
         state = new TValue[numSASVars];
         numState = new float[numNumVars];
         for(unsigned int i = 0; i < numSASVars; i++)
-        { state[i] = s->state[i]; }
+        {
+            state[i] = s->state[i];
+        }
         for(unsigned int i = 0; i < numNumVars; i++)
-        { numState[i] = s->numState[i]; }
+        {
+            numState[i] = s->numState[i];
+        }
     }
 
     TState::~TState()

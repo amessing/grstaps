@@ -19,8 +19,8 @@
 // external
 #include <fmt/format.h>
 #include <gtest/gtest.h>
-#include <nlohmann/json.hpp>
 
+#include <nlohmann/json.hpp>
 
 // local
 #include <grstaps/location.hpp>
@@ -36,17 +36,10 @@ namespace grstaps
         {
             Problem problem;
 
-            std::vector<Location> locations = {
-                Location("source", 0.5, 0.5),
-                Location("target", 1.5, 1.5)
-            };
+            std::vector<Location> locations = {Location("source", 0.5, 0.5), Location("target", 1.5, 1.5)};
             problem.setLocations(locations);
 
-            std::vector<Problem::TraitVector> robot_traits = {
-                { 0.25 },
-                { 0.25 },
-                { 0.25 }
-            };
+            std::vector<Problem::TraitVector> robot_traits = {{0.25}, {0.25}, {0.25}};
             problem.setRobotTraitVector(robot_traits);
 
             // Create task
@@ -65,6 +58,7 @@ namespace grstaps
                 {
                     var->addPossibleValue(j);
                 }
+                var->addInitialValue(0, true, 0.0);
                 vars.push_back(var);
             }
 
@@ -81,7 +75,16 @@ namespace grstaps
                 // Box 'i' ends at the target
                 SASCondition effect(i, 1);
                 action->endEff.push_back(effect);
+
+                // Action takes 1 s
+                SASDuration duration{'N', '=', {'N', 1.0}};
+                action->duration.push_back(duration);
             }
+            task->metric.type = 'T';  // makespan
+            task->computeInitialState();
+            task->computeRequirers();
+            task->computeProducers();
+            task->computePermanentMutex();
             problem.setTask(task);
 
             // No obstacles
@@ -95,9 +98,9 @@ namespace grstaps
 
             Solver solver;
             std::shared_ptr<Solution> solution = solver.solve(problem);
-            // Evaluate solutionC++ exception with description "std::bad_alloc" thrown in the test body.
+            // Evaluate solution C++ exception with description "std::bad_alloc" thrown in the test body.
 
             // Save solution to file
         }
-    }
-}
+    }  // namespace test
+}  // namespace grstaps
