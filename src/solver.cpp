@@ -79,9 +79,7 @@ namespace grstaps
 
         while(!task_planner.emptySearchSpace())
         {
-            base = nullptr;
             successors.clear();
-            solution = nullptr;
             task_planner.getNextSuccessors(base, successors, solution);
 
             int num_children = successors.size();
@@ -96,21 +94,23 @@ namespace grstaps
                 auto noncumTraitCutoff = boost::make_shared<std::vector<std::vector<float>>>();
                 auto goalDistribution  = boost::make_shared<std::vector<std::vector<float>>>();
 
-                Plan* base = successors[i];
-                while(base != nullptr)
+                Plan* plan = successors[i];
+                while(plan != nullptr)
                 {
-                    durations->push_back(base->action->duration[0].exp.value);
-                    for(unsigned int j = 0; j < base->orderings.size(); j++)
+                    durations->push_back(plan->action->duration[0].exp.value);
+                    for(unsigned int j = 0; j < plan->orderings.size(); j++)
                     {
-                        orderingCon->push_back({firstPoint(base->orderings[j]), secondPoint(base->orderings[j])});
+                        orderingCon->push_back({firstPoint(plan->orderings[j]), secondPoint(plan->orderings[j])});
                     }
-                    if(base->action->name != "#initial")
+                    if(plan->action->name != "#initial")
                     {
-                        noncumTraitCutoff->push_back(problem.actionNonCumRequirements[problem.actionToRequirements[base->action->name]]);
-                        goalDistribution->push_back(problem.actionRequirements[problem.actionToRequirements[base->action->name]]);
+                        noncumTraitCutoff->push_back(
+                            problem.actionNonCumRequirements[problem.actionToRequirements[plan->action->name]]);
+                        goalDistribution->push_back(
+                            problem.actionRequirements[problem.actionToRequirements[plan->action->name]]);
                     }
 
-                    base = base->parentPlan;
+                    plan = plan->parentPlan;
                 }
 
                 TaskAllocation ta(usingSpecies,
@@ -139,9 +139,10 @@ namespace grstaps
 
             // std::copy_if(successors.begin(), successors.end(), std::back_inserter(valid_successors),
             //    [](Plan* p){return p->task_allocatable; });
+
             // TODO: check if this is correct or backwards
-            // std::sort(valid_successors.begin(), valid_successors.end(),
-            //    [](Plan* lhs, Plan* rhs){ return lhs->h > rhs->h;});
+            std::sort(
+                valid_successors.begin(), valid_successors.end(), [](Plan* lhs, Plan* rhs) { return lhs->h > rhs->h; });
 
             for(int i = 0; i < valid_successors.size(); ++i)
             {

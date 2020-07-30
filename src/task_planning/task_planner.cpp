@@ -9,10 +9,10 @@ namespace grstaps
 
     TaskPlanner::TaskPlanner(SASTask* task, float timeout)
         : m_task(task)
-        , m_start_time(clock())
-        , m_timeout(timeout)
         , m_successors(new Successors)
         , m_initial_h(FLOAT_INFINITY)
+        , m_timeout(timeout)
+        , m_start_time(clock())
     {
         SASAction* initial_action = createInitialAction();
         m_initial_plan            = new Plan(initial_action, nullptr, 0);
@@ -164,6 +164,7 @@ namespace grstaps
         base->addChildren(successors);
         for(Plan* p: successors)
         {
+            p->parentPlan = base;
             m_quality_selector.add(p);
         }
     }
