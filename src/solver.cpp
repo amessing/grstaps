@@ -104,8 +104,11 @@ namespace grstaps
                     {
                         orderingCon->push_back({firstPoint(base->orderings[j]), secondPoint(base->orderings[j])});
                     }
-                    noncumTraitCutoff->push_back(problem.actionRequirements[base->action->index]);
-                    goalDistribution->push_back(problem.actionNonCumRequirements[base->action->index]);
+                    if(base->action->name != "#initial")
+                    {
+                        noncumTraitCutoff->push_back(problem.actionNonCumRequirements[problem.actionToRequirements[base->action->name]]);
+                        goalDistribution->push_back(problem.actionRequirements[problem.actionToRequirements[base->action->name]]);
+                    }
 
                     base = base->parentPlan;
                 }

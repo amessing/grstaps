@@ -54,6 +54,7 @@ namespace grstaps
             for(uint i = 0; i < num_boxes; ++i)
             {
                 SASVariable* var = task->createNewVariable(fmt::format("box_{}_location", i));
+                problem.actionToRequirements[fmt::format("box_{}_location", i)] = (i - 1);
                 for(uint j = 0; j < locations.size(); ++j)
                 {
                     var->addPossibleValue(j);
@@ -67,6 +68,8 @@ namespace grstaps
             for(uint i = 0; i < num_boxes; ++i)
             {
                 SASAction* action = task->createNewAction(fmt::format("move_box_{}", i));
+                problem.actionRequirements = {{0.05}};
+                problem.actionNonCumRequirements = {{0}};
 
                 // Box 'i' starts at the source
                 SASCondition condition(i, 0);
@@ -86,6 +89,7 @@ namespace grstaps
             task->computeProducers();
             task->computePermanentMutex();
             problem.setTask(task);
+
 
             // No obstacles
             nlohmann::json config;

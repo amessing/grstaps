@@ -26,6 +26,8 @@
 // external
 #include <box2d/b2_polygon_shape.h>
 #include <nlohmann/json.hpp>
+#include <../lib/unordered_map/robin_hood.h>
+
 
 // local
 #include "grstaps/location.hpp"
@@ -60,6 +62,7 @@ namespace grstaps
         const SASTask* task() const;
         const std::vector<b2PolygonShape>& obstacles() const;
         const nlohmann::json& config() const;
+        robin_hood::unordered_map<std::string, int> actionToRequirements; //!< Unordered_map to the graphs edges
 
         SASTask* task();
         std::vector<RequirementsVector> actionRequirements;
