@@ -1,20 +1,3 @@
-/*
- * Copyright (C) 2020 Andrew Messing
- *
- * grstaps is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published
- * by the Free Software Foundation; either version 3 of the License,
- * or any later version.
- *
- * grstaps is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public
- * License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with grstaps; if not, write to the Free Software Foundation,
- * Inc., #59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
- */
 #include "grstaps/task_planning/memoization.hpp"
 
 #include "grstaps/task_planning/plan.hpp"
@@ -22,11 +5,11 @@
 
 namespace grstaps
 {
-#define INITIAL_MEMO_SIZE    15121
+#define INITIAL_MEMO_SIZE 15121
 
-/********************************************************/
-/* CLASS: Memoization                                   */
-/********************************************************/
+    /********************************************************/
+    /* CLASS: Memoization                                   */
+    /********************************************************/
 
     Memoization::Memoization()
     {
@@ -36,7 +19,7 @@ namespace grstaps
 
     void Memoization::initialize(SASTask* task)
     {
-        this->task = task;
+        this->task   = task;
         initialState = new TState(task);
         linearizer.setInitialState(initialState, task);
         isRepeatedState(nullptr, initialState);
@@ -44,10 +27,10 @@ namespace grstaps
 
     bool Memoization::isRepeatedState(Plan* p, TState* state)
     {
-        uint64_t code = state->getCode();
+        uint64_t code                                                         = state->getCode();
         std::unordered_map<uint64_t, std::vector<Plan*>*>::const_iterator got = memo.find(code);
         if(got == memo.end())
-        {    // New state
+        {  // New state
             memo[code] = new std::vector<Plan*>(1, p);
             return false;
         }
@@ -68,10 +51,10 @@ namespace grstaps
                 {
                     if(p->gc >= pc->gc)
                     {
-                        return true;    // Same state and worse g
+                        return true;  // Same state and worse g
                     }
                     else
-                    {                                // Same state but better g
+                    {  // Same state but better g
                         (*collisions)[i] = p;
                         return false;
                     }
@@ -100,4 +83,4 @@ namespace grstaps
     {
         memo.clear();
     }
-}
+}  // namespace grstaps

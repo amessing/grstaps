@@ -1,20 +1,3 @@
-/*
- * Copyright (C) 2020 Andrew Messing
- *
- * grstaps is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published
- * by the Free Software Foundation; either version 3 of the License,
- * or any later version.
- *
- * grstaps is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public
- * License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with grstaps; if not, write to the Free Software Foundation,
- * Inc., #59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
- */
 #include "grstaps/task_planning/landmark_heuristic.hpp"
 
 // local
@@ -23,14 +6,14 @@
 
 namespace grstaps
 {
-/*******************************************/
-/* LandmarkCheck                           */
-/*******************************************/
+    /*******************************************/
+    /* LandmarkCheck                           */
+    /*******************************************/
 
     LandmarkCheck::LandmarkCheck(LandmarkNode* n)
     {
         unsigned int numFluents = n->getNumFluents();
-        single = numFluents == 1;
+        single                  = numFluents == 1;
         for(unsigned int i = 0; i < numFluents; i++)
         {
             vars.push_back(n->getVariable(i));
@@ -62,7 +45,9 @@ namespace grstaps
         }
         res += ")";
         if(checked)
-        { res += " checked"; }
+        {
+            res += " checked";
+        }
         res += " Next: " + std::to_string(next.size());
         if(showNext)
         {
@@ -81,7 +66,7 @@ namespace grstaps
         {
             if(prev[i] == n)
             {
-                //cout << "  Deleted predecessor" << endl;
+                // cout << "  Deleted predecessor" << endl;
                 prev.erase(prev.begin() + i);
             }
             else
@@ -110,8 +95,10 @@ namespace grstaps
     bool LandmarkCheck::isGoal(SASTask* task)
     {
         if(vars.size() != 1)
-        { return false; }
-        TVariable v = getVar();
+        {
+            return false;
+        }
+        TVariable v  = getVar();
         TValue value = getValue();
         for(unsigned int i = 0; i < task->goals.size(); i++)
         {
@@ -119,17 +106,23 @@ namespace grstaps
             for(unsigned int j = 0; j < g->startCond.size(); j++)
             {
                 if(v == g->startCond[j].var && value == g->startCond[j].value)
-                { return true; }
+                {
+                    return true;
+                }
             }
             for(unsigned int j = 0; j < g->overCond.size(); j++)
             {
                 if(v == g->overCond[j].var && value == g->overCond[j].value)
-                { return true; }
+                {
+                    return true;
+                }
             }
             for(unsigned int j = 0; j < g->endCond.size(); j++)
             {
                 if(v == g->endCond[j].var && value == g->endCond[j].value)
-                { return true; }
+                {
+                    return true;
+                }
             }
         }
         return false;
@@ -166,19 +159,16 @@ namespace grstaps
         return false;
     }
 
-
-/*******************************************/
-/* LandmarkHeuristic                       */
-/*******************************************/
+    /*******************************************/
+    /* LandmarkHeuristic                       */
+    /*******************************************/
 
     LandmarkHeuristic::LandmarkHeuristic()
     {
         this->task = nullptr;
     }
 
-    LandmarkHeuristic::~LandmarkHeuristic()
-    {
-    }
+    LandmarkHeuristic::~LandmarkHeuristic() {}
 
     void LandmarkHeuristic::initialize(SASTask* task, std::vector<SASAction*>* tilActions)
     {
@@ -203,7 +193,7 @@ namespace grstaps
         }
         for(unsigned int i = 0; i < numLandNodes; i++)
         {
-            LandmarkNode* ln = landmarks.getNode(i);
+            LandmarkNode* ln    = landmarks.getNode(i);
             unsigned int numAdj = ln->numAdjacents();
             for(unsigned int j = 0; j < numAdj; j++)
             {
@@ -223,7 +213,7 @@ namespace grstaps
         for(unsigned int i = 0; i < toDelete.size(); i++)
         {
             LandmarkCheck* n = toDelete[i];
-            //cout << "Deleting node: " << n->toString(task, false) << endl;
+            // cout << "Deleting node: " << n->toString(task, false) << endl;
             for(unsigned int j = 0; j < n->numPrev(); j++)
             {
                 n->getPrev(j)->removeSuccessor(n);
@@ -244,7 +234,7 @@ namespace grstaps
         unsigned int i = 0;
         while(i < rootNodes.size())
         {
-            //cout << rootNodes[i]->toString(task, false) << endl;
+            // cout << rootNodes[i]->toString(task, false) << endl;
             if(hasRootPredecessor(rootNodes[i]))
             {
                 rootNodes.erase(rootNodes.begin() + i);
@@ -265,7 +255,7 @@ namespace grstaps
         for(unsigned int i = 0; i < n->numPrev(); i++)
         {
             LandmarkCheck* p = n->getPrev(i);
-            bool found = false;
+            bool found       = false;
             for(unsigned int j = 0; j < rootNodes.size(); j++)
             {
                 if(rootNodes[j] == p)
@@ -319,7 +309,9 @@ namespace grstaps
                 }
             }
             if(!found)
-            { rootNodes.push_back(n); }
+            {
+                rootNodes.push_back(n);
+            }
         }
     }
 
@@ -327,7 +319,7 @@ namespace grstaps
     {
         for(unsigned int i = 0; i < nodes.size(); i++)
         {
-            //cout << nodes[i]->toString(task, false) << " unchecked" << endl;
+            // cout << nodes[i]->toString(task, false) << " unchecked" << endl;
             nodes[i]->uncheck();
         }
     }
@@ -361,7 +353,6 @@ namespace grstaps
         return res;
     }
 
-
     int LandmarkHeuristic::getNumInformativeNodes()
     {
         int n = 0;
@@ -375,6 +366,4 @@ namespace grstaps
         return n;
     }
 
-
-}
-
+}  // namespace grstaps

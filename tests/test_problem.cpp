@@ -23,10 +23,11 @@
 #include <nlohmann/json.hpp>
 
 // local
-#include <grstaps/location.hpp>
 #include <grstaps/problem.hpp>
 #include <grstaps/solver.hpp>
+#include <grstaps/task_planning/planner_parameters.hpp>
 #include <grstaps/task_planning/sas_task.hpp>
+#include <grstaps/task_planning/setup.hpp>
 
 namespace grstaps
 {
@@ -36,59 +37,37 @@ namespace grstaps
         {
             Problem problem;
 
-            std::vector<Location> locations = {Location("source", 0.5, 0.5), Location("target", 1.5, 1.5)};
-            problem.setLocations(locations);
-
             std::vector<Problem::TraitVector> robot_traits = {{0.25}, {0.25}, {0.25}};
             problem.setRobotTraitVector(robot_traits);
 
-            // Create task
-            auto task = new SASTask;
+            char* domain_filename  = "tests/data/p1/domain.pddl";
+            char* problem_filename = "tests/data/p1/problem.pddl";
+            char* output_filename  = "tests/data/p1/output";
 
-            uint num_boxes = 3;
+            PlannerParameters parameters;
 
-            // Variables
-            std::vector<SASVariable*> vars;
-            // Box
-            // Location
-            for(uint i = 0; i < num_boxes; ++i)
-            {
-                SASVariable* var = task->createNewVariable(fmt::format("box_{}_location", i));
-                problem.actionToRequirements[fmt::format("box_{}_location", i)] = (i - 1);
-                for(uint j = 0; j < locations.size(); ++j)
-                {
-                    var->addPossibleValue(j);
-                }
-                var->addInitialValue(0, true, 0.0);
-                vars.push_back(var);
-            }
+            parameters.domainFileName         = domain_filename;
+            parameters.problemFileName        = problem_filename;
+            parameters.outputFileName         = output_filename;
+            parameters.generateGroundedDomain = true;
+            // parameters.generateMutexFile = true;
+            // parameters.generateTrace = true;
+            SASTask* task = Setup::doPreprocess(&parameters);
 
-            // Action
-            // Move Box
-            for(uint i = 0; i < num_boxes; ++i)
-            {
-                SASAction* action = task->createNewAction(fmt::format("move_box_{}", i));
-                problem.actionRequirements.push_back({0.05});
-                problem.actionNonCumRequirements.push_back({0});
-
-                // Box 'i' starts at the source
-                SASCondition condition(i, 0);
-                action->startCond.push_back(condition);
-
-                // Box 'i' ends at the target
-                SASCondition effect(i, 1);
-                action->endEff.push_back(effect);
-
-                // Action takes 1 s
-                SASDuration duration{'N', '=', {'N', 1.0}};
-                action->duration.push_back(duration);
-            }
-            task->metric.type = 'T';  // makespan
+            // Do we still need these?
             task->computeInitialState();
             task->computeRequirers();
             task->computeProducers();
             task->computePermanentMutex();
             problem.setTask(task);
+
+            // All Actions have the same requirements
+            for(int i = 0; i < task->actions.size(); ++i)
+            {
+                problem.actionToRequirements[task->actions[i].name] = i - 1;
+                problem.actionRequirements.push_back({0.05});
+                problem.actionNonCumRequirements.push_back({0});
+            }
 
             // No obstacles
             nlohmann::json config;
@@ -102,7 +81,7 @@ namespace grstaps
             Solver solver;
             std::shared_ptr<Solution> solution = solver.solve(problem);
             // Evaluate solution C++ exception with description "std::bad_alloc" thrown in the test body.
-
+            int breakppoint = -1;
             // Save solution to file
         }
     }  // namespace test

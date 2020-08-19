@@ -1,6 +1,7 @@
 #include "grstaps/task_planning/successors.hpp"
 #include <iostream>
 
+#include "grstaps/logger.hpp"
 #include "grstaps/task_planning/state.hpp"
 
 namespace grstaps
@@ -112,18 +113,18 @@ namespace grstaps
             for(unsigned int i = 0; i < prevPoints.size(); i++)
             {
                 prevP1 = prevPoints[i];
-                // cout << "* PrevPoint = " << prevP1 << " (from " << lastTimePoint << ")" << endl;
+                // std::cout << "* PrevPoint = " << prevP1 << " (from " << lastTimePoint << ")" << std::endl;
                 for(unsigned int j = 0; j < nextPoints.size(); j++)
                 {
                     nextP2 = nextPoints[j];
-                    // cout << "* NextPoint = " << nextP2 << endl;
+                    // std::cout << "* NextPoint = " << nextP2 << std::endl;
                     if(prevP1 != nextP2 && !linearizer->existOrder(prevP1, nextP2))
                     {
                         newOrderings++;
                         linearizer->setOrder(prevP1, nextP2);
                         orderings.push_back(getOrdering(prevP1, nextP2));
-                        // cout << "+ Ord: " << prevP1 << " ---> " << nextP2 << endl;
-                    }  // else cout << "   * Ord " << prevP1 << " -> " << nextP2 << " already exists" << endl;
+                        // std::cout << "+ Ord: " << prevP1 << " ---> " << nextP2 << std::endl;
+                    }  // else std::cout << "   * Ord " << prevP1 << " -> " << nextP2 << " already exists" << std::endl;
                 }
             }
             numOrderingsAdded.push_back(newOrderings);
@@ -146,8 +147,8 @@ namespace grstaps
             TOrdering o = orderings.back();
             orderings.pop_back();
             linearizer->clearOrder(firstPoint(o), secondPoint(o));
-            // cout << "  - Removing ord: " << Successors::firstPoint(o) << " -> " << Successors::secondPoint(o) <<
-            // endl;
+            // std::cout << "  - Removing ord: " << Successors::firstPoint(o) << " -> " << Successors::secondPoint(o) <<
+            // std::endl;
         }
     }
 
@@ -172,7 +173,7 @@ namespace grstaps
         {
             p->addOpenCondition(this->openCond[i], timePointToStep(this->lastTimePoint));
         }
-        // cout << "LAST TIME POINT: " << this->lastTimePoint << endl;
+        // std::cout << "LAST TIME POINT: " << this->lastTimePoint << std::endl;
         this->removeLastOrdering();
         return p;
     }
@@ -209,7 +210,7 @@ namespace grstaps
         basePlan   = nullptr;
         // basePlanState = nullptr;
         newStep = 0;
-        // cout << landmarks.toString(task) << endl;
+        // std::cout << landmarks.toString(task) << std::endl;
         for(unsigned int i = 0; i < numActions; i++)
         {
             checkedAction.push_back(0);
@@ -232,7 +233,7 @@ namespace grstaps
     void Successors::computeSuccessors(Plan* base, std::vector<Plan*>* suc)
     {
         // Calculate the frontier state for the base plan
-        // cout << "SUC OF " << base->action->name << endl;
+        // std::cout << "SUC OF " << base->action->name << std::endl;
         linearizer.setCurrentBasePlan(base);
         linearizer.setCurrentPlan(nullptr);
         newStep = linearizer.numComponents();  // Steps start by 0
@@ -256,19 +257,21 @@ namespace grstaps
         }
         currentIteration++;
         if(base->isRoot())
-        {  // Full calculation of successors
+        {
+            // Full calculation of successors
             for(unsigned int i = 0; i < task->goals.size(); i++)
             {
                 fullActionCheck(&(task->goals[i]));
             }
             for(unsigned int i = 0; i < task->actions.size(); i++)
             {
-                // cout << "Action " << i << endl;
+                // std::cout << "Action " << i << std::endl;
                 fullActionCheck(&(task->actions[i]));
             }
         }
         else
-        {  // Calculation of successores based on the parent plan
+        {
+            // Calculation of successores based on the parent plan
             computeSuccessorsSupportedByLastActions();
             computeSuccessorsThroughBrotherPlans();
         }
@@ -377,10 +380,9 @@ namespace grstaps
     void Successors::fullActionCheck(SASAction* a)
     {
         if(supportedAction(a))
-        {  // Check if the (non-numeric) action precondtions can be supported by the steps in the current base plan
-#ifdef DEBUG_SUCC_ON
-            cout << "Action " << a->name << " supported" << endl;
-#endif
+        {
+            // Check if the (non-numeric) action precondtions can be supported by the steps in the current base plan
+            Logger::debug("Action {} supported", a->name);
             PlanBuilder pb(a, &linearizer, newStep);
             fullActionSupportCheck(&pb);
         }
@@ -396,12 +398,14 @@ namespace grstaps
             pb->currentPrecondition--;
         }
         else if(pb->currentPrecondition < pb->action->startCond.size())
-        {  // At-start condition
+        {
+            // At-start condition
             fullCondtionSupportCheck(
                 pb, &(pb->action->startCond[pb->currentPrecondition]), stepToStartPoint(newStep), false, false);
         }
         else if(pb->currentPrecondition < pb->action->startCond.size() + pb->action->overCond.size())
-        {  // Over-all condition
+        {
+            // Over-all condition
             fullCondtionSupportCheck(pb,
                                      &(pb->action->overCond[pb->currentPrecondition - pb->action->startCond.size()]),
                                      stepToStartPoint(newStep),
@@ -410,7 +414,8 @@ namespace grstaps
         }
         else if(pb->currentPrecondition <
                 pb->action->startCond.size() + pb->action->overCond.size() + pb->action->endCond.size())
-        {  // At-end condition
+        {
+            // At-end condition
             fullCondtionSupportCheck(
                 pb,
                 &(pb->action
@@ -420,7 +425,8 @@ namespace grstaps
                 !forceAtEndConditions);
         }
         else
-        {  // Al condition supported -> check threats
+        {
+            // Al condition supported -> check threats
             checkTheatsBetweenCausalLinkInBasePlanWithNewAction(pb);
         }
     }
@@ -432,8 +438,8 @@ namespace grstaps
                                               bool overAll,
                                               bool canLeaveOpen)
     {
-        // cout << "Checking condition " << task->variables[c->var].name << "," << task->values[c->value].name << " for
-        // action " << pb->action->name << endl;
+        // std::cout << "Checking condition " << task->variables[c->var].name << "," << task->values[c->value].name << "
+        // for action " << pb->action->name << std::endl;
         bool supportFound = false;
         if(linearizer.checkIteration(planEffects[c->var][c->value].iteration))
         {
@@ -441,10 +447,11 @@ namespace grstaps
             for(unsigned int i = 0; i < supports->size(); i++)
             {
                 TTimePoint p = (*supports)[i];
-                // cout << "+ CL: " << p << " ---> " << condPoint << " (" << task->variables[c->var].name << "," <<
-                // task->values[c->value].name << ")" << endl;
+                // std::cout << "+ CL: " << p << " ---> " << condPoint << " (" << task->variables[c->var].name << "," <<
+                // task->values[c->value].name << ")" << std::endl;
                 if(pb->addLink(c, p, condPoint))
-                {  // Causal link added: p --- (c->var = c->value) ----> condPoint
+                {
+                    // Causal link added: p --- (c->var = c->value) ----> condPoint
                     if(overAll)
                     {
                         pb->addLink(c, p, condPoint + 1);
@@ -498,8 +505,8 @@ namespace grstaps
         TOpenCond& c       = basePlan->openCond->at(condNumber);
         Plan* component    = linearizer.getComponent(c.step);
         SASCondition* cond = &(component->action->endCond[c.condNumber]);
-        // cout << "Open condition number = " << c.condNumber << ".  " << task->variables[cond->var].name << "," <<
-        // task->values[cond->value].name << endl;
+        // std::cout << "Open condition number = " << c.condNumber << ".  " << task->variables[cond->var].name << "," <<
+        // task->values[cond->value].name << std::endl;
         SASAction* a            = pb->action;
         SASCondition* eff       = nullptr;
         TTimePoint effTimePoint = pb->lastTimePoint - 1;
@@ -525,8 +532,8 @@ namespace grstaps
         }
         if(eff != nullptr)
         {
-            // cout << "Support found = " << task->variables[eff->var].name << "," << task->values[eff->value].name <<
-            // endl;
+            // std::cout << "Support found = " << task->variables[eff->var].name << "," << task->values[eff->value].name
+            // << std::endl;
             if(!pb->addLink(cond, effTimePoint, stepToEndPoint(c.step)))
             {
                 eff = nullptr;
@@ -554,15 +561,11 @@ namespace grstaps
     void Successors::addSuccessor(Plan* p)
     {
         successors->push_back(p);
-#ifdef DEBUG_SUCC_ON
-        cout << "Plan " << p->id << " generated" << endl;
-#endif
+        Logger::debug("Plan {} generated", p->id);
         if(p->isSolution())
         {
-#ifdef DEBUG_SUCC_ON
-            cout << "SOLUTION PLAN" << endl;
-#endif
-            // cout << "SOL.: " << p->gc << "," << p->g << endl;
+            Logger::debug("SOLUTION PLAN");
+            // std::cout << "SOL.: " << p->gc << "," << p->g << std::endl;
             solution = p;
         }
     }
@@ -571,12 +574,10 @@ namespace grstaps
     // with the new action and causal links added in the base plan should be checked and solved
     void Successors::reuseAction(Plan* plan)
     {
-#ifdef DEBUG_SUCC_ON
-        cout << "Action " << plan->action->name << " supported (brother plan)" << endl;
-#endif
+        Logger::debug("Action {} supported (brother plan)", plan->action->name);
         PlanBuilder pb(plan->action, &linearizer, newStep);
         TTimePoint startNewStep = stepToStartPoint(newStep), p2;
-        // cout << startNewStep << endl;
+        // std::cout << startNewStep << std::endl;
         int numCl = 0, numOrd = 0;
         for(unsigned int i = 0; i < plan->causalLinks.size(); i++)
         {
@@ -586,10 +587,11 @@ namespace grstaps
             {
                 p2++;
             }  // at-end
-#ifdef DEBUG_SUCC_ON
-            cout << "CL: " << cl.firstPoint() << " ---> " << p2 << " (" << task->variables[cl.getVar()].name << ","
-                 << task->values[cl.getValue()].name << ")" << endl;
-#endif
+            Logger::debug("CL: {} ---> {} ({},{})",
+                          cl.firstPoint(),
+                          p2,
+                          task->variables[cl.getVar()].name,
+                          task->values[cl.getValue()].name);
             if(!pb.addLink(cl.varValue, cl.firstPoint(), p2))
                 return;
             numCl++;
@@ -614,9 +616,7 @@ namespace grstaps
             numOrd++;
             // matrix[p1][p2] = iteration;
             // pb.orderings.push_back(Successors::getOrdering(p1, p2));
-#ifdef DEBUG_SUCC_ON
-            cout << "Ord: " << p1 << " ---> " << p2 << endl;
-#endif
+            Logger::debug("Ord: {} ---> {}", p1, p2);
         }  // Action, causal links and orderings added. Now check if there are threats
         checkTheatsBetweenCausalLinkInBasePlanWithNewAction(&pb);
         for(int i = 0; i < numCl; i++)
@@ -632,11 +632,13 @@ namespace grstaps
     void Successors::checkContradictoryEffects(PlanBuilder* pb)
     {
         if(pb->currentEffect < pb->action->startEff.size())
-        {  // At-start effect
+        {
+            // At-start effect
             checkContradictoryEffects(pb, &(pb->action->startEff[pb->currentEffect]), stepToStartPoint(newStep));
         }
         else if(pb->currentEffect < pb->action->endEff.size() + pb->action->startEff.size())
-        {  // End effect
+        {
+            // End effect
             checkContradictoryEffects(
                 pb, &(pb->action->endEff[pb->currentEffect - pb->action->startEff.size()]), stepToEndPoint(newStep));
         }
@@ -669,8 +671,9 @@ namespace grstaps
                             pb->removeLastOrdering();
                         }
                         return;
-                        // cout << task->variables[c->var].name << ": " << task->values[vc.values[j]].name << " <---> "
-                        // << task->values[c->value].name << endl;
+                        // std::cout << task->variables[c->var].name << ": " << task->values[vc.values[j]].name << "
+                        // <---> "
+                        // << task->values[c->value].name << std::endl;
                     }
                 }
             }
@@ -685,7 +688,7 @@ namespace grstaps
     {
         std::vector<Threat> threats;
         /*if (pb->action->isGoal)
-            cout << "AQUI: " << this->basePlan->id << endl;
+            std::cout << "AQUI: " << this->basePlan->id << std::endl;
         */
         TTimePoint pc                       = pb->lastTimePoint - 1;
         std::vector<SASCondition>& startEff = pb->action->startEff;
@@ -706,18 +709,14 @@ namespace grstaps
                 {
                     var = cl.getVar();
                     v   = cl.getValue();
-#ifdef DEBUG_SUCC_ON
-                    cout << " - Threat : " << p1 << " -- " << task->variables[var].name << "," << task->values[v].name
-                         << " --> " << p2 << endl;
-#endif
+                    Logger::debug(
+                        " - Threat {} -- {},{} --> {}", p1, task->variables[var].name, task->values[v].name, p2);
                     for(unsigned int j = 0; j < startEff.size(); j++)
                     {
                         if(startEff[j].var == var && startEff[j].value != v)
                         {
                             threats.emplace_back(p1, p2, pc, var);
-#ifdef DEBUG_SUCC_ON
-                            cout << "   Threat found" << endl;
-#endif
+                            Logger::debug("   Threat found");
                             break;
                         }
                     }
@@ -727,9 +726,7 @@ namespace grstaps
                         if(endEff[j].var == var && endEff[j].value != v)
                         {
                             threats.emplace_back(p1, p2, pc, var);
-#ifdef DEBUG_SUCC_ON
-                            cout << "   Threat found" << endl;
-#endif
+                            Logger::debug("   Threat found");
                             break;
                         }
                     }
@@ -745,14 +742,12 @@ namespace grstaps
             TValue v      = cl.getValue();
             /*
             if (pb->action->isGoal) {
-                cout << "New cl: " << p1 << "--" << task->variables[var].name << "=" <<
-                        task->values[v].name << "--> " << p2 << endl;
+                std::cout << "New cl: " << p1 << "--" << task->variables[var].name << "=" <<
+                        task->values[v].name << "--> " << p2 << std::endl;
             }*/
 
             VarChange& vc = varChanges[var];
-#ifdef DEBUG_SUCC_ON
-            cout << "New cl: " << p1 << " -> " << p2 << endl;
-#endif
+            Logger::debug("New cl: {} -> {}", p1, p2);
             if(linearizer.checkIteration(vc.iteration))
             {
                 for(unsigned int j = 0; j < vc.timePoints.size(); j++)
@@ -760,19 +755,16 @@ namespace grstaps
                     if(vc.values[j] != v)
                     {
                         pc = vc.timePoints[j];
-#ifdef DEBUG_SUCC_ON
-                        cout << "Dif. value in time point " << pc << endl;
-#endif
+                        Logger::debug("Dif. value in time point {}", pc);
                         if(!linearizer.existOrder(pc, p1) && !linearizer.existOrder(p2, pc))
                         {
-#ifdef DEBUG_SUCC_ON
-                            cout << "Threat by " << pc << endl;
-#endif
+                            Logger::debug("Threat by {}", pc);
                             threats.emplace_back(p1, p2, pc, var);
                         } /*
                      else {
-                         if (linearizer.existOrder(pc, p1)) cout << "ORDER " << pc << " -> " << p1 << " exists" << endl;
-                         if (linearizer.existOrder(p2, pc)) cout << "ORDER " << p2 << " -> " << pc << " exists" << endl;
+                         if (linearizer.existOrder(pc, p1)) std::cout << "ORDER " << pc << " -> " << p1 << " exists" <<
+                     std::endl; if (linearizer.existOrder(p2, pc)) std::cout << "ORDER " << p2 << " -> " << pc << "
+                     exists" << std::endl;
                      }*/
                     }
                 }
@@ -802,9 +794,7 @@ namespace grstaps
                     if(!visitedAction(req[j]))
                     {
                         setVisitedAction(req[j]);
-#ifdef DEBUG_SUCC_ON
-                        cout << "Action " << req[j]->name << " supported by at-start" << endl;
-#endif
+                        Logger::debug("Action {} supported by at-start", req[j]->name);
                         PlanBuilder pb(req[j], &linearizer, newStep);
                         unsigned int n = addActionSupport(&pb, var, v, startTimeLastAction, startTimeNewAction);
                         fullActionSupportCheck(&pb);
@@ -825,9 +815,7 @@ namespace grstaps
                     if(!visitedAction(req[j]))
                     {
                         setVisitedAction(req[j]);
-#ifdef DEBUG_SUCC_ON
-                        cout << "Action " << req[j]->name << " supported by at-end" << endl;
-#endif
+                        Logger::debug("Action {} supported by at-end", req[j]->name);
                         PlanBuilder pb(req[j], &linearizer, newStep);
                         unsigned int n = addActionSupport(&pb, var, v, startTimeLastAction + 1, startTimeNewAction);
                         fullActionSupportCheck(&pb);
@@ -881,8 +869,8 @@ namespace grstaps
             if(a->startCond[i].var == var && a->startCond[i].value == value)
             {
                 pb->setPrecondition = i;
-                // cout << "+ CLS: " << effectTime << " ---> " << startTimeNewAction << " (" <<
-                // task->variables[var].name << "," << task->values[value].name << ")" << endl;
+                // std::cout << "+ CLS: " << effectTime << " ---> " << startTimeNewAction << " (" <<
+                // task->variables[var].name << "," << task->values[value].name << ")" << std::endl;
                 if(pb->addLink(&(a->startCond[i]), effectTime, startTimeNewAction))
                 {
                     return 1;
@@ -895,10 +883,10 @@ namespace grstaps
             if(a->overCond[i].var == var && a->overCond[i].value == value)
             {
                 pb->setPrecondition = i + a->startCond.size();
-                // cout << "+ CLO: " << effectTime << " ---> " << startTimeNewAction << " (" <<
-                // task->variables[var].name << "," << task->values[value].name << ")" << endl; cout << "+ CLO: " <<
-                // effectTime << " ---> " << (startTimeNewAction+1) << " (" << task->variables[var].name << "," <<
-                // task->values[value].name << ")" << endl;
+                // std::cout << "+ CLO: " << effectTime << " ---> " << startTimeNewAction << " (" <<
+                // task->variables[var].name << "," << task->values[value].name << ")" << std::endl; std::cout << "+
+                // CLO: " << effectTime << " ---> " << (startTimeNewAction+1) << " (" << task->variables[var].name <<
+                // "," << task->values[value].name << ")" << std::endl;
                 if(pb->addLink(&(a->overCond[i]), effectTime, startTimeNewAction))
                 {
                     if(pb->addLink(&(a->overCond[i]), effectTime, startTimeNewAction + 1))
@@ -916,8 +904,8 @@ namespace grstaps
             if(a->endCond[i].var == var && a->endCond[i].value == value)
             {
                 pb->setPrecondition = i + a->startCond.size() + a->overCond.size();
-                // cout << "+ CLE: " << effectTime << " ---> " << (startTimeNewAction+1) << " (" <<
-                // task->variables[var].name << "," << task->values[value].name << ")" << endl;
+                // std::cout << "+ CLE: " << effectTime << " ---> " << (startTimeNewAction+1) << " (" <<
+                // task->variables[var].name << "," << task->values[value].name << ")" << std::endl;
                 if(pb->addLink(&(a->endCond[i]), effectTime, startTimeNewAction + 1))
                 {
                     return 1;
@@ -931,31 +919,24 @@ namespace grstaps
     // Solves the threats in the plan
     void Successors::solveThreats(PlanBuilder* pb, std::vector<Threat>* threats)
     {
-#ifdef DEBUG_SUCC_ON
-        cout << threats->size() << " threats remaining" << endl;
-#endif
+        Logger::debug("{} threats remaining", threats->size());
         if(threats->size() == 0)
         {
-#ifdef DEBUG_SUCC_ON
-            cout << "Generating successor" << endl;
-#endif
+            Logger::debug("Generating successor");
             checkContradictoryEffects(pb);
         }
         else
         {
             Threat t = threats->back();
             threats->pop_back();
-#ifdef DEBUG_SUCC_ON
-            cout << t.p1 << " --> " << t.p2 << " (threatened by " << t.tp << ")" << endl;
-#endif
+            Logger::debug("{} --> {} (threatened by {})", t.p1, t.p2, t.tp);
             if(!linearizer.existOrder(t.tp, t.p1) && !linearizer.existOrder(t.p2, t.tp))
-            {  // Threat already exists
+            {
+                // Threat already exists
                 bool promotion, demotion;
                 if(mutexPoints(t.tp, t.p2, t.var, pb))
                 {
-#ifdef DEBUG_SUCC_ON
-                    cout << "Unsolvable threat" << endl;
-#endif
+                    Logger::debug("Unsolvable threat");
                     promotion = demotion = false;
                 }
                 else
@@ -964,10 +945,9 @@ namespace grstaps
                     demotion  = !linearizer.existOrder(t.tp, t.p2);
                 }
                 if(promotion && demotion)
-                {  // Both choices are possible
-#ifdef DEBUG_SUCC_ON
-                    cout << "Promotion and demotion valid" << endl;
-#endif
+                {
+                    // Both choices are possible
+                    Logger::debug("Promotion and demotion valid");
                     if(pb->addOrdering(t.p2, t.tp))
                     {
                         solveThreats(pb, threats);
@@ -980,11 +960,9 @@ namespace grstaps
                     }
                 }
                 else if(demotion)
-                {  // Only demotion is possible: p2 -> tp
-#ifdef DEBUG_SUCC_ON
-                    cout << "Demotion valid" << endl;
-                    cout << "Order " << t.p2 << " -> " << t.tp << " added" << endl;
-#endif
+                {
+                    // Only demotion is possible: p2 -> tp
+                    Logger::debug("Demotion valid: Order {} -> {} added", t.p2, t.tp);
                     if(pb->addOrdering(t.p2, t.tp))
                     {
                         solveThreats(pb, threats);
@@ -992,29 +970,24 @@ namespace grstaps
                     }
                 }
                 else if(promotion)
-                {  // Only promotion is possible: tp -> p1
-#ifdef DEBUG_SUCC_ON
-                    cout << "Promotion valid" << endl;
-                    cout << "Order " << t.tp << " -> " << t.p1 << " added" << endl;
-#endif
+                {
+                    // Only promotion is possible: tp -> p1
+                    Logger::debug("Promotion valid: Order {} -> {} added", t.tp, t.p1);
                     if(pb->addOrdering(t.tp, t.p1))
                     {
                         solveThreats(pb, threats);
                         pb->removeLastOrdering();
                     }
                 }
-#ifdef DEBUG_SUCC_ON
                 else
-                {  // Unsolvable threat
-                    cout << "Unsolvable threat" << endl;
+                {
+                    // Unsolvable threat
+                    Logger::debug("Unsolvable threat");
                 }
-#endif
             }
             else
             {
-#ifdef DEBUG_SUCC_ON
-                cout << "Not a threat now" << endl;
-#endif
+                Logger::debug("Not a threat now");
                 solveThreats(pb, threats);
             }
         }
@@ -1083,10 +1056,7 @@ namespace grstaps
         }
         else
         {
-#ifdef DEBUG_SUCC_ON
-            cout << "Error: invalid state" << endl;
-            cout << "INVALID PLAN: " << p->id << endl << p->toString() << endl;
-#endif
+            Logger::error("INVALID PLAN: {} : {}", p->id, p->toString());
             return false;  // Invalid plan
         }
     }

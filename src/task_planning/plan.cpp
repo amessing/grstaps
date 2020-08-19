@@ -1,22 +1,4 @@
-/*
- * Copyright (C) 2020 Andrew Messing
- *
- * grstaps is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published
- * by the Free Software Foundation; either version 3 of the License,
- * or any later version.
- *
- * grstaps is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public
- * License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with grstaps; if not, write to the Free Software Foundation,
- * Inc., #59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
- */
 #include "grstaps/task_planning/plan.hpp"
-
 #include <iostream>
 
 // local
@@ -24,56 +6,56 @@
 
 namespace grstaps
 {
-
-/********************************************************/
-/* CLASS: TOpenCond                                     */
-/********************************************************/
+    /********************************************************/
+    /* CLASS: TOpenCond                                     */
+    /********************************************************/
 
     TOpenCond::TOpenCond(TStep s, uint16_t c)
     {
-        step = s;
+        step       = s;
         condNumber = c;
     }
 
-/********************************************************/
-/* CLASS: Plan                                          */
-/********************************************************/
+    /********************************************************/
+    /* CLASS: Plan                                          */
+    /********************************************************/
 
     Plan::Plan(SASAction* action, Plan* parentPlan, uint32_t idPlan)
     {
         this->parentPlan = parentPlan;
-        this->action = action;
-        fixedEnd = -1;
-        childPlans = nullptr;
-        id = idPlan;
-        openCond = nullptr;
-        h = hAux = FLOAT_INFINITY;
-        hLand = MAX_UINT16;
-        gc = 0;
-        g = parentPlan == nullptr ? 0 : parentPlan->g + 1;
-        repeatedState = false;
+        this->action     = action;
+        fixedEnd         = -1;
+        childPlans       = nullptr;
+        id               = idPlan;
+        openCond         = nullptr;
+        h = hAux                     = FLOAT_INFINITY;
+        hLand                        = MAX_UINT16;
+        gc                           = 0;
+        g                            = parentPlan == nullptr ? 0 : parentPlan->g + 1;
+        repeatedState                = false;
         unsatisfiedNumericConditions = false;
-        task_allocatable = false;
+        task_allocatable             = false;
     }
 
     Plan::Plan(SASAction* action, Plan* parentPlan, float fixedEnd, uint32_t idPlan)
     {
         this->parentPlan = parentPlan;
-        this->action = action;
-        this->fixedEnd = fixedEnd;
-        childPlans = nullptr;
-        id = idPlan;
-        openCond = nullptr;
-        h = hAux = FLOAT_INFINITY;
-        hLand = MAX_UINT16;
-        gc = 0;
-        g = parentPlan == nullptr ? 0 : parentPlan->g + 1;
-        repeatedState = false;
+        this->action     = action;
+        this->fixedEnd   = fixedEnd;
+        childPlans       = nullptr;
+        id               = idPlan;
+        openCond         = nullptr;
+        h = hAux                     = FLOAT_INFINITY;
+        hLand                        = MAX_UINT16;
+        gc                           = 0;
+        g                            = parentPlan == nullptr ? 0 : parentPlan->g + 1;
+        repeatedState                = false;
         unsatisfiedNumericConditions = false;
-        task_allocatable = false;
+        task_allocatable             = false;
     }
 
-// Compares this plan with the given one. Returns a negative number if this is better, 0 if both are equally good or a positive number if p is better
+    // Compares this plan with the given one. Returns a negative number if this is better, 0 if both are equally good or
+    // a positive number if p is better
     int Plan::compare(Plan* p, int queue)
     {
         float v1 = 0, v2 = 0;
@@ -124,13 +106,17 @@ namespace grstaps
                 exit(0);
         }
         if(unsatisfiedNumericConditions)
-        { v1++; }
+        {
+            v1++;
+        }
         if(p->unsatisfiedNumericConditions)
-        { v2++; }
+        {
+            v2++;
+        }
         if(v1 == v2)
         {
-            //if (useful && !(p->useful)) return -1;
-            //if (p->useful && !useful) return 1;
+            // if (useful && !(p->useful)) return -1;
+            // if (p->useful && !useful) return 1;
             if(queue < SEARCH_MASK_PLATEAU)
             {
                 return ((int)g) - ((int)p->g);
@@ -142,9 +128,13 @@ namespace grstaps
             }
         }
         if(v1 < v2)
-        { return -1; }
+        {
+            return -1;
+        }
         if(v1 > v2)
-        { return 1; }
+        {
+            return 1;
+        }
         return 0;
     }
 
@@ -170,38 +160,41 @@ namespace grstaps
         }
     }
 
-/*
-void Plan::checkUsefulPlan() {
-	useful = false;
-	if (parentPlan == nullptr) return;
-	for (unsigned int i = 0; i < parentPlan->usefulActions.size(); i++) {
-		if (parentPlan->usefulActions[i] == action) {
-			useful = true;
-			break;
-		}
-	}
-}
-*/
+    /*
+    void Plan::checkUsefulPlan() {
+        useful = false;
+        if (parentPlan == nullptr) return;
+        for (unsigned int i = 0; i < parentPlan->usefulActions.size(); i++) {
+            if (parentPlan->usefulActions[i] == action) {
+                useful = true;
+                break;
+            }
+        }
+    }
+    */
 
-// Returns a string representation of this plan
+    // Returns a string representation of this plan
     std::string Plan::toString()
     {
         std::string s = parentPlan != nullptr ? parentPlan->toString() : "";
         if(action != nullptr)
-        { s += "+ [" + std::to_string(gc) + "] Action: " + action->name + "\n"; }
+        {
+            s += "+ [" + std::to_string(gc) + "] Action: " + action->name + "\n";
+        }
         for(unsigned int i = 0; i < causalLinks.size(); i++)
         {
-            s += "  * " + std::to_string(causalLinks[i].firstPoint()) + " ---> " + std::to_string(causalLinks[i].secondPoint()) +
-                 "\n";
+            s += "  * " + std::to_string(causalLinks[i].firstPoint()) + " ---> " +
+                 std::to_string(causalLinks[i].secondPoint()) + "\n";
         }
         for(unsigned int i = 0; i < orderings.size(); i++)
         {
-            s += "  * " + std::to_string(firstPoint(orderings[i])) + " -> " + std::to_string(secondPoint(orderings[i])) + "\n";
+            s += "  * " + std::to_string(firstPoint(orderings[i])) + " -> " +
+                 std::to_string(secondPoint(orderings[i])) + "\n";
         }
         return s;
     }
 
-// Destructor
+    // Destructor
     Plan::~Plan()
     {
         clearChildren();
@@ -212,13 +205,13 @@ void Plan::checkUsefulPlan() {
         }
     }
 
-// Adds the children of a plan
+    // Adds the children of a plan
     void Plan::addChildren(std::vector<Plan*>& suc)
     {
         childPlans = new std::vector<Plan*>(suc);
     }
 
-// Removes the child plans. Call only if all the child plans have been expanded
+    // Removes the child plans. Call only if all the child plans have been expanded
     void Plan::clearChildren()
     {
         if(childPlans != nullptr)
@@ -236,4 +229,4 @@ void Plan::checkUsefulPlan() {
         }
         openCond->emplace_back(stepNumber, condNumber);
     }
-}
+}  // namespace grstaps

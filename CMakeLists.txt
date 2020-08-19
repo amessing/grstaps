@@ -78,7 +78,9 @@ if(BUILD_TESTS)
     # TODO: coverage?
 
     file(GLOB_RECURSE ${PROJECT_NAME}_TEST_SOURCES tests/**.[ch]pp)
-    file(GLOB_RECURSE ${PROJECT_NAME}_TEST_DATA tests/data/**)
+    file(GLOB_RECURSE ${PROJECT_NAME}_TEST_DATA 
+        tests/data/**
+        tests/data/**/**)
 
     # Copy test data to outdir/test
     make_outputs(${CMAKE_CURRENT_SOURCE_DIR} "${${PROJECT_NAME}_TEST_DATA}" ${CMAKE_CURRENT_BINARY_DIR} testDataOutputs)

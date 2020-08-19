@@ -1,20 +1,3 @@
-/*
- * Copyright (C) 2020 Andrew Messing
- *
- * grstaps is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published
- * by the Free Software Foundation; either version 3 of the License,
- * or any later version.
- *
- * grstaps is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public
- * License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with grstaps; if not, write to the Free Software Foundation,
- * Inc., #59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
- */
 #include "grstaps/task_planning/temporal_rpg.hpp"
 
 // global
@@ -27,9 +10,9 @@ namespace grstaps
 {
     void TemporalRPG::initialize(bool untilGoals, SASTask* task, std::vector<SASAction*>* tilActions)
     {
-        verifyFluent = false;
+        verifyFluent     = false;
         this->untilGoals = untilGoals;
-        this->task = task;
+        this->task       = task;
         this->tilActions = tilActions;
         if(untilGoals)
         {
@@ -50,7 +33,7 @@ namespace grstaps
                 }
             }
         }
-        numActions = task->actions.size();
+        numActions    = task->actions.size();
         visitedAction = new char[numActions];
         for(int i = 0; i < numActions; i++)
         {
@@ -96,7 +79,7 @@ namespace grstaps
         float auxLevel;
         while(qPNormal.size() > 0)
         {
-            FluentLevel* fl = (FluentLevel*)qPNormal.poll();
+            FluentLevel* fl              = (FluentLevel*)qPNormal.poll();
             std::vector<SASAction*>& req = task->requirers[fl->variable][fl->value];
 #ifdef DEBUG_TEMPORALRPG_ON
             cout << "EXTR.: " << fl->toString(task) << ", " << req.size() << " requirers" << endl;
@@ -107,7 +90,9 @@ namespace grstaps
                 if(visitedAction[a->index] == 0)
                 {
                     if(verifyFluent && actionProducesFluent(a))
-                    { visitedAction[a->index] = 1; }
+                    {
+                        visitedAction[a->index] = 1;
+                    }
                     else
                     {
                         bool applicable = true;
@@ -117,7 +102,7 @@ namespace grstaps
                             if(auxLevel < 0 || auxLevel > fl->level)
                             {
                                 applicable = false;
-                                break; // Non applicable
+                                break;  // Non applicable
                             }
                         }
                         if(applicable)
@@ -128,7 +113,7 @@ namespace grstaps
                                 if(auxLevel < 0 || auxLevel > fl->level)
                                 {
                                     applicable = false;
-                                    break; // Non applicable
+                                    break;  // Non applicable
                                 }
                             }
                             if(applicable)
@@ -137,33 +122,35 @@ namespace grstaps
                                 cout << "N.ACTION " << fl->level << ": " << a->name << endl;
 #endif
                                 visitedAction[a->index] = 1;
-                                float effLevel = fl->level + EPSILON;
+                                float effLevel          = fl->level + EPSILON;
                                 for(unsigned j = 0; j < a->startEff.size(); j++)
                                 {
-                                    TVariable v = a->startEff[j].var;
+                                    TVariable v  = a->startEff[j].var;
                                     TValue value = a->startEff[j].value;
-                                    auxLevel = getFirstGenerationTime(v, value);
+                                    auxLevel     = getFirstGenerationTime(v, value);
                                     if(auxLevel == -1 || auxLevel > effLevel)
                                     {
                                         firstGenerationTime[SASTask::getVariableValueCode(v, value)] = effLevel;
                                         qPNormal.add(new FluentLevel(v, value, effLevel));
 #ifdef DEBUG_TEMPORALRPG_ON
-                                        cout << "* PROG: (" << task->variables[v].name << "," << task->values[value].name << ") -> " << effLevel << endl;
+                                        cout << "* PROG: (" << task->variables[v].name << ","
+                                             << task->values[value].name << ") -> " << effLevel << endl;
 #endif
                                     }
                                 }
                                 effLevel += task->getActionDuration(a, state->numState);
                                 for(unsigned j = 0; j < a->endEff.size(); j++)
                                 {
-                                    TVariable v = a->endEff[j].var;
+                                    TVariable v  = a->endEff[j].var;
                                     TValue value = a->endEff[j].value;
-                                    auxLevel = getFirstGenerationTime(v, value);
+                                    auxLevel     = getFirstGenerationTime(v, value);
                                     if(auxLevel == -1 || auxLevel > effLevel)
                                     {
                                         firstGenerationTime[SASTask::getVariableValueCode(v, value)] = effLevel;
                                         qPNormal.add(new FluentLevel(v, value, effLevel));
 #ifdef DEBUG_TEMPORALRPG_ON
-                                        cout << "* PROG: (" << task->variables[v].name << "," << task->values[value].name << ") -> " << effLevel << endl;
+                                        cout << "* PROG: (" << task->variables[v].name << ","
+                                             << task->values[value].name << ") -> " << effLevel << endl;
 #endif
                                     }
                                 }
@@ -238,10 +225,12 @@ namespace grstaps
             cout << "Action: " << a.name << endl;
 #endif
             if(a->index != MAX_UNSIGNED_INT)
-            { visitedAction[a->index] = 1; }
+            {
+                visitedAction[a->index] = 1;
+            }
             for(unsigned int j = 0; j < a->startEff.size(); j++)
             {
-                v = a->startEff[j].var;
+                v     = a->startEff[j].var;
                 value = a->startEff[j].value;
                 level = getFirstGenerationTime(v, value);
                 if(level == -1)
@@ -249,24 +238,28 @@ namespace grstaps
                     firstGenerationTime[SASTask::getVariableValueCode(v, value)] = EPSILON;
                     qPNormal.add(new FluentLevel(v, value, EPSILON));
 #ifdef DEBUG_TEMPORALRPG_ON
-                    cout << "* PROG: (" << task->variables[v].name << "," << task->values[value].name << ") -> " << EPSILON << endl;
+                    cout << "* PROG: (" << task->variables[v].name << "," << task->values[value].name << ") -> "
+                         << EPSILON << endl;
 #endif
                 }
             }
             duration = -1;
             for(unsigned int j = 0; j < a->endEff.size(); j++)
             {
-                v = a->endEff[j].var;
+                v     = a->endEff[j].var;
                 value = a->endEff[j].value;
                 level = getFirstGenerationTime(v, value);
                 if(level == -1)
                 {
                     if(duration < 0)
-                    { duration = EPSILON + task->getActionDuration(a, state->numState); }
+                    {
+                        duration = EPSILON + task->getActionDuration(a, state->numState);
+                    }
                     firstGenerationTime[SASTask::getVariableValueCode(v, value)] = duration;
                     qPNormal.add(new FluentLevel(v, value, duration));
 #ifdef DEBUG_TEMPORALRPG_ON
-                    cout << "* PROG: (" << task->variables[v].name << "," << task->values[value].name << ") -> " << duration << endl;
+                    cout << "* PROG: (" << task->variables[v].name << "," << task->values[value].name << ") -> "
+                         << duration << endl;
 #endif
                 }
             }
@@ -315,13 +308,13 @@ namespace grstaps
         }
         for(unsigned int i = 0; i < fluentList.size(); i++)
         {
-            TVariable v = fluentList[i].variable;
-            TValue value = fluentList[i].value;
+            TVariable v                                          = fluentList[i].variable;
+            TValue value                                         = fluentList[i].value;
             fluentIndex[SASTask::getVariableValueCode(v, value)] = fluentList[i].index;
             qPNormal.add(new FluentLevel(v, value, fluentList[i].level));
         }
         float currentLevel = -1;
-        int i = -1;
+        int i              = -1;
         while(qPNormal.size() > 0)
         {
             FluentLevel* fl = (FluentLevel*)qPNormal.poll();
@@ -331,7 +324,7 @@ namespace grstaps
                 cout << "Level: " << fl->level << endl;
 #endif
                 fluentLevels.emplace_back();
-                currentLevel = fl->level;
+                currentLevel                   = fl->level;
                 fluentLevelIndex[currentLevel] = ++i;
             }
             fluentLevels[i].push_back(SASTask::getVariableValueCode(fl->variable, fl->value));
@@ -351,7 +344,7 @@ namespace grstaps
         }
         for(unsigned int i = 0; i < fluentList.size(); i++)
         {
-            LMFluent& f = fluentList[i];
+            LMFluent& f                = fluentList[i];
             std::vector<SASAction*>& p = task->producers[f.variable][f.value];
             for(unsigned int j = 0; j < p.size(); j++)
             {
@@ -371,28 +364,40 @@ namespace grstaps
         {
             level = getFirstGenerationTime(a->startCond[i].var, a->startCond[i].value);
             if(level > res)
-            { res = level; }
+            {
+                res = level;
+            }
             else if(level == -1)
-            { return -1; }
+            {
+                return -1;
+            }
         }
         for(unsigned int i = 0; i < a->overCond.size(); i++)
         {
             level = getFirstGenerationTime(a->overCond[i].var, a->overCond[i].value);
             if(level > res)
-            { res = level; }
+            {
+                res = level;
+            }
             else if(level == -1)
-            { return -1; }
+            {
+                return -1;
+            }
         }
         float duration = task->getActionDuration(a, state->numState);
         for(unsigned int i = 0; i < a->endCond.size(); i++)
         {
             level = getFirstGenerationTime(a->endCond[i].var, a->endCond[i].value);
             if(level == -1)
-            { return -1; }
+            {
+                return -1;
+            }
             level -= duration;
             if(level > res)
-            { res = level; }
+            {
+                res = level;
+            }
         }
         return res;
     }
-}
+}  // namespace grstaps

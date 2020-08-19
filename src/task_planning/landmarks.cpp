@@ -1,20 +1,3 @@
-/*
- * Copyright (C) 2020 Andrew Messing
- *
- * grstaps is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published
- * by the Free Software Foundation; either version 3 of the License,
- * or any later version.
- *
- * grstaps is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public
- * License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with grstaps; if not, write to the Free Software Foundation,
- * Inc., #59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
- */
 #include "grstaps/task_planning/landmarks.hpp"
 
 // local
@@ -22,13 +5,12 @@
 
 namespace grstaps
 {
-#define NECESSARY    1
-#define REASONABLE    2
+#define NECESSARY 1
+#define REASONABLE 2
 
-
-/*******************************************/
-/* LandmarkRPG                             */
-/*******************************************/
+    /*******************************************/
+    /* LandmarkRPG                             */
+    /*******************************************/
 
     bool LandmarkRPG::verifyFluent(TVariable v, TValue value, TState* s, SASTask* task)
     {
@@ -40,10 +22,12 @@ namespace grstaps
             newLevel->clear();
             for(unsigned int i = 0; i < lastLevel->size(); i++)
             {
-                TVariable gv = SASTask::getVariableIndex(lastLevel->at(i));
+                TVariable gv  = SASTask::getVariableIndex(lastLevel->at(i));
                 TValue gvalue = SASTask::getValueIndex(lastLevel->at(i));
                 if(gv == v && gvalue == value)
-                { continue; }
+                {
+                    continue;
+                }
                 std::vector<SASAction*>& aList = task->requirers[gv][gvalue];
                 for(unsigned int j = 0; j < aList.size(); j++)
                 {
@@ -76,9 +60,9 @@ namespace grstaps
             newLevel->clear();
             for(unsigned int i = 0; i < lastLevel->size(); i++)
             {
-                TVariable gv = SASTask::getVariableIndex(lastLevel->at(i));
+                TVariable gv  = SASTask::getVariableIndex(lastLevel->at(i));
                 TValue gvalue = SASTask::getValueIndex(lastLevel->at(i));
-                bool inSet = false;
+                bool inSet    = false;
                 for(unsigned int i = 0; i < n; i++)
                 {
                     if(gv == v->at(i) && gvalue == value->at(i))
@@ -117,8 +101,8 @@ namespace grstaps
             newLevel->clear();
             for(unsigned int i = 0; i < lastLevel->size(); i++)
             {
-                TVariable gv = SASTask::getVariableIndex(lastLevel->at(i));
-                TValue gvalue = SASTask::getValueIndex(lastLevel->at(i));
+                TVariable gv                   = SASTask::getVariableIndex(lastLevel->at(i));
+                TValue gvalue                  = SASTask::getValueIndex(lastLevel->at(i));
                 std::vector<SASAction*>& aList = task->requirers[gv][gvalue];
                 for(unsigned int j = 0; j < aList.size(); j++)
                 {
@@ -170,16 +154,22 @@ namespace grstaps
     bool LandmarkRPG::isExecutable(SASAction* a, TVariable v, TValue value)
     {
         if(!isExecutable(a))
-        { return false; }
+        {
+            return false;
+        }
         for(unsigned int j = 0; j < a->startEff.size(); j++)
         {
             if(a->startEff[j].var == v && a->startEff[j].value == value)
-            { return false; }
+            {
+                return false;
+            }
         }
         for(unsigned int j = 0; j < a->endEff.size(); j++)
         {
             if(a->endEff[j].var == v && a->endEff[j].value == value)
-            { return false; }
+            {
+                return false;
+            }
         }
         return true;
     }
@@ -187,14 +177,18 @@ namespace grstaps
     bool LandmarkRPG::isExecutable(SASAction* a, std::vector<TVariable>* v, std::vector<TValue>* value)
     {
         if(!isExecutable(a))
-        { return false; }
+        {
+            return false;
+        }
         unsigned int n = v->size();
         for(unsigned int j = 0; j < a->startEff.size(); j++)
         {
             for(unsigned int i = 0; i < n; i++)
             {
                 if(a->startEff[j].var == v->at(i) && a->startEff[j].value == value->at(i))
-                { return false; }
+                {
+                    return false;
+                }
             }
         }
         for(unsigned int j = 0; j < a->endEff.size(); j++)
@@ -202,7 +196,9 @@ namespace grstaps
             for(unsigned int i = 0; i < n; i++)
             {
                 if(a->endEff[j].var == v->at(i) && a->endEff[j].value == value->at(i))
-                { return false; }
+                {
+                    return false;
+                }
             }
         }
         return true;
@@ -213,17 +209,23 @@ namespace grstaps
         for(unsigned int j = 0; j < a->startCond.size(); j++)
         {
             if(!fluentAchieved(a->startCond[j].var, a->startCond[j].value))
-            { return false; }
+            {
+                return false;
+            }
         }
         for(unsigned int j = 0; j < a->overCond.size(); j++)
         {
             if(!fluentAchieved(a->overCond[j].var, a->overCond[j].value))
-            { return false; }
+            {
+                return false;
+            }
         }
         for(unsigned int j = 0; j < a->endCond.size(); j++)
         {
             if(!fluentAchieved(a->endCond[j].var, a->endCond[j].value))
-            { return false; }
+            {
+                return false;
+            }
         }
         return true;
     }
@@ -233,7 +235,9 @@ namespace grstaps
         for(unsigned int i = 0; i < actions->size(); i++)
         {
             if(a->index == actions->at(i)->index)
-            { return false; }
+            {
+                return false;
+            }
         }
         return true;
     }
@@ -262,9 +266,11 @@ namespace grstaps
     void LandmarkRPG::initialize(TState* s)
     {
         unsigned int numActions = task->actions.size();
-        achievedAction = new bool[numActions];
+        achievedAction          = new bool[numActions];
         for(unsigned int i = 0; i < numActions; i++)
-        { achievedAction[i] = false; }
+        {
+            achievedAction[i] = false;
+        }
         lastLevel = new std::vector<TVarValue>();
         lastLevel->reserve((s->numSASVars) << 1);
         newLevel = new std::vector<TVarValue>();
@@ -280,11 +286,17 @@ namespace grstaps
         {
             SASAction& g = task->goals[i];
             for(unsigned int j = 0; j < g.startCond.size(); j++)
-            { addGoal(&(g.startCond[j])); }
+            {
+                addGoal(&(g.startCond[j]));
+            }
             for(unsigned int j = 0; j < g.overCond.size(); j++)
-            { addGoal(&(g.overCond[j])); }
+            {
+                addGoal(&(g.overCond[j]));
+            }
             for(unsigned int j = 0; j < g.endCond.size(); j++)
-            { addGoal(&(g.endCond[j])); }
+            {
+                addGoal(&(g.endCond[j]));
+            }
         }
     }
 
@@ -305,15 +317,14 @@ namespace grstaps
         remainingGoals.clear();
     }
 
-
-/*******************************************/
-/* LandmarkTree                            */
-/*******************************************/
+    /*******************************************/
+    /* LandmarkTree                            */
+    /*******************************************/
 
     LandmarkTree::LandmarkTree(TState* state, SASTask* task, std::vector<SASAction*>* tilActions)
     {
         this->state = state;
-        this->task = task;
+        this->task  = task;
         rpg.initialize(false, task, tilActions);
         rpg.build(state);
         rpg.computeLiteralLevels();
@@ -335,16 +346,22 @@ namespace grstaps
         {
             SASAction& g = task->goals[i];
             for(unsigned int j = 0; j < g.startCond.size(); j++)
-            { addGoalNode(&(g.startCond[j]), state); }
+            {
+                addGoalNode(&(g.startCond[j]), state);
+            }
             for(unsigned int j = 0; j < g.overCond.size(); j++)
-            { addGoalNode(&(g.overCond[j]), state); }
+            {
+                addGoalNode(&(g.overCond[j]), state);
+            }
             for(unsigned int j = 0; j < g.endCond.size(); j++)
-            { addGoalNode(&(g.endCond[j]), state); }
+            {
+                addGoalNode(&(g.endCond[j]), state);
+            }
         }
         exploreRPG();
         // Creating the adjacency matrix
         unsigned int n = nodes.size();
-        matrix = new bool* [n];
+        matrix         = new bool*[n];
         for(unsigned int j = 0; j < n; j++)
         {
             matrix[j] = new bool[n];
@@ -369,26 +386,28 @@ namespace grstaps
         }
         delete[] matrix;
         for(unsigned int i = 0; i < nodes.size(); i++)
-        { delete nodes[i]; }
+        {
+            delete nodes[i];
+        }
     }
 
     void LandmarkTree::addGoalNode(SASCondition* c, TState* state)
     {
-        //if (state->state[c->var] == c->value) return;
+        // if (state->state[c->var] == c->value) return;
         int index = rpg.getFluentIndex(c->var, c->value);
         if(index >= 0)
         {
             LMFluent* goal = rpg.getFluentByIndex(index);
-            goal->isGoal = true;
-            LTNode* n = new LTNode(goal, nodes.size());
+            goal->isGoal   = true;
+            LTNode* n      = new LTNode(goal, nodes.size());
             nodes.push_back(n);
             fluentNode[index] = n->getIndex();
-            int levelIndex = rpg.getLevelIndex(goal->level);
+            int levelIndex    = rpg.getLevelIndex(goal->level);
             objs[levelIndex].push_back(new LMFluent(*goal));
         }
     }
 
-// The RPG is explored backwards, beginning from the last literal level
+    // The RPG is explored backwards, beginning from the last literal level
     void LandmarkTree::exploreRPG()
     {
         int level = (int)rpg.getNumFluentLevels() - 1;
@@ -407,8 +426,8 @@ namespace grstaps
                 // Once 'a' is calculated, the action processing method is invoked
                 // actionProcessing is only launched if there are producers, that is, if A is not an empty set
 #ifdef DEBUG_LANDMARKS_ON
-                for (unsigned int x = 0; x < obj->producers.size(); x++)
-                cout << "* Producer: " << obj->producers[x]->name << endl;
+                for(unsigned int x = 0; x < obj->producers.size(); x++)
+                    cout << "* Producer: " << obj->producers[x]->name << endl;
 #endif
                 actionProcessing(&(obj->producers), nodes[fluentNode[obj->index]], level);
             }
@@ -438,8 +457,8 @@ namespace grstaps
                 if(!initialState)
                 {
 #ifdef DEBUG_LANDMARKS_ON
-                    for (unsigned int x = 0; x < a.size(); x++)
-                    cout << "* Producer: " << a[x]->name << endl;
+                    for(unsigned int x = 0; x < a.size(); x++)
+                        cout << "* Producer: " << a[x]->name << endl;
 #endif
                     actionProcessing(&a, disjObj->node, level);
                 }
@@ -451,31 +470,39 @@ namespace grstaps
     void LandmarkTree::actionProcessing(std::vector<SASAction*>* a, LTNode* g, int level)
     {
         if(a->size() == 0)
-        { return; }
-        std::vector<USet*> d;        // Calculating I set: preconditions that
-        std::vector<LMFluent*> i;    // are common to all the actions in A
+        {
+            return;
+        }
+        std::vector<USet*> d;      // Calculating I set: preconditions that
+        std::vector<LMFluent*> i;  // are common to all the actions in A
         std::vector<LMFluent*> u;
         unsigned int numFluents = rpg.getFluentListSize();
-        int* common = new int[numFluents];
+        int* common             = new int[numFluents];
         for(unsigned int n = 0; n < numFluents; n++)
-        { common[n] = 0; }
+        {
+            common[n] = 0;
+        }
         for(unsigned int n = 0; n < a->size(); n++)
         {
 #ifdef DEBUG_LANDMARKS_ON
             std::string name = a->at(n)->name;
-        cout << "* Checking " << name.c_str() << endl;
+            cout << "* Checking " << name.c_str() << endl;
 #endif
             checkPreconditions(a->at(n), common);
         }
         for(unsigned int n = 0; n < numFluents; n++)
         {
             if(common[n] == (int)a->size())
-            { i.push_back(rpg.getFluentByIndex(n)); }
+            {
+                i.push_back(rpg.getFluentByIndex(n));
+            }
             else if(common[n] > 0)
-            { u.push_back(rpg.getFluentByIndex(n)); }
+            {
+                u.push_back(rpg.getFluentByIndex(n));
+            }
         }
         for(unsigned int n = 0; n < i.size(); n++)
-        {    // Exploring candidate landmarks in I
+        {  // Exploring candidate landmarks in I
             LMFluent* p = i[n];
 #ifdef DEBUG_LANDMARKS_ON
             cout << " - Candidate: " << p->toString(task) << endl;
@@ -505,7 +532,7 @@ namespace grstaps
                 cout << "    * Edges size = " << edges.size() << ": " << ordering.toString(task) << endl;
 #endif
                 edges.push_back(ordering);
-                bool found = false;
+                bool found         = false;
                 int candidateLevel = rpg.getLevelIndex(p->level);
 #ifdef DEBUG_LANDMARKS_ON
                 cout << "    * Candidate level: " << candidateLevel << endl;
@@ -566,12 +593,12 @@ namespace grstaps
 
     USet* LandmarkTree::findDisjObject(USet* u, int level)
     {
-        //cout << "Searching for " << u->toString(task) << endl;
+        // cout << "Searching for " << u->toString(task) << endl;
         for(int i = level; i >= 0; i--)
         {
             for(int j = 0; j < (int)disjObjs[i].size(); j++)
             {
-                //cout << "Comparing to " << disjObjs[i][j]->toString(task) << endl;
+                // cout << "Comparing to " << disjObjs[i][j]->toString(task) << endl;
                 if(u->isEqual(disjObjs[i][j]))
                 {
                     return disjObjs[i][j];
@@ -591,7 +618,7 @@ namespace grstaps
 #endif
         for(unsigned int i = 0; i < u->size(); i++)
         {
-            LMFluent* l = u->at(i);
+            LMFluent* l    = u->at(i);
             unsigned int f = task->values[l->value].fncIndex;
 #ifdef DEBUG_LANDMARKS_ON
             cout << "U: " << l->toString(task) << ", fnc = " << f << endl;
@@ -599,7 +626,9 @@ namespace grstaps
             if(f != FICTITIOUS_FUNCTION)
             {
                 while(hashU.size() <= f)
-                { hashU.push_back(nullptr); }
+                {
+                    hashU.push_back(nullptr);
+                }
                 if(hashU[f] == nullptr)
                 {
                     hashU[f] = new USet();
@@ -620,15 +649,15 @@ namespace grstaps
         // All the actions must have provided the uSet with at least a precondition of each type
         for(unsigned int i = 0; i < aux.size(); i++)
         {
-            USet* s = aux[i];
+            USet* s       = aux[i];
             int instances = 0;
-            int actions = 0;
+            int actions   = 0;
             if(s->fluentSet.size() != 1)
             {
                 for(unsigned int j = 0; j < a->size(); j++)
                 {
                     SASAction* action = a->at(j);
-                    bool visited = false;
+                    bool visited      = false;
                     for(unsigned int k = 0; k < action->startCond.size(); k++)
                     {
                         if(s->matches(action->startCond[k]))
@@ -730,7 +759,7 @@ namespace grstaps
                     finish = true;
                     break;
                 }
-                int k = equalParameters(l, actionFluents);
+                int k             = equalParameters(l, actionFluents);
                 LMFluent* similar = actionFluents->at(k);
                 actionFluents->erase(actionFluents->begin() + k);
                 u.addElement(similar);
@@ -742,7 +771,9 @@ namespace grstaps
     bool LandmarkTree::verify(LMFluent* p)
     {
         if(p->isGoal)
-        { return true; }
+        {
+            return true;
+        }
         LandmarkRPG r;
         return r.verifyFluent(p->variable, p->value, state, task);
     }
@@ -761,7 +792,9 @@ namespace grstaps
             }
         }
         if(var.empty())
-        { return true; }
+        {
+            return true;
+        }
         return r.verifyFluents(&var, &val, state, task);
     }
 
@@ -789,9 +822,9 @@ namespace grstaps
 
     int LandmarkTree::equalParameters(LMFluent* l, std::vector<LMFluent*>* actionFluents)
     {
-        std::vector<int> candidates = std::vector<int>();
+        std::vector<int> candidates    = std::vector<int>();
         std::vector<int> auxCandidates = std::vector<int>();
-        SASValue& p1 = task->values[l->value];
+        SASValue& p1                   = task->values[l->value];
         for(unsigned int i = 0; i < actionFluents->size(); i++)
         {
             candidates.push_back((int)i);
@@ -799,7 +832,7 @@ namespace grstaps
         // Check if the candidate and the target literal are equal
         for(unsigned int i = 0; i < candidates.size(); i++)
         {
-            int c = candidates[i];
+            int c        = candidates[i];
             SASValue& p2 = task->values[actionFluents->at(c)->value];
             if(p1.name.compare(p2.name) == 0)
             {
@@ -808,14 +841,16 @@ namespace grstaps
         }
         // If there is only one candidate left, return it
         if(auxCandidates.size() == 1)
-        { return auxCandidates[0]; }
+        {
+            return auxCandidates[0];
+        }
         if(auxCandidates.size() > 1)
         {
             candidates = auxCandidates;
         }
         auxCandidates.clear();
         int candidate = candidates[0];
-        //cout << "Incomplete code at equalParameters method!" << endl;
+        // cout << "Incomplete code at equalParameters method!" << endl;
         // Check which candidate has most parameters of the same type than the target literal
         /*
         int32_t min = MAX_INT32;
@@ -846,11 +881,11 @@ namespace grstaps
         std::vector<SASAction*> a;
         // We analyze all the literal nodes g of the Landmark Tree
         for(unsigned int i = 0; i < nodes.size(); i++)
-        {    // Only single literals are processed
+        {  // Only single literals are processed
             if(nodes[i]->single())
             {
                 for(unsigned int j = 0; j < nodes.size(); j++)
-                { // Check g column of the matrix to find literals l such that l <= n g
+                {  // Check g column of the matrix to find literals l such that l <= n g
                     if(matrix[j][i] && nodes[j]->single())
                     {
 #ifdef DEBUG_LANDMARKS_ON
@@ -890,12 +925,14 @@ namespace grstaps
     {
         aList->clear();
         if(rpg.getFluentByIndex(l1->index) == nullptr || rpg.getFluentByIndex(l2->index) == nullptr)
-        { return; }
+        {
+            return;
+        }
         std::vector<SASAction*>& producers = task->producers[l2->variable][l2->value];
         for(unsigned int i = 0; i < producers.size(); i++)
         {
             SASAction* a = producers[i];
-            bool added = false;
+            bool added   = false;
             for(unsigned int j = 0; j < a->startCond.size() && !added; j++)
             {
                 int n = rpg.getFluentIndex(a->startCond[j].var, a->startCond[j].value);
@@ -924,15 +961,15 @@ namespace grstaps
                 }
             }
 #ifdef DEBUG_LANDMARKS_ON
-            if (added) cout << " * Action added: " << a->name << endl;
+            if(added)
+                cout << " * Action added: " << a->name << endl;
 #endif
         }
     }
 
-
-/*******************************************/
-/* Landmarks                               */
-/*******************************************/
+    /*******************************************/
+    /* Landmarks                               */
+    /*******************************************/
 
     Landmarks::Landmarks(TState* state, SASTask* task, std::vector<SASAction*>* tilActions)
     {
@@ -945,14 +982,14 @@ namespace grstaps
             nodes.push_back(node);
 #ifdef DEBUG_LANDMARKS_ON
             cout << "Copying node " << i << endl;
-        cout << nodes[i].toString(task) << endl;
+            cout << nodes[i].toString(task) << endl;
 #endif
         }
         for(unsigned int i = 0; i < lt.edges.size(); i++)
         {
             LMOrdering& o = lt.edges[i];
-            int index1 = mapping[o.node1->getIndex()];
-            int index2 = mapping[o.node2->getIndex()];
+            int index1    = mapping[o.node1->getIndex()];
+            int index2    = mapping[o.node2->getIndex()];
             nodes[index1].addAdjacent(&(nodes[index2]));
 #ifdef DEBUG_LANDMARKS_ON
             cout << index1 << " ------> " << index2 << endl;
@@ -965,15 +1002,15 @@ namespace grstaps
         for(unsigned int i = 0; i < nodes.size(); i++)
         {
             unsigned int j = 0;
-            int n1 = nodes[i].getIndex();
+            int n1         = nodes[i].getIndex();
             while(j < nodes[i].numAdjacents())
             {
-                int n2 = nodes[i].getAdjacent(j)->getIndex();
+                int n2                 = nodes[i].getAdjacent(j)->getIndex();
                 bool indirectReachable = checkIndirectReachability(n1, n2);
                 if(indirectReachable)
                 {
                     nodes[i].deleteAdjacent(j);
-                    //cout << "Delete " << n1 << " to " << n2 << endl;
+                    // cout << "Delete " << n1 << " to " << n2 << endl;
                 }
                 else
                 {
@@ -999,9 +1036,13 @@ namespace grstaps
             if(!visited->at(adj))
             {
                 if(adj == dst && current != orig)
-                { return true; }
+                {
+                    return true;
+                }
                 if(adj != dst && checkIndirectReachability(orig, adj, dst, visited))
-                { return true; }
+                {
+                    return true;
+                }
             }
         }
         return false;
@@ -1010,11 +1051,11 @@ namespace grstaps
     std::string Landmarks::toString(SASTask* task)
     {
         std::string res = "LANDMARKS:\n";
-        unsigned int n = nodes.size();
+        unsigned int n  = nodes.size();
         for(unsigned int i = 0; i < n; i++)
         {
-            //cout << i << endl;
-            //cout << nodes[i].toString(task) << endl;
+            // cout << i << endl;
+            // cout << nodes[i].toString(task) << endl;
             res += nodes[i].toString(task) + "\n";
             unsigned int na = nodes[i].numAdjacents();
             for(unsigned int j = 0; j < na; j++)
@@ -1024,4 +1065,4 @@ namespace grstaps
         }
         return res;
     }
-}
+}  // namespace grstaps
