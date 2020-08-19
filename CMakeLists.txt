@@ -12,8 +12,8 @@ list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 include(FileOutputs)
 
 option(BUILD_DOC "Build Documentation" OFF)
-option(BUILD_TESTS "Build Unit Tests" ON)
-option(BUILD_EXE "Build Executable" OFF)
+option(BUILD_TESTS "Build Unit Tests" OFF)
+option(BUILD_EXE "Build Executable" ON)
 
 # Add external libraries
 add_subdirectory(lib)
@@ -37,13 +37,13 @@ target_link_libraries(_${PROJECT_NAME} PRIVATE
 target_include_directories(_${PROJECT_NAME} PUBLIC include PRIVATE ${OMPL_INCLUDE_DIRS})
 
 # Create executable
-if(BUILD_EXE)
-add_executable(${PROJECT_NAME} src/main.cpp)
-set_target_properties(${PROJECT_NAME} PROPERTIES CXX_STANDARD 17 CXX_STANDARD_REQUIRED YES)
-target_link_libraries(${PROJECT_NAME} PRIVATE
-        args box2d nlohmann_json
-        _${PROJECT_NAME})
-endif(BUILD_EXE)
+#if(BUILD_EXE)
+    add_executable(${PROJECT_NAME} src/main.cpp)
+    set_target_properties(${PROJECT_NAME} PROPERTIES CXX_STANDARD 17 CXX_STANDARD_REQUIRED YES)
+    target_link_libraries(${PROJECT_NAME} PRIVATE
+            box2d nlohmann_json
+            _${PROJECT_NAME})
+#endif(BUILD_EXE)
 
 if(BUILD_DOC)
     # Check if Doxygen is installed

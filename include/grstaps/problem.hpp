@@ -24,10 +24,9 @@
 #include <vector>
 
 // external
+#include <../lib/unordered_map/robin_hood.h>
 #include <box2d/b2_polygon_shape.h>
 #include <nlohmann/json.hpp>
-#include <../lib/unordered_map/robin_hood.h>
-
 
 // local
 #include "grstaps/location.hpp"
@@ -41,9 +40,9 @@ namespace grstaps
      */
     class Problem
     {
-    public:
-        using TraitVector = std::vector<float>;
-        using NonCumVector = std::vector<float>;
+       public:
+        using TraitVector        = std::vector<float>;
+        using NonCumVector       = std::vector<float>;
         using RequirementsVector = std::vector<float>;
 
         Problem() = default;
@@ -62,20 +61,19 @@ namespace grstaps
         const SASTask* task() const;
         const std::vector<b2PolygonShape>& obstacles() const;
         const nlohmann::json& config() const;
-        robin_hood::unordered_map<std::string, int> actionToRequirements; //!< Unordered_map to the graphs edges
+        robin_hood::unordered_map<std::string, int> actionToRequirements;  //!< Unordered_map to the graphs edges
 
         SASTask* task();
         std::vector<RequirementsVector> actionRequirements;
         std::vector<NonCumVector> actionNonCumRequirements;
 
-    protected:
-        std::vector<Location> m_locations; //!< coordinates and name of location
-        std::vector<TraitVector> m_robot_traits; //!< List of vectors of robot traits
-        SASTask* m_task; // A SAS Task for the Task planner
-        std::vector<b2PolygonShape> m_obstacles; //!< Obstacles in the map
+       protected:
+        std::vector<Location> m_locations;        //!< coordinates and name of location
+        std::vector<TraitVector> m_robot_traits;  //!< List of vectors of robot traits
+        SASTask* m_task;                          // A SAS Task for the Task planner
+        std::vector<b2PolygonShape> m_obstacles;  //!< Obstacles in the map
         nlohmann::json m_config;
-
     };
-}
+}  // namespace grstaps
 
-#endif //GRSTAPS_PROBLEM_HPP
+#endif  // GRSTAPS_PROBLEM_HPP

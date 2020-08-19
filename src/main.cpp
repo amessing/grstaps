@@ -18,45 +18,72 @@
 
 // global
 #include <string>
+#include <vector>
 
 // external
 #include <nlohmann/json.hpp>
 
 // local
-//#include "grstaps/problem.hpp"
+#include "grstaps/problem.hpp"
 #include "grstaps/solution.hpp"
+#include "grstaps/solver.hpp"
+#include "grstaps/task_planning/planner_parameters.hpp"
+#include "grstaps/task_planning/setup.hpp"
 
 namespace grstaps
 {
     int run(int argc, char** argv)
     {
+        Problem problem;
 
-        // todo: Read config file
-        nlohmann::json config;
+        std::vector<Problem::TraitVector> robot_traits = {{0.25}, {0.25}, {0.25}};
+        problem.setRobotTraitVector(robot_traits);
 
-        const int num_runs = config["num_runs"];
-        const std::string solution_folder = config["solution_folder"];
+        char* domain_filename  = "tests/data/p1/domain.pddl";
+        char* problem_filename = "tests/data/p1/problem.pddl";
+        char* output_filename  = "tests/data/p1/output";
 
-        // todo: create folder based on time stamp in solution folder
-        std::string timestamp;
+        PlannerParameters parameters;
 
-        for(int i = 0; i < num_runs; ++i)
+        parameters.domainFileName         = domain_filename;
+        parameters.problemFileName        = problem_filename;
+        parameters.outputFileName         = output_filename;
+        parameters.generateGroundedDomain = true;
+        // parameters.generateMutexFile = true;
+        // parameters.generateTrace = true;
+        SASTask* task = Setup::doPreprocess(&parameters);
+
+        // Do we still need these?
+        task->computeInitialState();
+        task->computeRequirers();
+        task->computeProducers();
+        task->computePermanentMutex();
+        problem.setTask(task);
+
+        // All Actions have the same requirements
+        for(unsigned int i = 0; i < task->actions.size(); ++i)
         {
-            /*
-            std::shared_ptr<Problem> problem = Problem::createSurvivorProblem(config["problem"]);
-            // todo: so check to see if problem is solvable?
-            problem.write(fmt::format("{0:s}/{1:s}/{2:d}.problem", solution_folder, timestamp, i));
-            Solver solver(problem);
-            std::shared_ptr<Solution> solution = solver.solve();
-            solution.write(fmt::format("{0:s}/{1:s}/{2:d}.sol", solution_folder, timestamp, i));
-            solver.wrtie(fmt::format("{0:s}/{1:s}/{2:d}.stats", solution_folder, timestamp, i));
-            */
+            problem.actionToRequirements[task->actions[i].name] = i;
+            problem.actionRequirements.push_back({0.05});
+            problem.actionNonCumRequirements.push_back({0});
         }
 
-        return 0;
-    }
-}
+        // No obstacles
+        nlohmann::json config;
 
+        // Config
+        config["mp_boundary_min"] = 0;
+        config["mp_boundary_max"] = 2;
+        problem.setConfig(config);
+        // Save problem
+
+        Solver solver;
+        std::shared_ptr<Solution> solution = solver.solve(problem);
+        // Evaluate solution C++ exception with description "std::bad_alloc" thrown in the test body.
+        int breakppoint = -1;
+        // Save solution to file
+    }
+}  // namespace grstaps
 
 int main(int argc, char** argv)
 {
