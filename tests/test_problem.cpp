@@ -62,9 +62,9 @@ namespace grstaps
             problem.setTask(task);
 
             // All Actions have the same requirements
-            for(int i = 0; i < task->actions.size(); ++i)
+            for(unsigned int i = 0; i < task->actions.size(); ++i)
             {
-                problem.actionToRequirements[task->actions[i].name] = i - 1;
+                problem.actionToRequirements[task->actions[i].name] = i;
                 problem.actionRequirements.push_back({0.05});
                 problem.actionNonCumRequirements.push_back({0});
             }
