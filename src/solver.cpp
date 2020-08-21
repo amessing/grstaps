@@ -106,9 +106,9 @@ namespace grstaps
                         goalDistribution->push_back(
                             problem.actionRequirements[problem.actionToRequirements[plan->action->name]]);
                     }
-
                     plan = plan->parentPlan;
                 }
+
 
                 TaskAllocation ta(usingSpecies,
                                   goalDistribution,

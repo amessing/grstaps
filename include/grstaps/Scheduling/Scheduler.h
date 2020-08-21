@@ -72,7 +72,7 @@ namespace grstaps{
          * \return the makespan of the schedle
          *
          */
-        bool schedule(const std::vector<float>& durations, std::vector<std::vector<int>> orderingConstraints);
+        bool schedule(const std::vector<float>& durations, std::vector<std::vector<int>>& orderingConstraints);
 
         /**
          *
@@ -237,7 +237,7 @@ namespace grstaps{
          * \return the makespan of the schedle
          *
          */
-        bool schedule(const std::vector<float>&, std::vector<std::vector<int>>, std::vector<std::vector<int>>);
+        bool schedule(const std::vector<float>&, std::vector<std::vector<int>>&, std::vector<std::vector<int>>&);
 
         /**
          *
@@ -248,7 +248,7 @@ namespace grstaps{
          * \return add sucessfully
          *
          */
-        bool setDisjuctive();
+        void setDisjuctive();
 
         /**
          *
@@ -340,6 +340,8 @@ namespace grstaps{
         std::vector<std::vector<float>> stn;                 // stn representing the disjuntive graph
         std::vector<std::vector<int>> beforeConstraints;     // constraints on actions happening before other actions
         std::vector<std::vector<int>> afterConstraints;      // constraints on actions happening after other actions
+        float bestSchedule;
+        float worstSchedule;
 
        private:
         std::vector<std::vector<int>> disjuctiveConstraints;  // list of disjunctive constraints
@@ -351,6 +353,7 @@ namespace grstaps{
         std::vector<std::vector<float>> copySTN;
         std::vector<int> constraintsToUpdate;
         robin_hood::unordered_map<int, std::vector<float>> editedActionTimes;
+
 
     };
 }

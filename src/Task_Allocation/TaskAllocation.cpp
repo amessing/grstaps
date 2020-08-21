@@ -55,6 +55,8 @@ namespace grstaps {
                 (*traitTeamMax)[j] += (*speciesDistribution)[i][j] * (*numSpec)[i];
             }
         }
+        float startGoalDistance = goalDistance;
+        startingGoalDistance = &startGoalDistance;
     }
 
     TaskAllocation::TaskAllocation(bool useSpec, const boost::shared_ptr<vector<vector<float>>> goalDistribution, vector<vector<float>>* speciesDistribution, boost::shared_ptr<vector<vector<float>>> noncumTraitCutoff, taskAllocationToScheduling* taToSched, boost::shared_ptr<vector<float>> actionDur, boost::shared_ptr<vector<vector<int>>> orderingCon, boost::shared_ptr<vector<int>> numSpec){
@@ -86,6 +88,8 @@ namespace grstaps {
                 (*traitTeamMax)[j] += (*speciesDistribution)[i][j] * (*numSpec)[i];
             }
         }
+        float startGoalDistance = goalDistance;
+        startingGoalDistance = &startGoalDistance;
     }
 
     TaskAllocation::TaskAllocation()= default;
@@ -108,6 +112,7 @@ namespace grstaps {
             allocationTraitDistribution = copyAllocation.allocationTraitDistribution;
             traitTeamMax = copyAllocation.traitTeamMax;
             requirementsRemaining = copyAllocation.requirementsRemaining;
+            startingGoalDistance= copyAllocation.startingGoalDistance;
         }
 
     bool TaskAllocation::checkGoalAllocation() const{
@@ -300,7 +305,6 @@ namespace grstaps {
         isGoal = checkGoalAllocation();
         scheduleTime = -1;
     }
-
 
     boost::shared_ptr<vector<float>> TaskAllocation::getActionDuration(){
         return actionDurations;

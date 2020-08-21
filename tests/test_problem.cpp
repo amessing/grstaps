@@ -23,6 +23,7 @@
 #include <nlohmann/json.hpp>
 
 // local
+#include <grstaps/location.hpp>
 #include <grstaps/problem.hpp>
 #include <grstaps/solver.hpp>
 #include <grstaps/task_planning/planner_parameters.hpp>
@@ -36,6 +37,9 @@ namespace grstaps
         TEST(Problem, simple)
         {
             Problem problem;
+
+            std::vector<Location> locations = {Location("source", 0.5, 0.5), Location("target", 1.5, 1.5)};
+            problem.setLocations(locations);
 
             std::vector<Problem::TraitVector> robot_traits = {{0.25}, {0.25}, {0.25}};
             problem.setRobotTraitVector(robot_traits);

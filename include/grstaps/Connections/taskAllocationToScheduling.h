@@ -87,14 +87,16 @@ namespace grstaps
         //todo finish this
         float addMotionPlanningNonSpeciesSchedule(TaskAllocation* TaskAlloc);
 
-       private:
         Scheduler sched;
+
+       private:
         std::vector<int> concurrent;
         vector<vector<float>> stn;
         MotionPlanner* motionPlanner;
         vector<int>* startingLocations;
         vector<int>* actionLocations;
         vector<int> actionOrder;
+        vector<float> maxTraitTeam;
 
     };
 }

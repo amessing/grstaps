@@ -283,8 +283,8 @@ public:
     */
     void setID(string);
 
-    robin_hood::unordered_map<string, edgePtr<Data> > enteringEdges; //!< Unordered_map to the parent nodes */
-    robin_hood::unordered_map<string, edgePtr<Data> > leavingEdges;  //!< Unordered_map to the child  nodes*/
+    robin_hood::unordered_map<string, edgePtr<Data>> enteringEdges; //!< Unordered_map to the parent nodes */
+    robin_hood::unordered_map<string, edgePtr<Data>> leavingEdges;  //!< Unordered_map to the child  nodes*/
 
 
 private:

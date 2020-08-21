@@ -56,7 +56,7 @@ namespace grstaps
 
     void tabu::getBestNearbySolution(int it)
     {
-        double bestScore= std::numeric_limits<double>::max();
+        float bestScore= std::numeric_limits<float>::max();
         int bestDisSwitch = -1;
         std::string currentDisID = currentSched.getDisjuctiveID();
         std::string id;
@@ -64,7 +64,7 @@ namespace grstaps
         for(int i = 0; i < currentSched.getDisjuctiveSize(); i++)
         {
 
-            if(currentDisID[i] == 1){
+            if(currentDisID[i]){
                 id = currentDisID;
                 id[i] = 0;
             }
@@ -78,8 +78,8 @@ namespace grstaps
                     currentMakespan = currentSched.getShedSwitchTime(i);
             }
             else if(found->second <= it){
-                currentMakespan = foundMakespans.find(id)->second;
-                currentMakespan = found->second;
+                //currentMakespan = foundMakespans.find(id)->second;
+                //currentMakespan = found->second;
                 currentMakespan = foundMakespans.at(id);
             }
 
@@ -93,7 +93,7 @@ namespace grstaps
         }
         if(bestDisSwitch < 0)
             return;
-        auto valid = currentSched.getShedSwitch(bestDisSwitch);
+        currentSched.getShedSwitch(bestDisSwitch);
     }
 }
 

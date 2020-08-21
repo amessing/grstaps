@@ -19,7 +19,7 @@
 #define GRSTAPS_LOGGER_HPP
 
 // global
-#include <filesystem>
+#include <experimental/filesystem>
 #include <memory>
 #include <utility>
 #include <vector>
@@ -132,10 +132,10 @@ namespace grstaps
                 time_t now = time(nullptr);
 
                 // Create the logs folder if it does not exist
-                std::filesystem::path logs_folder = "logs";
-                if(!std::filesystem::exists(logs_folder))
+                std::experimental::filesystem::path logs_folder = "logs";
+                if(! std::experimental::filesystem::exists(logs_folder))
                 {
-                    std::filesystem::create_directory(logs_folder);
+                    std::experimental::filesystem::create_directory(logs_folder);
                 }
 
                 // Create logger sinks

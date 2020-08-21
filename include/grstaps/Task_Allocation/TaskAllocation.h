@@ -324,20 +324,23 @@ namespace grstaps {
         vector<vector<float>> requirementsRemaining{};
         vector<vector<float>> allocationTraitDistribution{};
         boost::shared_ptr<vector<vector<float>>> goalTraitDistribution{};
+        float* startingGoalDistance;
+        taskAllocationToScheduling* taToScheduling{};
 
     private:
         vector<vector<float>>* speciesTraitDistribution{};
-        taskAllocationToScheduling* taToScheduling{};
+
         boost::shared_ptr<vector<int>> numSpecies{};
 
         boost::shared_ptr<vector<vector<float>>> actionNoncumulativeTraitValue{};
         boost::shared_ptr<vector<float>> actionDurations{};
         boost::shared_ptr<vector<vector<int>>> orderingConstraints{};
 
-        float scheduleTime{};
-        float goalDistance{};
-        bool isGoal{};
-        bool usingSpecies{};
+        float scheduleTime;
+        float goalDistance;
+
+        bool isGoal;
+        bool usingSpecies;
 
     };
 

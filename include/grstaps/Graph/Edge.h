@@ -129,7 +129,7 @@ namespace grstaps {
         void setEdgeCost(float);
 
     private:
-        float edgeCost;             //!< The cost to travese the edge
+        float edgeCost;    //!< The cost to travese the edge
         string tailNode;  //!< NodeID of tail node
         string headNode;  //!< NodeID of head node
 

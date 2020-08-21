@@ -11,9 +11,7 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public
  * License for more details.
  *
- * You should have receiv            std::copy_if(successors.begin(), successors.end(), std::back_inserter(valid_successors),
-                [](Plan* p){return p->task_allocatable; });
-            // TODO: check if this is correct or backwardsed a copy of the GNU General Public License
+ * You should have receive
  * along with GRSTAPS; if not, write to the Free Software Foundation,
  * Inc., #59 Temple Plac
  */
@@ -50,38 +48,6 @@ namespace grstaps {
             float cost = 5.5;
 
             boost::shared_ptr<vector<vector<float>>> goalDistribution=  boost::shared_ptr<vector<vector<float>>>(new vector<vector<float>>( vector<vector<float>>{
-                {0,0, 0, 1,0,0,0,0,0,0},
-                {0,0, 0, 1,0,0,0,0,0,0},
-                {0,0, 0, 1,0,0,0,0,0,0},
-                {0,0, 0, 1,0,0,0,0,0,0},
-                {0,0, 0, 1,0,0,0,0,0,0},
-                {0,0, 0, 1,0,0,0,0,0,0},
-                {0,0, 0, 1,0,0,0,0,0,0},
-                {0,0, 0, 1,0,0,0,0,0,0},
-                {0,0, 0, 1,0,0,0,0,0,0},
-                {0,0, 0, 1,0,0,0,0,0,0},
-                {0,0, 0, 1,0,0,0,0,0,0},
-                {0,0, 0, 1,0,0,0,0,0,0},
-                {0,0, 0, 1,0,0,0,0,0,0},
-                {0,0, 0, 1,0,0,0,0,0,0},
-                {0,0, 0, 1,0,0,0,0,0,0},
-                {0,0, 0, 1,0,0,0,0,0,0},
-                {0,0, 0, 1,0,0,0,0,0,0},
-                {0,0, 0, 1,0,0,0,0,0,0},
-                {0,0, 0, 1,0,0,0,0,0,0},
-                {0,0, 0, 1,0,0,0,0,0,0},
-                {0,0, 0, 1,0,0,0,0,0,0},
-                {0,0, 0, 1,0,0,0,0,0,0},
-                {0,0, 0, 1,0,0,0,0,0,0},
-                {0,0, 0, 1,0,0,0,0,0,0},
-                {0,0, 0, 1,0,0,0,0,0,0},
-                {0,0, 0, 1,0,0,0,0,0,0},
-                {0,0, 0, 1,0,0,0,0,0,0},
-                {0,0, 0, 1,0,0,0,0,0,0},
-                {0,0, 0, 1,0,0,0,0,0,0},
-                {0,0, 0, 1,0,0,0,0,0,0},
-                {0,0, 0, 1,0,0,0,0,0,0},
-                {0,0, 0, 1,0,0,0,0,0,0},
                 {0,0, 0, 1,0,0,0,0,0,0},
                 {0,0, 0, 1,0,0,0,0,0,0},
                 {0,0, 0, 1,0,0,0,0,0,0},
@@ -190,7 +156,7 @@ namespace grstaps {
 
             boost::shared_ptr<vector<vector<int>>> orderingCon = boost::shared_ptr<vector<vector<int>>>(new vector<vector<int>>{});
 
-            boost::shared_ptr<vector<float>> durations = boost::shared_ptr<vector<float>>(new vector<float>(vector<float>{10, 10, 10 , 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10 , 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10 , 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10 , 10, 10, 10, 10, 10, 10, 10, 10}));
+            boost::shared_ptr<vector<float>> durations = boost::shared_ptr<vector<float>>(new vector<float>(vector<float>{10, 10, 10 , 10, 10, 10, 10, 10, 10, 10, 10, 10 }));
             taskAllocationToScheduling taToSched;
             bool usingSpecies = false;
 

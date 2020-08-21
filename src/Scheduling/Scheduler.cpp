@@ -30,7 +30,10 @@ namespace grstaps {
         scheduleValid = true;
         makeSpan = -1;
         lastAction = -1;
+        bestSchedule= 0;
         constraintsToUpdate.reserve(1000);
+        bestSchedule = 0;
+        worstSchedule = 0;
     }
 
     Scheduler::Scheduler(Scheduler& toCopy){
@@ -44,14 +47,36 @@ namespace grstaps {
         lastAction = toCopy.lastAction;
         disID = toCopy.disID;
         copySTN = toCopy.stn;
+        bestSchedule= toCopy.bestSchedule;
+        worstSchedule = toCopy.worstSchedule;
     }
 
     float Scheduler::initSTN(const std::vector<float>& durations){
+        /*
         stn.clear();
+        worstSchedule = 0;
         for(float duration : durations){
+            worstSchedule += duration;
             stn.emplace_back(std::vector<float>{0, duration});
+            if(bestSchedule < duration){
+                bestSchedule = duration;
+            }
         }
         return 1;
+        */
+        //stn.clear();
+        stn = std::vector<std::vector<float>>(durations.size(), std::vector<float>(2,0));
+        worstSchedule = 0;
+        for(int i=0 ; i < durations.size(); ++i){
+            worstSchedule += durations[i];
+            stn[i][1] = durations[i];
+            if(bestSchedule < durations[i]){
+                bestSchedule = durations[i];
+            }
+        }
+        return 1;
+
+
     }
 
     float Scheduler::getMakeSpan(){
@@ -83,6 +108,7 @@ namespace grstaps {
             }
             return max;
     }
+
 
     bool Scheduler::checkConcurrent(int first, int second) {
         return (stn[first][1] < stn[second][0] || stn[first][0] > stn[second][1]);
@@ -438,7 +464,7 @@ namespace grstaps {
         }
         stn.erase(stn.begin() + actionID);
         setDisjuctive();
-        return true;
+        return scheduleValid;
     }
 
     bool Scheduler::addAction(float duration, const std::vector<int>& orderingConstraints){
@@ -452,13 +478,16 @@ namespace grstaps {
         return scheduleValid;
     }
 
-    bool Scheduler::schedule( const std::vector<float>& durations, std::vector<std::vector<int>> orderingConstraints){
+    bool Scheduler::schedule( const std::vector<float>& durations, std::vector<std::vector<int>>& orderingConstraints){
         scheduleValid = true;
         initSTN(durations);
         beforeConstraints = std::vector<std::vector<int>>(durations.size(), std::vector<int>(0));
         afterConstraints = std::vector<std::vector<int>>(durations.size(), std::vector<int>(0));
         for(auto & orderingConstraint : orderingConstraints){
             bool added = addOC(orderingConstraint[0],orderingConstraint[1]);
+            if(bestSchedule < stn[orderingConstraint[1]][1]){
+                bestSchedule = stn[orderingConstraint[1]][1];
+            }
             if( added == 0){
                 return false;
             }
@@ -467,11 +496,10 @@ namespace grstaps {
         return true;
     }
 
-    bool Scheduler::schedule(const std::vector<float>& durations, std::vector<std::vector<int>> orderingConstraints, std::vector<std::vector<int>> disConstraints){
+    bool Scheduler::schedule(const std::vector<float>& durations, std::vector<std::vector<int>>& orderingConstraints, std::vector<std::vector<int>>& disConstraints){
         scheduleValid = true;
         initSTN(durations);
         makeSpan = -1;
-        lastAction = -1;
         beforeConstraints = std::vector<std::vector<int>>(durations.size(), std::vector<int>(0));
         afterConstraints = std::vector<std::vector<int>>(durations.size(), std::vector<int>(0));
         for(auto & orderingConstraint : orderingConstraints){
@@ -593,7 +621,7 @@ namespace grstaps {
             //removeOCTime(disjuctiveConstraints[disIndex][0], disjuctiveConstraints[disIndex][1], copySTN);
             newMakespan = addOCTime2(disjuctiveConstraints[disIndex][1], disjuctiveConstraints[disIndex][0], newMakespan);
             //valid = addOCTime(disjuctiveConstraints[disIndex][1], disjuctiveConstraints[disIndex][0],copySTN, beforeConstraints, afterConstraints);
-            return makeSpan;
+            return newMakespan;
         }
         else{
             float newMakespan = removeOCTime2(disjuctiveConstraints[disIndex][1], disjuctiveConstraints[disIndex][0]);
@@ -660,18 +688,11 @@ namespace grstaps {
         //return copySched;
     }
 
-    bool Scheduler::setDisjuctive(){
-        Scheduler tabuSched =  tabuSearch.solve(1,*this);
-        if(tabuSched.scheduleValid){
-            *this =  tabuSched;
-            return true;
-        }
-        else{
-            return false;
-        }
+    void Scheduler::setDisjuctive(){
+        *this =  tabuSearch.solve(1,*this);
     }
 
-    float Scheduler::addOCTime2(int first, int second, float newMakespan) {
+    float Scheduler::addOCTime2(int first, int second, float newMakespan){
         constraintsToUpdate.clear();
 
         int originalFirst = first;
@@ -680,8 +701,8 @@ namespace grstaps {
         constraintsToUpdate.push_back(second);
         int constrainToAdjust = 0;
 
-        while(constrainToAdjust < constraintsToUpdate.size())
-        {
+        while(constrainToAdjust < constraintsToUpdate.size()){
+            
             auto editedSecond = editedActionTimes.find(second);
             auto editedFirst =editedActionTimes.find(first);
 
@@ -733,7 +754,7 @@ namespace grstaps {
                 second = constraintsToUpdate[constrainToAdjust + 1];
                 if(second == originalFirst)
                 {
-                    return -1;
+                     return -1;
                 }
             }
         }
@@ -746,7 +767,7 @@ namespace grstaps {
         float currentDelay = 0;
         robin_hood::unordered_map<int, std::vector<float>> editedActionTimes;
 
-        float maxDelay = makeSpan;
+        float maxDelay = std::numeric_limits<float>::max();
         if(stn[first][1] == stn[second][0])
         {
             for(int i: afterConstraints[second])
@@ -778,6 +799,7 @@ namespace grstaps {
 
             while(constrainToAdjust < constraintsToUpdate.size())
             {
+                float duration = stn[second][1] - stn[second][0];
                 auto editedSecond = editedActionTimes.find(second);
                 auto editedFirst =editedActionTimes.find(first);
 

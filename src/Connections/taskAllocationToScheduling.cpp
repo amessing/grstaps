@@ -70,12 +70,9 @@ namespace grstaps
 
     void taskAllocationToScheduling::adjustScheduleNonSpeciesSchedule(TaskAllocation* taskAlloc)
     {
-        auto allocation = taskAlloc->getAllocation();
+        //auto allocation = taskAlloc->getAllocation();
 
         vector<int> checked(sched.stn.size(), 0);
-
-        std::vector<std::vector<int>> beforeConstraints = sched.beforeConstraints;
-        std::vector<std::vector<int>> afterConstraints  = sched.afterConstraints;
 
         for(int i = 0; i < stn.size(); ++i){
             vector<vector<float>> stn = sched.stn;
@@ -105,7 +102,7 @@ namespace grstaps
 
 
             //calc trait ussage at time of action
-            vector<float> maxTraitTeam = *(taskAlloc->traitTeamMax);
+            maxTraitTeam = *(taskAlloc->traitTeamMax);
             for(int j = 0; j < concurrent.size(); ++j){
                 for(int k = 0; k < maxTraitTeam.size(); ++k){
                     maxTraitTeam[k] -= taskAlloc->allocationTraitDistribution[concurrent[j]][k] +
@@ -129,7 +126,7 @@ namespace grstaps
                                 if(concurrent[k] != currentSoonestEnd){
 
                                     if(l == 0){
-                                        currentSched = sched.addOCTemp(currentSoonestEnd, concurrent[k], stn, beforeConstraints, afterConstraints);
+                                        currentSched = sched.addOCTemp(currentSoonestEnd, concurrent[k], stn, sched.beforeConstraints, sched.afterConstraints);
 
                                         if(currentSched < bestSchedTime)
                                         {
@@ -139,7 +136,7 @@ namespace grstaps
                                         }
                                     }
                                     else{
-                                        currentSched = sched.addOCTemp(currentSoonestEnd, concurrent[k], stn, beforeConstraints, afterConstraints);
+                                        currentSched = sched.addOCTemp(currentSoonestEnd, concurrent[k], stn, sched.beforeConstraints, sched.afterConstraints);
 
                                         if(currentSched < bestSchedTime)
                                         {
@@ -156,8 +153,6 @@ namespace grstaps
 
                     if(direction == 0){
                         sched.addOC(currentSoonestEnd, concurrent[toUpdate]);
-                        beforeConstraints[currentSoonestEnd].emplace_back(concurrent[toUpdate]);
-                        afterConstraints[concurrent[toUpdate]].emplace_back(currentSoonestEnd);
 
                         for(int k = 0; k < (*taskAlloc->goalTraitDistribution)[concurrent[toUpdate]].size(); ++k){
                             maxTraitTeam[k] += taskAlloc->allocationTraitDistribution[concurrent[toUpdate]][k] + taskAlloc->requirementsRemaining[concurrent[toUpdate]][k];
@@ -168,8 +163,6 @@ namespace grstaps
 
                         sched.addOC(concurrent[toUpdate], currentSoonestEnd);
                         concurrent.erase(concurrent.begin() + toUpdate);
-                        afterConstraints[currentSoonestEnd].emplace_back(concurrent[toUpdate]);
-                        beforeConstraints[concurrent[toUpdate]].emplace_back(currentSoonestEnd);
                         j = maxTraitTeam.size();
                         removeCurrent = false;
                         break;
