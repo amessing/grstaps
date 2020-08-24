@@ -28,6 +28,7 @@
 namespace grstaps
 {
     class MotionPlanner;
+    class Plan;
     class Problem;
     class Scheduler;
     class Solution;
@@ -39,7 +40,7 @@ namespace grstaps
      */
     class Solver
     {
-    public:
+       public:
         /**
          * Default Constructor
          */
@@ -53,7 +54,10 @@ namespace grstaps
          * \returns The solution if one can be found
          */
         std::shared_ptr<Solution> solve(Problem& problem);
-    };
-}
 
-#endif //GRSTAPS_SOLVER_HPP
+       private:
+        void planSubcomponents(Plan* base, std::vector<Plan*>& plan_subcomponents);
+    };
+}  // namespace grstaps
+
+#endif  // GRSTAPS_SOLVER_HPP

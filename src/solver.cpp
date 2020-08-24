@@ -79,24 +79,38 @@ namespace grstaps
         {
             base                          = task_planner.bestPlan();
             std::vector<Plan*> successors = task_planner.getNextSuccessors(base);
-            int num_children              = successors.size();
+            unsigned int num_children     = successors.size();
 
-            std::vector<Plan*> valid_successors;
-            std::vector<TaskAllocation*> allocations;
+            std::vector<std::tuple<Plan*, TaskAllocation*>> potential_successors;
 
-            for(int i = 0; i < num_children; ++i)
+            for(unsigned int i = 0; i < num_children; ++i)
             {
-                cout << "Plan " << i << endl;
+                std::cout << "Plan " << i << std::endl;
                 auto orderingCon       = boost::make_shared<std::vector<std::vector<int>>>();
                 auto durations         = boost::make_shared<std::vector<float>>();
                 auto noncumTraitCutoff = boost::make_shared<std::vector<std::vector<float>>>();
                 auto goalDistribution  = boost::make_shared<std::vector<std::vector<float>>>();
-                robin_hood::unordered_map<int, int> ids; //!< Unordered_map to the parent nodes */
+                robin_hood::unordered_map<int, int> ids;  //!< Unordered_map to the parent nodes */
 
                 Plan* plan = successors[i];
-                while(plan != nullptr)
+
+                // Fill in vectors for TA and Scheduling
+                std::vector<Plan*> plan_subcomponents;
+                planSubcomponents(plan, plan_subcomponents);
+                for(unsigned int j = 0; j < plan_subcomponents.size(); ++j)
                 {
-                    if(plan->action->name != "#initial")
+                    Plan* p = plan_subcomponents[j];
+                    for(unsigned int k = 0; k < p->orderings.size(); ++k)
+                    {
+                        // uint16_t
+                        TTimePoint fp = firstPoint(p->orderings[k]);
+                        TTimePoint sp = secondPoint(p->orderings[k]);
+                        // Time points are based on start and end snap actions
+                        // Also include the initial action
+
+                        orderingCon->push_back({fp / 2 - 1, sp / 2 - 1});
+                    }
+                    if(j > 0)
                     {
                         durations->push_back(plan->action->duration[0].exp.value);
 
@@ -104,21 +118,7 @@ namespace grstaps
                             problem.actionNonCumRequirements[problem.actionToRequirements[plan->action->name]]);
                         goalDistribution->push_back(
                             problem.actionRequirements[problem.actionToRequirements[plan->action->name]]);
-                        ids[plan->id]= goalDistribution->size() - 1;
-                        cout << "Action " << plan->id << " " << plan->action->name << endl;
-
-                        for(unsigned int j = 0; j < plan->orderings.size(); j++)
-                        {
-                            cout << "Here " << j << " " << firstPoint(plan->orderings[j]) << " " << secondPoint(plan->orderings[j]) << endl;
-                            orderingCon->push_back({firstPoint(plan->orderings[j]), secondPoint(plan->orderings[j])});
-                        }
                     }
-                    plan = plan->parentPlan;
-                }
-
-                auto orderingConFixed = boost::make_shared<std::vector<std::vector<int>>>();
-                for(auto constraint:*orderingCon){
-                    orderingConFixed->push_back({ ids.find(constraint[0])->second,  ids.find(constraint[1])->second });
                 }
 
                 TaskAllocation ta(usingSpecies,
@@ -127,7 +127,7 @@ namespace grstaps
                                   noncumTraitCutoff,
                                   (&taToSched),
                                   durations,
-                                  orderingConFixed,
+                                  orderingCon,
                                   numSpec);
 
                 auto node1 = boost::make_shared<Node<TaskAllocation>>(ta.getID(), ta);
@@ -141,34 +141,59 @@ namespace grstaps
                 if(package->foundGoal)
                 {
                     successors[i]->h = package->finalNode->getPathCost();
-                    valid_successors.push_back(successors[i]);
-                    allocations.push_back(&package->finalNode->getData());
+                    potential_successors.push_back({successors[i], &package->finalNode->getData()});
                 }
-                cout << "Plan Finished" << endl;
+                std::cout << "Plan Finished" << std::endl;
             }
 
             // std::copy_if(successors.begin(), successors.end(), std::back_inserter(valid_successors),
             //    [](Plan* p){return p->task_allocatable; });
 
             // TODO: check if this is correct or backwards
-            std::sort(
-                valid_successors.begin(), valid_successors.end(), [](Plan* lhs, Plan* rhs) { return lhs->h > rhs->h; });
+            std::sort(potential_successors.begin(),
+                      potential_successors.end(),
+                      [](std::tuple<Plan*, TaskAllocation*> lhs, std::tuple<Plan*, TaskAllocation*> rhs) {
+                          return std::get<0>(lhs)->h > std::get<0>(rhs)->h;
+                      });
 
-            for(int i = 0; i < valid_successors.size(); ++i)
+            for(int i = 0; i < potential_successors.size(); ++i)
             {
-                if(valid_successors[i]->isSolution())
+                if(std::get<0>(potential_successors[i])->isSolution())
                 {
                     delete package;
-                    auto m_solution = std::make_shared<Solution>(std::shared_ptr<Plan>(successors[i]),
-                                                                 std::shared_ptr<TaskAllocation>(allocations[i]));
+                    auto m_solution = std::make_shared<Solution>(
+                        std::shared_ptr<Plan>(std::get<0>(potential_successors[i])),
+                        std::shared_ptr<TaskAllocation>(std::get<1>(potential_successors[i])));
                     return m_solution;
                 }
             }
+
+            std::vector<Plan*> valid_successors;
+            for(auto it = potential_successors.begin(), end = potential_successors.end(); it != end; ++it)
+            {
+                valid_successors.push_back(std::move(std::get<0>(*it)));
+            }
+            std::copy_if(successors.begin(), successors.end(), std::back_inserter(valid_successors), [](Plan* p) {
+                return p->task_allocatable;
+            });
 
             task_planner.update(base, valid_successors);
         }
 
         delete package;
         return nullptr;
+    }
+
+    void Solver::planSubcomponents(Plan* base, std::vector<Plan*>& plan_subcomponents)
+    {
+        if(base == nullptr)
+        {
+            plan_subcomponents.clear();
+        }
+        else
+        {
+            planSubcomponents(base->parentPlan, plan_subcomponents);
+            plan_subcomponents.push_back(base);
+        }
     }
 }  // namespace grstaps

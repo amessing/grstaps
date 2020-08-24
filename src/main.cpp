@@ -36,6 +36,9 @@ namespace grstaps
     {
         Problem problem;
 
+        std::vector<Location> locations = {Location("source", 0.5, 0.5), Location("target", 1.5, 1.5)};
+        problem.setLocations(locations);
+
         std::vector<Problem::TraitVector> robot_traits = {{0.25}, {0.25}, {0.25}};
         problem.setRobotTraitVector(robot_traits);
 
@@ -82,6 +85,7 @@ namespace grstaps
         // Evaluate solution C++ exception with description "std::bad_alloc" thrown in the test body.
         int breakppoint = -1;
         // Save solution to file
+        return 0;
     }
 }  // namespace grstaps
 

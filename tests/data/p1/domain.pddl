@@ -1,5 +1,5 @@
 (define (domain p1)
-    (:requirements :typing :strips :durative-actions)
+    (:requirements :typing :strips :durative-actions :equality)
     (:types box location)
     (:predicates (loc ?b - box ?l - location))
     
