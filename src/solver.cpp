@@ -149,10 +149,6 @@ namespace grstaps
                     successors[i]->h = package->finalNode->getPathCost();
                     potential_successors.push_back({successors[i], &package->finalNode->getData()});
                 }
-                if(!(package->foundGoal))
-                {
-                    cout << package->foundGoal << endl;
-                }
             }
 
             // std::copy_if(successors.begin(), successors.end(), std::back_inserter(valid_successors),
@@ -164,6 +160,7 @@ namespace grstaps
                       [](std::tuple<Plan*, TaskAllocation*> lhs, std::tuple<Plan*, TaskAllocation*> rhs) {
                           return std::get<0>(lhs)->h > std::get<0>(rhs)->h;
                       });
+            Logger::debug("TA filtered {} out of {}", num_children - potential_successors.size(), num_children);
 
             for(unsigned int i = 0; i < potential_successors.size(); ++i)
             {
@@ -184,7 +181,6 @@ namespace grstaps
             }
 
             task_planner.update(base, valid_successors);
-            task_planner.writeTrace(cout, base);
         }
 
         delete package;
