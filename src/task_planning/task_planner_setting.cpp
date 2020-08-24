@@ -1,5 +1,6 @@
 #include <iostream>
 
+#include "grstaps/logger.hpp"
 #include "grstaps/task_planning/hff.hpp"
 #include "grstaps/task_planning/linearizer.hpp"
 #include "grstaps/task_planning/task_planner_concurrent.hpp"
@@ -13,57 +14,43 @@ namespace grstaps
 {
     TaskPlannerSetting::TaskPlannerSetting(SASTask* sTask, bool generateTrace, float timeout)
     {
-        m_initial_time         = clock();
-        this->m_timeout       = timeout;
-        this->m_task          = sTask;
-        this->m_generate_trace = generateTrace;
+        m_initial_time   = clock();
+        m_timeout        = timeout;
+        m_task           = sTask;
+        m_generate_trace = generateTrace;
         createInitialPlan();
         m_force_at_end_conditions = checkForceAtEndConditions();
-        m_filter_repeated_states = checkRepeatedStates();
-        m_initial_state         = new TState(m_task);
-        m_task->tilActions     = !m_til_actions.empty();
+        m_filter_repeated_states  = checkRepeatedStates();
+        m_initial_state           = new TState(m_task);
+        m_task->tilActions        = !m_til_actions.empty();
         checkPlannerType();
     }
 
     void TaskPlannerSetting::checkPlannerType()
     {
-        // cout << ";Open end-cond.: " << (forceAtEndConditions ? 'N' : 'Y');
-        // cout << "   Memo: " << (filterRepeatedStates ? 'Y' : 'N');
-        // cout << "   Mutex: " << (task->hasPermanentMutexAction() ? 'Y' : 'N') << endl;
+        Logger::debug("Open end-cond.: {}", m_force_at_end_conditions ? 'N' : 'Y');
+        Logger::debug("   Memo: ", m_filter_repeated_states ? 'Y' : 'N');
+        Logger::debug("   Mutex: ", m_task->hasPermanentMutexAction() ? 'Y' : 'N');
         float remainingTime = m_timeout - toSeconds(m_initial_time);
         if(!m_filter_repeated_states || !m_force_at_end_conditions)
         {
             m_task->domainType = DOMAIN_CONCURRENT;
-            // cout << ";Concurrent domain" << endl;
+            Logger::debug("Concurrent domain");
             m_planner = new TaskPlannerConcurrent(m_task,
-                                                m_initial_plan,
-                                                m_initial_state,
-                                                m_force_at_end_conditions,
-                                                m_filter_repeated_states,
-                                                m_generate_trace,
-                                                &m_til_actions,
-                                                nullptr,
-                                                remainingTime);
+                                                  m_initial_plan,
+                                                  m_initial_state,
+                                                  m_force_at_end_conditions,
+                                                  m_filter_repeated_states,
+                                                  m_generate_trace,
+                                                  &m_til_actions,
+                                                  nullptr,
+                                                  remainingTime);
         }
         else if(m_task->hasPermanentMutexAction())
         {
             m_task->domainType = DOMAIN_DEAD_ENDS;
-            // cout << ";Non-reversible domain (possible dead-ends)" << endl;
+            Logger::debug("Non-reversible domain (possible dead-ends)");
             m_planner = new TaskPlannerDeadends(m_task,
-                                              m_initial_plan,
-                                              m_initial_state,
-                                              m_force_at_end_conditions,
-                                              m_filter_repeated_states,
-                                              m_generate_trace,
-                                              &m_til_actions,
-                                              nullptr,
-                                              remainingTime);
-        }
-        else
-        {
-            m_task->domainType = DOMAIN_REVERSIBLE;
-            // cout << ";Reversible domain" << endl;
-            m_planner = new TaskPlannerReversible(m_task,
                                                 m_initial_plan,
                                                 m_initial_state,
                                                 m_force_at_end_conditions,
@@ -72,6 +59,20 @@ namespace grstaps
                                                 &m_til_actions,
                                                 nullptr,
                                                 remainingTime);
+        }
+        else
+        {
+            m_task->domainType = DOMAIN_REVERSIBLE;
+            Logger::debug("Reversible domain");
+            m_planner = new TaskPlannerReversible(m_task,
+                                                  m_initial_plan,
+                                                  m_initial_state,
+                                                  m_force_at_end_conditions,
+                                                  m_filter_repeated_states,
+                                                  m_generate_trace,
+                                                  &m_til_actions,
+                                                  nullptr,
+                                                  remainingTime);
         }
     }
 
@@ -99,8 +100,8 @@ namespace grstaps
     void TaskPlannerSetting::createInitialPlan()
     {
         SASAction* initialAction = createInitialAction();
-        m_initial_plan              = new Plan(initialAction, nullptr, 0);
-        m_initial_plan              = createTILactions(m_initial_plan);
+        m_initial_plan           = new Plan(initialAction, nullptr, 0);
+        m_initial_plan           = createTILactions(m_initial_plan);
     }
 
     // Creates and returns the initial fictitious action

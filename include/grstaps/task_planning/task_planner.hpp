@@ -30,6 +30,8 @@ namespace grstaps
         std::vector<Plan*> getNextSuccessors(Plan* base);
         void update(Plan* base, std::vector<Plan*>& successors);
         bool emptySearchSpace();
+        void writeTrace(std::ostream& f, Plan* p);
+        std::string planToPDDL(Plan* p);
     };
 }  // namespace grstaps
 

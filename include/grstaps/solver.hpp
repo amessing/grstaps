@@ -57,6 +57,8 @@ namespace grstaps
 
        private:
         void planSubcomponents(Plan* base, std::vector<const Plan*>& plan_subcomponents);
+        std::string planToPDDL();
+        void writeTrace(std::ofstream& f, Plan* p);
     };
 }  // namespace grstaps
 

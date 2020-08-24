@@ -80,6 +80,7 @@ namespace grstaps
         {
             base = task_planner.poll();
             Logger::debug("Expanding plan: {}", base->id);
+            task_planner.writeTrace(std::cout, base);
             std::vector<Plan*> successors = task_planner.getNextSuccessors(base);
             unsigned int num_children     = successors.size();
 
@@ -92,13 +93,13 @@ namespace grstaps
                 auto durations         = boost::make_shared<std::vector<float>>();
                 auto noncumTraitCutoff = boost::make_shared<std::vector<std::vector<float>>>();
                 auto goalDistribution  = boost::make_shared<std::vector<std::vector<float>>>();
-                robin_hood::unordered_map<int, int> ids;  //!< Unordered_map to the parent nodes */
 
                 Plan* plan = successors[i];
 
                 // Fill in vectors for TA and Scheduling
                 std::vector<const Plan*> plan_subcomponents;
                 planSubcomponents(plan, plan_subcomponents);
+                std::set<std::pair<uint16_t, uint16_t>> order_constraints;
                 for(unsigned int j = 0; j < plan_subcomponents.size(); ++j)
                 {
                     const Plan* p = plan_subcomponents[j];
@@ -110,17 +111,21 @@ namespace grstaps
                         // Time points are based on start and end snap actions
                         // Also include the initial action
 
-                        orderingCon->push_back({fp / 2 - 1, sp / 2 - 1});
+                        order_constraints.insert({fp / 2 - 1, sp / 2 - 1});
                     }
                     if(j > 0)
                     {
                         durations->push_back(plan->action->duration[0].exp.value);
 
                         noncumTraitCutoff->push_back(
-                            problem.actionNonCumRequirements[problem.actionToRequirements[plan->action->name]]);
+                            problem.actionNonCumRequirements[problem.actionToRequirements[p->action->name]]);
                         goalDistribution->push_back(
-                            problem.actionRequirements[problem.actionToRequirements[plan->action->name]]);
+                            problem.actionRequirements[problem.actionToRequirements[p->action->name]]);
                     }
+                }
+                for(auto oc: order_constraints)
+                {
+                    orderingCon->push_back({oc.first, oc.second});
                 }
 
                 TaskAllocation ta(usingSpecies,
@@ -140,7 +145,7 @@ namespace grstaps
                 AStarSearch<TaskAllocation> graphAllocateAndSchedule(allocationGraph, node1);
 
                 graphAllocateAndSchedule.search(isGoal, expander, package);
-                if(package->foundGoal)
+                if(package->foundGoal || true)
                 {
                     successors[i]->h = package->finalNode->getPathCost();
                     potential_successors.push_back({successors[i], &package->finalNode->getData()});
