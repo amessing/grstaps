@@ -80,7 +80,6 @@ namespace grstaps
         {
             base = task_planner.poll();
             Logger::debug("Expanding plan: {}", base->id);
-            task_planner.writeTrace(std::cout, base);
             std::vector<Plan*> successors = task_planner.getNextSuccessors(base);
             unsigned int num_children     = successors.size();
 
@@ -145,10 +144,14 @@ namespace grstaps
                 AStarSearch<TaskAllocation> graphAllocateAndSchedule(allocationGraph, node1);
 
                 graphAllocateAndSchedule.search(isGoal, expander, package);
-                if(package->foundGoal || true)
+                if(package->foundGoal)
                 {
                     successors[i]->h = package->finalNode->getPathCost();
                     potential_successors.push_back({successors[i], &package->finalNode->getData()});
+                }
+                if(!(package->foundGoal))
+                {
+                    cout << package->foundGoal << endl;
                 }
             }
 
@@ -181,6 +184,7 @@ namespace grstaps
             }
 
             task_planner.update(base, valid_successors);
+            task_planner.writeTrace(cout, base);
         }
 
         delete package;

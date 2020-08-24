@@ -48,29 +48,15 @@ namespace grstaps {
             float cost = 5.5;
 
             boost::shared_ptr<vector<vector<float>>> goalDistribution=  boost::shared_ptr<vector<vector<float>>>(new vector<vector<float>>( vector<vector<float>>{
-                {0,0, 0, 1,0,0,0,0,0,0},
-                {0,0, 0, 1,0,0,0,0,0,0},
-                {0,0, 0, 1,0,0,0,0,0,0},
-                {0,0, 0, 1,0,0,0,0,0,0},
-                {0,0, 0, 1,0,0,0,0,0,0},
-                {0,0, 0, 1,0,0,0,0,0,0},
-                {0,0, 0, 1,0,0,0,0,0,0},
-                {0,0, 0, 1,0,0,0,0,0,0},
-                {0,0, 0, 1,0,0,0,0,0,0},
-                {0,0, 0, 1,0,0,0,0,0,0},
-                {0,0, 0, 1,0,0,0,0,0,0},
-                {0,0, 0, 1,0,0,0,0,0,0},
+                {1.0},
+                {1.0},
+                {1.0},
             }));
 
             vector<vector<float>> speciesDistribution{
-                    {0,0, 0, 1,0,0,0,0,0,0},
-                    {0,0, 0, 1,0,0,0,0,0,0},
-                    {0,0, 0, 1,0,0,0,0,0,0},
-                    {0,0, 0, 1,0,0,0,0,0,0},
-                    {0,0, 0, 1,0,0,0,0,0,0},
-                    {0,0, 0, 1,0,0,0,0,0,0},
-                    {0,0, 0, 1,0,0,0,0,0,0},
-                    {0,0, 0, 1,0,0,0,0,0,0},
+                    {1.5},
+                    {0.5},
+                    {0.5},
             };
 
             boost::shared_ptr<vector<vector<float>>> noncumTraitCutoff =  boost::shared_ptr<vector<vector<float>>>(new vector<vector<float>>( vector<vector<float>>{
@@ -125,7 +111,7 @@ namespace grstaps {
 
             }));
 
-            boost::shared_ptr<vector<int>> numSpec = boost::shared_ptr<vector<int>>(new vector<int>{ 1, 1, 1, 1, 1, 1, 1, 1});
+            boost::shared_ptr<vector<int>> numSpec = boost::shared_ptr<vector<int>>(new vector<int>{ 1, 1, 1});
             vector<float> newCutoff{0,0,0,0,0,0,0,0,0,0};
 
             vector<vector<float>> actionDist{
@@ -154,9 +140,9 @@ namespace grstaps {
 
             };
 
-            boost::shared_ptr<vector<vector<int>>> orderingCon = boost::shared_ptr<vector<vector<int>>>(new vector<vector<int>>{});
+            boost::shared_ptr<vector<vector<int>>> orderingCon = boost::shared_ptr<vector<vector<int>>>(new vector<vector<int>>{{0,2}});
 
-            boost::shared_ptr<vector<float>> durations = boost::shared_ptr<vector<float>>(new vector<float>(vector<float>{10, 10, 10 , 10, 10, 10, 10, 10, 10, 10, 10, 10 }));
+            boost::shared_ptr<vector<float>> durations = boost::shared_ptr<vector<float>>(new vector<float>(vector<float>{1, 1, 1}));
             taskAllocationToScheduling taToSched;
             bool usingSpecies = false;
 

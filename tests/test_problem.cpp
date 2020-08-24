@@ -41,7 +41,7 @@ namespace grstaps
             std::vector<Location> locations = {Location("source", 0.5, 0.5), Location("target", 1.5, 1.5)};
             problem.setLocations(locations);
 
-            std::vector<Problem::TraitVector> robot_traits = {{0.25}, {0.25}, {0.25}};
+            std::vector<Problem::TraitVector> robot_traits = {{0.75}, {0.75}, {0.75}};
             problem.setRobotTraitVector(robot_traits);
 
             char* domain_filename  = "tests/data/p1/domain.pddl";
@@ -63,7 +63,7 @@ namespace grstaps
             for(unsigned int i = 0; i < task->actions.size(); ++i)
             {
                 problem.actionToRequirements[task->actions[i].name] = i;
-                problem.actionRequirements.push_back({0.05});
+                problem.actionRequirements.push_back({0.25});
                 problem.actionNonCumRequirements.push_back({0});
             }
 

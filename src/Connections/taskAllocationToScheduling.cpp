@@ -60,7 +60,7 @@ namespace grstaps
             adjustScheduleNonSpeciesSchedule(allocObject);
             return addMotionPlanningNonSpeciesSchedule( allocObject);
         }
-        return -1;
+        return -10;
     }
 
     float taskAllocationToScheduling::getSpeciesSchedule(TaskAllocation* allocObject)
