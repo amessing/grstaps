@@ -10,6 +10,7 @@
 // local
 #include "grstaps/noncopyable.hpp"
 #include "grstaps/task_planning/selector.hpp"
+#include "grstaps/task_planning/task_planner_setting.hpp"
 #include "grstaps/task_planning/utils.hpp"
 
 namespace grstaps
@@ -19,30 +20,13 @@ namespace grstaps
     class Successors;
     class TState;
 
-    class TaskPlanner : public Noncopyable
+    class TaskPlanner
+        : public TaskPlannerSetting
+        , Noncopyable
     {
-       private:
-        SASTask* m_task;
-        Plan* m_initial_plan;
-        TState* m_initial_state;
-        unsigned int m_expanded_nodes;
-        Successors* m_successors;
-        float m_initial_h;
-        QualitySelector m_quality_selector;
-        float m_timeout;
-        clock_t m_start_time;
-
-        SASAction* createInitialAction();
-        SASAction* createFictitiousAction(float actionDuration,
-                                          std::vector<unsigned int>& varList,
-                                          float timePoint,
-                                          std::string name,
-                                          bool isTIL);
-        void addFrontierNodes(Plan* p);
-
        public:
-        TaskPlanner(SASTask* task, float timeout = -1.0f);
-        Plan* bestPlan();
+        TaskPlanner(SASTask* m_task, float m_timeout = -1.0f, bool trace = false);
+        Plan* poll();
         std::vector<Plan*> getNextSuccessors(Plan* base);
         void update(Plan* base, std::vector<Plan*>& successors);
         bool emptySearchSpace();

@@ -19,6 +19,7 @@
 #include "grstaps/solver.hpp"
 
 // local
+#include "grstaps/logger.hpp"
 #include "grstaps/motion_planning/motion_planner.hpp"
 #include "grstaps/problem.hpp"
 #include "grstaps/solution.hpp"
@@ -77,15 +78,16 @@ namespace grstaps
 
         while(!task_planner.emptySearchSpace())
         {
-            base                          = task_planner.bestPlan();
+            base = task_planner.poll();
+            Logger::debug("Expanding plan: {}", base->id);
             std::vector<Plan*> successors = task_planner.getNextSuccessors(base);
             unsigned int num_children     = successors.size();
 
             std::vector<std::tuple<Plan*, TaskAllocation*>> potential_successors;
 
+            // openmp line
             for(unsigned int i = 0; i < num_children; ++i)
             {
-                std::cout << "Plan " << i << std::endl;
                 auto orderingCon       = boost::make_shared<std::vector<std::vector<int>>>();
                 auto durations         = boost::make_shared<std::vector<float>>();
                 auto noncumTraitCutoff = boost::make_shared<std::vector<std::vector<float>>>();
@@ -95,11 +97,11 @@ namespace grstaps
                 Plan* plan = successors[i];
 
                 // Fill in vectors for TA and Scheduling
-                std::vector<Plan*> plan_subcomponents;
+                std::vector<const Plan*> plan_subcomponents;
                 planSubcomponents(plan, plan_subcomponents);
                 for(unsigned int j = 0; j < plan_subcomponents.size(); ++j)
                 {
-                    Plan* p = plan_subcomponents[j];
+                    const Plan* p = plan_subcomponents[j];
                     for(unsigned int k = 0; k < p->orderings.size(); ++k)
                     {
                         // uint16_t
@@ -143,7 +145,6 @@ namespace grstaps
                     successors[i]->h = package->finalNode->getPathCost();
                     potential_successors.push_back({successors[i], &package->finalNode->getData()});
                 }
-                std::cout << "Plan Finished" << std::endl;
             }
 
             // std::copy_if(successors.begin(), successors.end(), std::back_inserter(valid_successors),
@@ -156,7 +157,7 @@ namespace grstaps
                           return std::get<0>(lhs)->h > std::get<0>(rhs)->h;
                       });
 
-            for(int i = 0; i < potential_successors.size(); ++i)
+            for(unsigned int i = 0; i < potential_successors.size(); ++i)
             {
                 if(std::get<0>(potential_successors[i])->isSolution())
                 {
@@ -173,9 +174,6 @@ namespace grstaps
             {
                 valid_successors.push_back(std::move(std::get<0>(*it)));
             }
-            std::copy_if(successors.begin(), successors.end(), std::back_inserter(valid_successors), [](Plan* p) {
-                return p->task_allocatable;
-            });
 
             task_planner.update(base, valid_successors);
         }
@@ -184,7 +182,7 @@ namespace grstaps
         return nullptr;
     }
 
-    void Solver::planSubcomponents(Plan* base, std::vector<Plan*>& plan_subcomponents)
+    void Solver::planSubcomponents(Plan* base, std::vector<const Plan*>& plan_subcomponents)
     {
         if(base == nullptr)
         {

@@ -56,7 +56,7 @@ namespace grstaps
         std::shared_ptr<Solution> solve(Problem& problem);
 
        private:
-        void planSubcomponents(Plan* base, std::vector<Plan*>& plan_subcomponents);
+        void planSubcomponents(Plan* base, std::vector<const Plan*>& plan_subcomponents);
     };
 }  // namespace grstaps
 

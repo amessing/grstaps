@@ -55,14 +55,8 @@ namespace grstaps
             parameters.outputFileName         = output_filename;
             parameters.generateGroundedDomain = true;
             // parameters.generateMutexFile = true;
-            // parameters.generateTrace = true;
-            SASTask* task = Setup::doPreprocess(&parameters);
-
-            // Do we still need these?
-            task->computeInitialState();
-            task->computeRequirers();
-            task->computeProducers();
-            task->computePermanentMutex();
+            parameters.generateTrace = true;
+            SASTask* task            = Setup::doPreprocess(&parameters);
             problem.setTask(task);
 
             // All Actions have the same requirements
