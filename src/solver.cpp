@@ -86,29 +86,40 @@ namespace grstaps
 
             for(int i = 0; i < num_children; ++i)
             {
+                cout << "Plan " << i << endl;
                 auto orderingCon       = boost::make_shared<std::vector<std::vector<int>>>();
                 auto durations         = boost::make_shared<std::vector<float>>();
                 auto noncumTraitCutoff = boost::make_shared<std::vector<std::vector<float>>>();
                 auto goalDistribution  = boost::make_shared<std::vector<std::vector<float>>>();
+                robin_hood::unordered_map<int, int> ids; //!< Unordered_map to the parent nodes */
 
                 Plan* plan = successors[i];
                 while(plan != nullptr)
                 {
-                    durations->push_back(plan->action->duration[0].exp.value);
-                    for(unsigned int j = 0; j < plan->orderings.size(); j++)
-                    {
-                        orderingCon->push_back({firstPoint(plan->orderings[j]), secondPoint(plan->orderings[j])});
-                    }
                     if(plan->action->name != "#initial")
                     {
+                        durations->push_back(plan->action->duration[0].exp.value);
+
                         noncumTraitCutoff->push_back(
                             problem.actionNonCumRequirements[problem.actionToRequirements[plan->action->name]]);
                         goalDistribution->push_back(
                             problem.actionRequirements[problem.actionToRequirements[plan->action->name]]);
+                        ids[plan->id]= goalDistribution->size() - 1;
+                        cout << "Action " << plan->id << " " << plan->action->name << endl;
+
+                        for(unsigned int j = 0; j < plan->orderings.size(); j++)
+                        {
+                            cout << "Here " << j << " " << firstPoint(plan->orderings[j]) << " " << secondPoint(plan->orderings[j]) << endl;
+                            orderingCon->push_back({firstPoint(plan->orderings[j]), secondPoint(plan->orderings[j])});
+                        }
                     }
                     plan = plan->parentPlan;
                 }
 
+                auto orderingConFixed = boost::make_shared<std::vector<std::vector<int>>>();
+                for(auto constraint:*orderingCon){
+                    orderingConFixed->push_back({ ids.find(constraint[0])->second,  ids.find(constraint[1])->second });
+                }
 
                 TaskAllocation ta(usingSpecies,
                                   goalDistribution,
@@ -116,7 +127,7 @@ namespace grstaps
                                   noncumTraitCutoff,
                                   (&taToSched),
                                   durations,
-                                  orderingCon,
+                                  orderingConFixed,
                                   numSpec);
 
                 auto node1 = boost::make_shared<Node<TaskAllocation>>(ta.getID(), ta);
@@ -131,7 +142,9 @@ namespace grstaps
                 {
                     successors[i]->h = package->finalNode->getPathCost();
                     valid_successors.push_back(successors[i]);
+                    allocations.push_back(&package->finalNode->getData());
                 }
+                cout << "Plan Finished" << endl;
             }
 
             // std::copy_if(successors.begin(), successors.end(), std::back_inserter(valid_successors),
