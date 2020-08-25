@@ -11,35 +11,36 @@
 
 namespace grstaps
 {
-#define INITAL_MATRIX_SIZE    400
-#define MATRIX_INCREASE        200
+#define INITAL_MATRIX_SIZE 400
+#define MATRIX_INCREASE 200
 
     class Linearizer;
     class Plan;
 
     class PlanEffect
     {
-    public:
-        std::vector <TTimePoint> timePoints;    // Points of time where this effect is produced
-        // Dividing the time point by 2 we get the number of the step in the plan (each step has two time points: start and end)
-        unsigned int iteration;                // The information is valid only if the iteration matches with the current one
+       public:
+        std::vector<TTimePoint> timePoints;  // Points of time where this effect is produced
+        // Dividing the time point by 2 we get the number of the step in the plan (each step has two time points: start
+        // and end)
+        unsigned int iteration = 0;  // The information is valid only if the iteration matches with the current one
 
         void add(TTimePoint time, unsigned int iteration);
     };
 
     class VarChange
     {
-    public:
-        std::vector <TValue> values;            // Value that the variable takes
-        std::vector <TTimePoint> timePoints;    // Points of time where this effect is produced
-        unsigned int iteration;                // The information is valid only if the iteration matches with the current one
+       public:
+        std::vector<TValue> values;          // Value that the variable takes
+        std::vector<TTimePoint> timePoints;  // Points of time where this effect is produced
+        unsigned int iteration = 0;  // The information is valid only if the iteration matches with the current one
 
         void add(TValue v, TTimePoint time, unsigned int iteration);
     };
 
     class Threat
     {
-    public:
+       public:
         TTimePoint p1;
         TTimePoint p2;
         TTimePoint tp;
@@ -50,19 +51,19 @@ namespace grstaps
 
     class PlanBuilder
     {
-    private:
-        std::vector <TTimePoint> prevPoints;    // For internal calculations
-        std::vector <TTimePoint> nextPoints;    // For internal calculations
+       private:
+        std::vector<TTimePoint> prevPoints;  // For internal calculations
+        std::vector<TTimePoint> nextPoints;  // For internal calculations
         Linearizer* linearizer;
 
-    public:
-        SASAction* action;                    // New action added
+       public:
+        SASAction* action;  // New action added
         unsigned int currentPrecondition;
         unsigned int currentEffect;
         unsigned int setPrecondition;
-        std::vector <CausalLink> causalLinks;
+        std::vector<CausalLink> causalLinks;
         std::vector<unsigned int> numOrderingsAdded;
-        std::vector <TOrdering> orderings;
+        std::vector<TOrdering> orderings;
         TTimePoint lastTimePoint;
         std::vector<unsigned int> openCond;
 
@@ -83,22 +84,22 @@ namespace grstaps
 
     class Successors
     {
-    private:
+       private:
         SASTask* task;
         bool forceAtEndConditions;
-        unsigned int numVariables;                            // Number of variables
-        unsigned int numActions;                            // Number of grounded actions
-        Plan* basePlan;                                        // Base plan
-        PlanEffect** planEffects;                            // Plan effects: (var, value) -> PlanEffect
-        VarChange* varChanges;                                // Variable changes: var -> VarChange
-        TStep newStep;                                        // New step to add as successor
-        std::vector<Plan*>* successors;                        // Vector to return the sucessor plans
-        std::vector <TTimePoint> prevPoints;                    // For internal calculations
-        std::vector <TTimePoint> nextPoints;                    // For internal calculations
-        uint32_t idPlan;                                    // Plan counter
-        Linearizer linearizer;                                // Linearizes plans to schedule them in time and compute heuristics
+        unsigned int numVariables;           // Number of variables
+        unsigned int numActions;             // Number of grounded actions
+        Plan* basePlan;                      // Base plan
+        PlanEffect** planEffects;            // Plan effects: (var, value) -> PlanEffect
+        VarChange* varChanges;               // Variable changes: var -> VarChange
+        TStep newStep;                       // New step to add as successor
+        std::vector<Plan*>* successors;      // Vector to return the sucessor plans
+        std::vector<TTimePoint> prevPoints;  // For internal calculations
+        std::vector<TTimePoint> nextPoints;  // For internal calculations
+        uint32_t idPlan;                     // Plan counter
+        Linearizer linearizer;               // Linearizes plans to schedule them in time and compute heuristics
         Evaluator evaluator;
-        //TState* basePlanState;
+        // TState* basePlanState;
         Memoization memoization;
         bool filterRepeatedStates;
         std::vector<unsigned int> checkedAction;
@@ -115,7 +116,7 @@ namespace grstaps
             checkedAction[a->index] = currentIteration;
         }
 
-        void computeBasePlanEffects();                        // Fill the planEffects matrix with the effects produced by the base plan
+        void computeBasePlanEffects();  // Fill the planEffects matrix with the effects produced by the base plan
         void fullActionCheck(SASAction* a);
 
         void fullActionSupportCheck(PlanBuilder* pb);
@@ -178,7 +179,7 @@ namespace grstaps
                                       TTimePoint effectTime,
                                       TTimePoint startTimeNewAction);
 
-        void solveThreats(PlanBuilder* pb, std::vector <Threat>* threats);
+        void solveThreats(PlanBuilder* pb, std::vector<Threat>* threats);
 
         bool postprocessPlan(Plan* p);
 
@@ -190,7 +191,7 @@ namespace grstaps
 
         inline SASCondition* getRequiredValue(TTimePoint p, SASAction* a, TVariable var)
         {
-            std::vector <SASCondition>* cond = (p & 1) == 0 ? &(a->startCond) : &(a->endCond);
+            std::vector<SASCondition>* cond = (p & 1) == 0 ? &(a->startCond) : &(a->endCond);
             for(unsigned int i = 0; i < cond->size(); i++)
             {
                 if((*cond)[i].var == var)
@@ -198,7 +199,7 @@ namespace grstaps
                     return &((*cond)[i]);
                 }
             }
-            cond = &(a->overCond);    // Check over-all conditions then
+            cond = &(a->overCond);  // Check over-all conditions then
             for(unsigned int i = 0; i < cond->size(); i++)
             {
                 if((*cond)[i].var == var)
@@ -211,7 +212,7 @@ namespace grstaps
 
         inline SASCondition* getEffectValue(TTimePoint p, SASAction* a, TVariable var)
         {
-            std::vector <SASCondition>* eff = (p & 1) == 0 ? &(a->startEff) : &(a->endEff);
+            std::vector<SASCondition>* eff = (p & 1) == 0 ? &(a->startEff) : &(a->endEff);
             for(unsigned int i = 0; i < eff->size(); i++)
             {
                 if((*eff)[i].var == var)
@@ -232,7 +233,7 @@ namespace grstaps
 
         bool meetDeadlines();
 
-    public:
+       public:
         Plan* solution;
 
         void initialize(TState* state,
@@ -265,14 +266,20 @@ namespace grstaps
         TState* getFrontierState(Plan* p);
 
         bool getForceAtEndConditions()
-        { return forceAtEndConditions; }
+        {
+            return forceAtEndConditions;
+        }
 
         std::vector<SASAction*>* getTILActions()
-        { return evaluator.getTILActions(); }
+        {
+            return evaluator.getTILActions();
+        }
 
-        void setPriorityGoals(std::vector <TVarValue>* priorityGoals)
-        { evaluator.setPriorityGoals(priorityGoals); }
+        void setPriorityGoals(std::vector<TVarValue>* priorityGoals)
+        {
+            evaluator.setPriorityGoals(priorityGoals);
+        }
     };
-}
+}  // namespace grstaps
 
-#endif //GRSTAPS_SUCCESSORS_HPP
+#endif  // GRSTAPS_SUCCESSORS_HPP

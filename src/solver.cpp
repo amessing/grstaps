@@ -147,7 +147,7 @@ namespace grstaps
                 if(package->foundGoal)
                 {
                     successors[i]->h = package->finalNode->getPathCost();
-                    potential_successors.push_back({successors[i], &package->finalNode->getData()});
+                    potential_successors.push_back({successors[i], &(package->finalNode->getData())});
                 }
             }
 
@@ -169,7 +169,7 @@ namespace grstaps
                     delete package;
                     auto m_solution = std::make_shared<Solution>(
                         std::shared_ptr<Plan>(std::get<0>(potential_successors[i])),
-                        std::shared_ptr<TaskAllocation>(std::get<1>(potential_successors[i])));
+                        std::shared_ptr<TaskAllocation>(new TaskAllocation(*std::get<1>(potential_successors[i]))));
                     return m_solution;
                 }
             }
@@ -185,6 +185,20 @@ namespace grstaps
 
         delete package;
         return nullptr;
+    }
+
+    void Solver::writeSolution(const std::string& folder)
+    {
+        if(!std::experimental::filesystem::exists(folder))
+        {
+            std::experimental::filesystem::create_directory(folder);
+        }
+
+        // Write Plan
+
+        // Write Schedule
+
+        // Write Task Allocation
     }
 
     void Solver::planSubcomponents(Plan* base, std::vector<const Plan*>& plan_subcomponents)

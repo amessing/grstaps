@@ -55,6 +55,8 @@ namespace grstaps
          */
         std::shared_ptr<Solution> solve(Problem& problem);
 
+        static void writeSolution(const std::string& folder);
+
        private:
         void planSubcomponents(Plan* base, std::vector<const Plan*>& plan_subcomponents);
         std::string planToPDDL();

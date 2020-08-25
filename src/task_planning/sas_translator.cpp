@@ -622,6 +622,8 @@ namespace grstaps
                 }
             }
         }
+        delete[] sasVars;
+        delete[] sasValues;
     }
 
     void SASTranslator::removeMultipleValues(SASTask* sTask, LiteralTranslation* trans)

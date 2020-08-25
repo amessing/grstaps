@@ -29,8 +29,8 @@ namespace grstaps
     void TaskPlannerSetting::checkPlannerType()
     {
         Logger::debug("Open end-cond.: {}", m_force_at_end_conditions ? 'N' : 'Y');
-        Logger::debug("   Memo: ", m_filter_repeated_states ? 'Y' : 'N');
-        Logger::debug("   Mutex: ", m_task->hasPermanentMutexAction() ? 'Y' : 'N');
+        Logger::debug("   Memo: {}", m_filter_repeated_states ? 'Y' : 'N');
+        Logger::debug("   Mutex: {}", m_task->hasPermanentMutexAction() ? 'Y' : 'N');
         float remainingTime = m_timeout - toSeconds(m_initial_time);
         if(!m_filter_repeated_states || !m_force_at_end_conditions)
         {
