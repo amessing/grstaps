@@ -44,9 +44,6 @@ namespace grstaps
             std::vector<Problem::TraitVector> robot_traits = {{0.75}, {0.75}, {0.75}};
             problem.setRobotTraitVector(robot_traits);
 
-            // All start at the source
-            problem.setStartingLocations({0, 0, 0});
-
             char* domain_filename  = "tests/data/p1/domain.pddl";
             char* problem_filename = "tests/data/p1/problem.pddl";
             char* output_filename  = "tests/data/p1/output";
@@ -68,6 +65,10 @@ namespace grstaps
                 problem.actionToRequirements[task->actions[i].name] = i;
                 problem.actionRequirements.push_back({0.25});
                 problem.actionNonCumRequirements.push_back({0});
+
+                problem.addActionLocation(
+                    task->actions[i].name,
+                    std::make_pair(task->actions[i].name[9] - '1', task->actions[i].name[12] - '1'));
             }
 
             // No obstacles
