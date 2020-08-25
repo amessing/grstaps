@@ -83,7 +83,7 @@ namespace grstaps
             std::vector<Plan*> successors = task_planner.getNextSuccessors(base);
             unsigned int num_children     = successors.size();
 
-            std::vector<std::tuple<Plan*, TaskAllocation*>> potential_successors;
+            std::vector<std::tuple<Plan*, TaskAllocation>> potential_successors;
 
             // openmp line
             for(unsigned int i = 0; i < num_children; ++i)
@@ -102,18 +102,21 @@ namespace grstaps
                 for(unsigned int j = 0; j < plan_subcomponents.size(); ++j)
                 {
                     const Plan* p = plan_subcomponents[j];
-                    for(unsigned int k = 0; k < p->orderings.size(); ++k)
+                    // Ignore the fictituous action
+                    // TODO: ignore TILs?
+                    if(p->action->name != "<goal>" && p->action->name != "#initial")
                     {
-                        // uint16_t
-                        TTimePoint fp = firstPoint(p->orderings[k]);
-                        TTimePoint sp = secondPoint(p->orderings[k]);
-                        // Time points are based on start and end snap actions
-                        // Also include the initial action
+                        for(unsigned int k = 0; k < p->orderings.size(); ++k)
+                        {
+                            // uint16_t
+                            TTimePoint fp = firstPoint(p->orderings[k]);
+                            TTimePoint sp = secondPoint(p->orderings[k]);
+                            // Time points are based on start and end snap actions
+                            // Also include the initial action
 
-                        order_constraints.insert({fp / 2 - 1, sp / 2 - 1});
-                    }
-                    if(j > 0)
-                    {
+                            order_constraints.insert({fp / 2 - 1, sp / 2 - 1});
+                        }
+
                         durations->push_back(plan->action->duration[0].exp.value);
 
                         noncumTraitCutoff->push_back(
@@ -147,7 +150,7 @@ namespace grstaps
                 if(package->foundGoal)
                 {
                     successors[i]->h = package->finalNode->getPathCost();
-                    potential_successors.push_back({successors[i], &(package->finalNode->getData())});
+                    potential_successors.push_back({successors[i], (package->finalNode->getData())});
                 }
             }
 
@@ -157,19 +160,21 @@ namespace grstaps
             // TODO: check if this is correct or backwards
             std::sort(potential_successors.begin(),
                       potential_successors.end(),
-                      [](std::tuple<Plan*, TaskAllocation*> lhs, std::tuple<Plan*, TaskAllocation*> rhs) {
+                      [](std::tuple<Plan*, TaskAllocation> lhs, std::tuple<Plan*, TaskAllocation> rhs) {
                           return std::get<0>(lhs)->h > std::get<0>(rhs)->h;
                       });
             Logger::debug("TA filtered {} out of {}", num_children - potential_successors.size(), num_children);
 
             for(unsigned int i = 0; i < potential_successors.size(); ++i)
             {
-                if(std::get<0>(potential_successors[i])->isSolution())
+                auto* potential_plan = std::get<0>(potential_successors[i]);
+                if(potential_plan->isSolution())
                 {
                     delete package;
-                    auto m_solution = std::make_shared<Solution>(
-                        std::shared_ptr<Plan>(std::get<0>(potential_successors[i])),
-                        std::shared_ptr<TaskAllocation>(new TaskAllocation(*std::get<1>(potential_successors[i]))));
+                    auto potential_ta = std::get<1>(potential_successors[i]);
+                    auto m_solution =
+                        std::make_shared<Solution>(std::shared_ptr<Plan>(potential_plan),
+                                                   std::shared_ptr<TaskAllocation>(new TaskAllocation(potential_ta)));
                     return m_solution;
                 }
             }
