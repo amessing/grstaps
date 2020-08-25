@@ -22,6 +22,8 @@
 // global
 #include <memory>
 
+#include <grstaps/Task_Allocation/AllocationResultsPackager.h>
+
 // external
 #include "nlohmann/json.hpp"
 
@@ -55,7 +57,7 @@ namespace grstaps
          */
         std::shared_ptr<Solution> solve(Problem& problem);
 
-        static void writeSolution(const std::string& folder);
+        static void writeSolution(const std::string& folder, AllocationResultsPackager* package);
 
        private:
         void planSubcomponents(Plan* base, std::vector<const Plan*>& plan_subcomponents);

@@ -164,7 +164,7 @@ namespace grstaps
                           return std::get<0>(lhs)->h > std::get<0>(rhs)->h;
                       });
             Logger::debug("TA filtered {} out of {}", num_children - potential_successors.size(), num_children);
-
+            Logger::debug("Found");
             for(unsigned int i = 0; i < potential_successors.size(); ++i)
             {
                 auto* potential_plan = std::get<0>(potential_successors[i]);
@@ -192,7 +192,7 @@ namespace grstaps
         return nullptr;
     }
 
-    void Solver::writeSolution(const std::string& folder)
+    void Solver::writeSolution(const std::string& folder, AllocationResultsPackager* package)
     {
         if(!std::experimental::filesystem::exists(folder))
         {
@@ -201,9 +201,7 @@ namespace grstaps
 
         // Write Plan
 
-        // Write Schedule
-
-        // Write Task Allocation
+        package->fileResults(folder);
     }
 
     void Solver::planSubcomponents(Plan* base, std::vector<const Plan*>& plan_subcomponents)

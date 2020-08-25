@@ -34,6 +34,9 @@ namespace grstaps {
     class AllocationResultsPackager: public SearchResultPackager<TaskAllocation>{
     public:
         void printResults();
+
+        void fileResults(string);
+
     private:
 
     };
