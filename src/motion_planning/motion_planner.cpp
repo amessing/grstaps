@@ -44,7 +44,7 @@ namespace grstaps
         std::dynamic_pointer_cast<ob::RealVectorStateSpace>(m_space)->setBounds(boundary_min, boundary_max);
 
         m_space_information = std::make_shared<ob::SpaceInformation>(m_space);
-        //m_space_information->setStateValidityChecker(std::make_shared<ValidityChecker>(obstacles, m_space_information));
+        m_space_information->setStateValidityChecker(std::make_shared<ValidityChecker>(obstacles, m_space_information));
         m_space_information->setup();
 
         m_planner = std::make_shared<og::LazyPRM>(m_space_information);

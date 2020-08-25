@@ -12,7 +12,7 @@ list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 include(FileOutputs)
 
 option(BUILD_DOC "Build Documentation" OFF)
-option(BUILD_TESTS "Build Unit Tests" OFF)
+option(BUILD_TESTS "Build Unit Tests" ON)
 option(BUILD_EXE "Build Executable" ON)
 
 # Add external libraries
@@ -37,13 +37,14 @@ target_link_libraries(_${PROJECT_NAME} PRIVATE
 target_include_directories(_${PROJECT_NAME} PUBLIC include PRIVATE ${OMPL_INCLUDE_DIRS})
 
 # Create executable
-#if(BUILD_EXE)
+if(BUILD_EXE)
+    message("Building executable...")
     add_executable(${PROJECT_NAME} src/main.cpp)
     set_target_properties(${PROJECT_NAME} PROPERTIES CXX_STANDARD 17 CXX_STANDARD_REQUIRED YES)
     target_link_libraries(${PROJECT_NAME} PRIVATE
-            box2d nlohmann_json
+            box2d nlohmann_json stdc++fs
             _${PROJECT_NAME})
-#endif(BUILD_EXE)
+endif(BUILD_EXE)
 
 if(BUILD_DOC)
     # Check if Doxygen is installed
@@ -88,7 +89,7 @@ if(BUILD_TESTS)
     add_executable(${PROJECT_NAME}_test ${${PROJECT_NAME}_TEST_SOURCES} ${testDataOutputs})
     set_target_properties(${PROJECT_NAME}_test PROPERTIES CXX_STANDARD 17 CXX_STANDARD_REQUIRED YES)
     target_link_libraries(${PROJECT_NAME}_test PRIVATE
-            box2d fmt gtest gmock nlohmann_json
+            box2d fmt gtest gmock nlohmann_json stdc++fs
             _${PROJECT_NAME})
 endif(BUILD_TESTS)
 

@@ -192,16 +192,15 @@ namespace grstaps
         return nullptr;
     }
 
-    void Solver::writeSolution(const std::string& folder, AllocationResultsPackager* package)
+    void Solver::writeSolution(const std::string& folder, std::shared_ptr<Solution> solution)
     {
         if(!std::experimental::filesystem::exists(folder))
         {
-            std::experimental::filesystem::create_directory(folder);
+            std::experimental::filesystem::create_directories(folder);
         }
 
-        // Write Plan
-
-        package->fileResults(folder);
+        std::string filepath = fmt::format("{}/output.json", folder);
+        solution->write(filepath);
     }
 
     void Solver::planSubcomponents(Plan* base, std::vector<const Plan*>& plan_subcomponents)

@@ -50,13 +50,13 @@ namespace grstaps
 
             PlannerParameters parameters;
 
-            parameters.domainFileName         = domain_filename;
-            parameters.problemFileName        = problem_filename;
-            parameters.outputFileName         = output_filename;
-            parameters.generateGroundedDomain = true;
+            parameters.domainFileName  = domain_filename;
+            parameters.problemFileName = problem_filename;
+            parameters.outputFileName  = output_filename;
+            // parameters.generateGroundedDomain = true;
             // parameters.generateMutexFile = true;
-            parameters.generateTrace = true;
-            SASTask* task            = Setup::doPreprocess(&parameters);
+            // parameters.generateTrace = true;
+            SASTask* task = Setup::doPreprocess(&parameters);
             problem.setTask(task);
 
             // All Actions have the same requirements
@@ -78,9 +78,7 @@ namespace grstaps
 
             Solver solver;
             std::shared_ptr<Solution> solution = solver.solve(problem);
-            // Evaluate solution C++ exception with description "std::bad_alloc" thrown in the test body.
-            int breakppoint = -1;
-            // Save solution to file
+            solver.writeSolution("/outputs/p1", solution);
         }
     }  // namespace test
 }  // namespace grstaps

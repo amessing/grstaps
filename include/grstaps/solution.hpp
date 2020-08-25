@@ -20,6 +20,7 @@
 
 // global
 #include <memory>
+
 #include <grstaps/Task_Allocation/TaskAllocation.h>
 
 // Task Allocation
@@ -33,7 +34,7 @@ namespace grstaps
      */
     class Solution
     {
-    public:
+       public:
         /**
          * Constructor
          *
@@ -46,18 +47,24 @@ namespace grstaps
          *
          * \param filepath The path to the file which to write the plan
          */
-        //void write(const std::string& filepath);
+        void write(const std::string& filepath);
 
         /**
          * \returns The partial-order plan from this solution
          */
-        //const Plan& plan() const;
-    private:
-        std::shared_ptr<Plan> m_plan; //!< A partial-order plan
-        std::shared_ptr<grstaps::TaskAllocation> m_allocation;
-        // Schedule
-        // Motion Plans
-    };
-}
+        const Plan& plan() const;
 
-#endif // GRSTAPS_SOLUTION_HPP
+        /**
+         * \returns The task
+         */
+        const TaskAllocation& allocation() const;
+
+       private:
+        std::shared_ptr<Plan> m_plan;  //!< A partial-order plan
+        std::shared_ptr<grstaps::TaskAllocation> m_allocation;
+
+        void planSubcomponents(Plan* base, std::vector<const Plan*>& plan_subcomponents);
+    };
+}  // namespace grstaps
+
+#endif  // GRSTAPS_SOLUTION_HPP
