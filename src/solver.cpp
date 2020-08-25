@@ -19,23 +19,24 @@
 #include "grstaps/solver.hpp"
 
 // local
+#include "grstaps/Connections/taskAllocationToScheduling.h"
+#include "grstaps/Graph/Graph.h"
+#include "grstaps/Graph/Node.h"
+#include "grstaps/Scheduling/TAScheduleTime.h"
+#include "grstaps/Search/AStarSearch.h"
+#include "grstaps/Search/UniformCostSearch.h"
+#include "grstaps/Task_Allocation/AllocationExpander.h"
+#include "grstaps/Task_Allocation/AllocationIsGoal.h"
+#include "grstaps/Task_Allocation/AllocationResultsPackager.h"
+#include "grstaps/Task_Allocation/TAGoalDist.h"
+#include "grstaps/Task_Allocation/TaskAllocation.h"
+#include "grstaps/Task_Allocation/checkAllocatable.h"
 #include "grstaps/logger.hpp"
 #include "grstaps/motion_planning/motion_planner.hpp"
 #include "grstaps/problem.hpp"
 #include "grstaps/solution.hpp"
 #include "grstaps/task_planning/plan.hpp"
 #include "grstaps/task_planning/task_planner.hpp"
-#include <grstaps/Graph/Graph.h>
-#include <grstaps/Graph/Node.h>
-#include <grstaps/Scheduling/TAScheduleTime.h>
-#include <grstaps/Search/AStarSearch.h>
-#include <grstaps/Search/UniformCostSearch.h>
-#include <grstaps/Task_Allocation/AllocationExpander.h>
-#include <grstaps/Task_Allocation/AllocationIsGoal.h>
-#include <grstaps/Task_Allocation/AllocationResultsPackager.h>
-#include <grstaps/Task_Allocation/TAGoalDist.h>
-#include <grstaps/Task_Allocation/TaskAllocation.h>
-#include <grstaps/Task_Allocation/checkAllocatable.h>
 
 namespace grstaps
 {
@@ -53,27 +54,23 @@ namespace grstaps
         const float boundary_min      = config["mp_boundary_min"];
         const float boundary_max      = config["mp_boundary_max"];
         motion_planner.setMap(problem.obstacles(), boundary_min, boundary_max);
+        // TODO: something with the locations
 
         // Task Allocation
-        taskAllocationToScheduling taToSched;
+        boost::shared_ptr<taskAllocationToScheduling> taToSched =
+            boost::make_shared<taskAllocationToScheduling>(&motion_planner, problem.startingLocations());
         bool usingSpecies = false;
-
-        // Do these need to be raw pointers?
-        // Option 1: leave them
-        // Option 2: unique_ptr/shared_ptr
-        // Option 3: object and then * when passing them (if they won't be destroyed)
+        // TODO: motion planning needs to be added
 
         // Also can any of them be const? That will help with multithreading in the future (fewer mutexes)
-        boost::shared_ptr<Heuristic> heur = boost::shared_ptr<Heuristic>(new TAGoalDist());
-        boost::shared_ptr<Cost> cos       = boost::shared_ptr<Cost>(new TAScheduleTime());
+        boost::shared_ptr<Heuristic> heur = boost::make_shared<TAGoalDist>();
+        boost::shared_ptr<Cost> cos       = boost::make_shared<TAScheduleTime>();
 
-        boost::shared_ptr<GoalLocator<TaskAllocation>> isGoal =
-            boost::shared_ptr<GoalLocator<TaskAllocation>>(new AllocationIsGoal());
-        boost::shared_ptr<NodeExpander<TaskAllocation>> expander =
-            boost::shared_ptr<NodeExpander<TaskAllocation>>(new AllocationExpander(heur, cos));
-        SearchResultPackager<TaskAllocation>* package = new AllocationResultsPackager();
+        boost::shared_ptr<GoalLocator<TaskAllocation>> isGoal    = boost::make_shared<AllocationIsGoal>();
+        boost::shared_ptr<NodeExpander<TaskAllocation>> expander = boost::make_shared<AllocationExpander>(heur, cos);
+        SearchResultPackager<TaskAllocation>* package            = new AllocationResultsPackager();
 
-        auto numSpec     = make_shared<vector<int>>(problem.robotTraits().size(), 1);
+        auto numSpec     = boost::make_shared<std::vector<int>>(problem.robotTraits().size(), 1);
         auto robotTraits = &problem.robotTraits();
 
         while(!task_planner.emptySearchSpace())
@@ -92,6 +89,7 @@ namespace grstaps
                 auto durations         = boost::make_shared<std::vector<float>>();
                 auto noncumTraitCutoff = boost::make_shared<std::vector<std::vector<float>>>();
                 auto goalDistribution  = boost::make_shared<std::vector<std::vector<float>>>();
+                std::vector<std::pair<unsigned int, unsigned int>> actionLocations;
 
                 Plan* plan = successors[i];
 
@@ -123,8 +121,11 @@ namespace grstaps
                             problem.actionNonCumRequirements[problem.actionToRequirements[p->action->name]]);
                         goalDistribution->push_back(
                             problem.actionRequirements[problem.actionToRequirements[p->action->name]]);
+                        actionLocations.push_back(problem.actionLocation(p->action->name));
                     }
                 }
+                taToSched->setActionLocations(actionLocations);
+
                 for(auto oc: order_constraints)
                 {
                     orderingCon->push_back({oc.first, oc.second});
@@ -134,7 +135,7 @@ namespace grstaps
                                   goalDistribution,
                                   robotTraits,
                                   noncumTraitCutoff,
-                                  (&taToSched),
+                                  taToSched,
                                   durations,
                                   orderingCon,
                                   numSpec);

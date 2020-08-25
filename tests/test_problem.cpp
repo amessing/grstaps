@@ -44,6 +44,9 @@ namespace grstaps
             std::vector<Problem::TraitVector> robot_traits = {{0.75}, {0.75}, {0.75}};
             problem.setRobotTraitVector(robot_traits);
 
+            // All start at the source
+            problem.setStartingLocations({0, 0, 0});
+
             char* domain_filename  = "tests/data/p1/domain.pddl";
             char* problem_filename = "tests/data/p1/problem.pddl";
             char* output_filename  = "tests/data/p1/output";
@@ -78,7 +81,7 @@ namespace grstaps
 
             Solver solver;
             std::shared_ptr<Solution> solution = solver.solve(problem);
-            solver.writeSolution("/outputs/p1", solution);
+            solver.writeSolution("outputs/p1", solution);
         }
     }  // namespace test
 }  // namespace grstaps

@@ -16,54 +16,64 @@
  * Inc., #59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 #include "grstaps/Task_Allocation/AllocationResultsPackager.h"
-#include <iostream>
 #include <fstream>
+#include <iostream>
 
+#include "grstaps/Connections/taskAllocationToScheduling.h"
 
-
-namespace grstaps {
-
-    void AllocationResultsPackager::printResults(){
-        if (this->foundGoal) {
+namespace grstaps
+{
+    void AllocationResultsPackager::printResults()
+    {
+        if(this->foundGoal)
+        {
             std::cout << "Node Found" << std::endl;
             std::cout << "Node= " << this->finalNode->getNodeID() << std::endl;
             std::cout << "Makespan = " << (finalNode->getData().getScheduleTime()) << std::endl;
         }
-        else{
+        else
+        {
             std::cout << "Search Failed" << std::endl;
         }
     }
 
-    void AllocationResultsPackager::fileResults(string folder){
-        if (this->foundGoal) {
+    void AllocationResultsPackager::fileResults(string folder)
+    {
+        if(this->foundGoal)
+        {
             std::ofstream myfile;
 
             string file = "/TA_Sched.txt";
-            file = folder + file;
-            myfile.open (file);
+            file        = folder + file;
+            myfile.open(file);
 
-            myfile<< "Node Found" << std::endl;
+            myfile << "Node Found" << std::endl;
             myfile << "Node= " << this->finalNode->getNodeID() << std::endl;
             myfile << "Makespan = " << (finalNode->getData().getScheduleTime()) << std::endl;
 
-            for(int i=0 ; i < finalNode->getData().taToScheduling->sched.stn.size(); ++i){
-                myfile << "Action " << i << " start: " << finalNode->getData().taToScheduling->sched.stn[i][0] << " end: " << finalNode->getData().taToScheduling->sched.stn[i][1] << std::endl;
+            for(int i = 0; i < finalNode->getData().taToScheduling->sched.stn.size(); ++i)
+            {
+                myfile << "Action " << i << " start: " << finalNode->getData().taToScheduling->sched.stn[i][0]
+                       << " end: " << finalNode->getData().taToScheduling->sched.stn[i][1] << std::endl;
             }
 
-            auto motionPlans = finalNode->getData().taToScheduling->saveMotionPlanningNonSpeciesSchedule(&finalNode->getData());
+            auto motionPlans =
+                finalNode->getData().taToScheduling->saveMotionPlanningNonSpeciesSchedule(&finalNode->getData());
             myfile << endl << "Motion Plans" << endl;
-            for(int i =0 ; i < motionPlans.size(); ++i){
+            for(int i = 0; i < motionPlans.size(); ++i)
+            {
                 myfile << "Agent " << i << "-";
-                for( int j= 0; j < motionPlans[i].size(); ++i){
+                for(int j = 0; j < motionPlans[i].size(); ++i)
+                {
                     myfile << motionPlans[i][j] << ", ";
                 }
                 myfile << endl;
             }
         }
-        else{
+        else
+        {
             std::cout << "Search Failed" << std::endl;
         }
     }
 
-
-}//namespace grstaps
+}  // namespace grstaps

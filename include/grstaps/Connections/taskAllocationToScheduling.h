@@ -18,98 +18,102 @@
 #ifndef GRSTAPS_TASKALLOCATIONTOSCHEDULING_H
 #define GRSTAPS_TASKALLOCATIONTOSCHEDULING_H
 
-
-#include <grstaps/Scheduling/Scheduler.h>
-#include <vector>
 #include <string>
-#include <boost/shared_ptr.hpp>
-#include <grstaps/motion_planning/motion_planner.hpp>
+#include <vector>
 
+#include <boost/shared_ptr.hpp>
+#include <grstaps/Scheduling/Scheduler.h>
 
 using std::string;
 using std::vector;
 
 namespace grstaps
 {
+    class MotionPlanner;
     class TaskAllocation;
-    class taskAllocationToScheduling{
+
+    class taskAllocationToScheduling
+    {
        public:
+        /**
+         * Constructor
+         *
+         * \param the motion planner pointer to use for planning
+         *
+         */
+        taskAllocationToScheduling(MotionPlanner* mPlanner                      = nullptr,
+                                   const std::vector<unsigned int>& startingLoc = std::vector<unsigned int>());
 
         /**
-        * Constructor
-        *
-        * \param the motion planner pointer to use for planning
-        *
-        */
-        taskAllocationToScheduling(MotionPlanner* mPlanner= NULL, vector<int>* startingLoc= NULL, vector<int>* actionLoc= NULL);
-
-        /**
-        * Get the schedule for a task allocation that does not use species
-        *
-        * \param the allocation that needs to be scheduled
+         * Get the schedule for a task allocation that does not use species
+         *
+         * \param the allocation that needs to be scheduled
          *
          * \return the makespan of the schedule
-        *
-        */
+         *
+         */
 
         float getNonSpeciesSchedule(TaskAllocation* allocObject);
 
         /**
-        * Get the schedule for a task allocation that does use species
-        *
-        * \param the allocation that needs to be scheduled
+         * Get the schedule for a task allocation that does use species
+         *
+         * \param the allocation that needs to be scheduled
          *
          * \return the makespan of the schedule
-        *
-        */
-        //todo finish this
+         *
+         */
+        // todo finish this
         float getSpeciesSchedule(TaskAllocation* allocObject);
 
         /**
-        * Adjust the schedule to account for non allocated actions
-        *
-         * \param the schedule that needs to be adjusted
-        * \param the allocation that needs to be scheduled
+         * Adjust the schedule to account for non allocated actions
          *
-        *
-        */
-        //todo finish this
+         * \param the schedule that needs to be adjusted
+         * \param the allocation that needs to be scheduled
+         *
+         *
+         */
+        // todo finish this
         void adjustScheduleNonSpeciesSchedule(TaskAllocation* TaskAlloc);
 
         /**
-        * Adjust the schedule to account for motion planning
-        *
-         * \param the schedule that needs to be adjusted
-        * \param the allocation that needs to be scheduled
+         * Adjust the schedule to account for motion planning
          *
-        *
-        */
+         * \param the schedule that needs to be adjusted
+         * \param the allocation that needs to be scheduled
+         *
+         *
+         */
         float addMotionPlanningNonSpeciesSchedule(TaskAllocation* TaskAlloc);
 
         /**
-       * Save motion plans of agents
-       *
-        * \param the schedule that needs to be adjusted
-       * \param the allocation that needs to be scheduled
-        *
+         * Save motion plans of agents
+         *
+         * \param the schedule that needs to be adjusted
+         * \param the allocation that needs to be scheduled
+         *
          * \return the vector of locations agents will visit in order
-       *
-       */
+         *
+         */
         vector<vector<float>> saveMotionPlanningNonSpeciesSchedule(TaskAllocation* TaskAlloc);
+
+        /**
+         * Sets a list of the indices of the start and end locations for the actions
+         */
+        void setActionLocations(const std::vector<std::pair<unsigned int, unsigned int>>& action_locations);
 
         Scheduler sched;
 
        private:
         std::vector<int> concurrent;
-        vector<vector<float>> stn;
-        MotionPlanner* motionPlanner;
-        vector<int>* startingLocations;
-        vector<int>* actionLocations;
-        vector<int> actionOrder;
-        vector<float> maxTraitTeam;
-
+        std::vector<std::vector<float>> stn;
+        MotionPlanner* m_motion_planner;
+        std::vector<unsigned int> m_starting_locations;
+        std::vector<std::pair<unsigned int, unsigned int>> m_action_locations;
+        std::vector<int> actionOrder;
+        std::vector<float> maxTraitTeam;
     };
-}
+}  // namespace grstaps
 
-#include <grstaps/Task_Allocation/TaskAllocation.h>
 #endif  // GRSTAPS_TASKALLOCATIONTOSCHEDULING_H

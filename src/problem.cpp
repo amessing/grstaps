@@ -24,12 +24,30 @@ namespace grstaps
         m_locations = locations;
     }
 
-    void Problem::setActionRequirements(const std::vector<std::vector<float>>& actionReq){
+    void Problem::setActionLocationMap(
+        const std::map<std::string, std::pair<unsigned int, unsigned int>>& action_location_map)
+    {
+        m_action_location_map = action_location_map;
+    }
+
+    void Problem::addActionLocation(const std::string& action, const std::pair<unsigned int, unsigned int>& location)
+    {
+        m_action_location_map[action] = location;
+    }
+
+    void Problem::setActionRequirements(const std::vector<std::vector<float>>& actionReq)
+    {
         actionRequirements = actionReq;
     }
 
-    void Problem::setActionNonCumRequirements(const std::vector<std::vector<float>>& actionNonCumReq){
+    void Problem::setActionNonCumRequirements(const std::vector<std::vector<float>>& actionNonCumReq)
+    {
         actionNonCumRequirements = actionNonCumReq;
+    }
+
+    void Problem::setStartingLocations(const std::vector<unsigned int>& starting_locations)
+    {
+        m_starting_locations = starting_locations;
     }
 
     void Problem::setRobotTraitVector(std::vector<Problem::TraitVector>& robot_traits)
@@ -62,6 +80,15 @@ namespace grstaps
         return m_locations[i];
     }
 
+    const std::pair<unsigned int, unsigned int>& Problem::actionLocation(const std::string& name) const
+    {
+        if(m_action_location_map.find(name) != m_action_location_map.end())
+        {
+            return m_action_location_map.at(name);
+        }
+        throw "Unknown action";
+    }
+
     std::vector<Problem::TraitVector>& Problem::robotTraits()
     {
         return m_robot_traits;
@@ -87,9 +114,14 @@ namespace grstaps
         return m_obstacles;
     }
 
+    const std::vector<unsigned int>& Problem::startingLocations() const
+    {
+        return m_starting_locations;
+    }
+
     const nlohmann::json& Problem::config() const
     {
         return m_config;
     }
 
-}
+}  // namespace grstaps

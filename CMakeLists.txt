@@ -42,7 +42,7 @@ if(BUILD_EXE)
     add_executable(${PROJECT_NAME} src/main.cpp)
     set_target_properties(${PROJECT_NAME} PROPERTIES CXX_STANDARD 17 CXX_STANDARD_REQUIRED YES)
     target_link_libraries(${PROJECT_NAME} PRIVATE
-            box2d nlohmann_json stdc++fs
+            box2d nlohmann_json spdlog stdc++fs
             _${PROJECT_NAME})
 endif(BUILD_EXE)
 

@@ -24,6 +24,7 @@
 #include <nlohmann/json.hpp>
 
 // local
+#include "grstaps/logger.hpp"
 #include "grstaps/problem.hpp"
 #include "grstaps/solution.hpp"
 #include "grstaps/solver.hpp"
@@ -63,6 +64,9 @@ namespace grstaps
             problem.actionToRequirements[task->actions[i].name] = i;
             problem.actionRequirements.push_back({0.25});
             problem.actionNonCumRequirements.push_back({0});
+
+            problem.addActionLocation(task->actions[i].name,
+                                      std::make_pair(task->actions[i].name[9] - '1', task->actions[i].name[12] - '1'));
         }
 
         // No obstacles
@@ -76,7 +80,7 @@ namespace grstaps
 
         Solver solver;
         std::shared_ptr<Solution> solution = solver.solve(problem);
-        solver.writeSolution("/outputs/p1", solution);
+        solver.writeSolution("outputs/p1", solution);
         return 0;
     }
 }  // namespace grstaps

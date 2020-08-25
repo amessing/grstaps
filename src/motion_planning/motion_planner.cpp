@@ -57,11 +57,15 @@ namespace grstaps
         m_query_time = run_time;
     }
 
+    void MotionPlanner::setLocations(const std::vector<Location>& locations)
+    {
+        m_locations = locations;
+    }
+
     std::pair<bool, float> MotionPlanner::query(unsigned int from, unsigned int to)
     {
-        throw "Incomplete Function";
-        // TODO
-        //return query(knowledge.location(from), knowledge.location(to));
+        assert(from < m_locations.size() && to < m_locations.size());
+        return query(m_locations[from], m_locations[to]);
     }
 
     std::pair<bool, float> MotionPlanner::query(const Location& from, const Location& to)

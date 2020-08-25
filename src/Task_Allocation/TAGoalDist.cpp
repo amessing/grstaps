@@ -16,24 +16,30 @@
  * Inc., #59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
+#include <cstdlib>
 #include <iostream>
 #include <stdexcept>
-#include <cstdlib>
 #include <utility>
+
+#include "grstaps/Connections/taskAllocationToScheduling.h"
 #include "grstaps/Graph/Node.h"
 #include "grstaps/Task_Allocation/TAGoalDist.h"
 
-namespace grstaps {
-
+namespace grstaps
+{
     float allocationWeight = 1.0;
 
-    float TAGoalDist::operator()(Graph<TaskAllocation> &graph, TaskAllocation &parentNode, TaskAllocation &newNode){
+    float TAGoalDist::operator()(Graph<TaskAllocation> &graph, TaskAllocation &parentNode, TaskAllocation &newNode)
+    {
         TAScheduleTime schedule;
         double makespan = schedule(graph, parentNode, newNode);
-        if(makespan ==  std::numeric_limits<float>::max()){
-            return  makespan;
+        if(makespan == std::numeric_limits<float>::max())
+        {
+            return makespan;
         }
-        return  ((makespan - newNode.taToScheduling->sched.bestSchedule)/(newNode.taToScheduling->sched.worstSchedule - newNode.taToScheduling->sched.bestSchedule)) + ( (newNode.getGoalDistance()/(*newNode.startingGoalDistance)) * allocationWeight );
+        return ((makespan - newNode.taToScheduling->sched.bestSchedule) /
+                (newNode.taToScheduling->sched.worstSchedule - newNode.taToScheduling->sched.bestSchedule)) +
+               ((newNode.getGoalDistance() / (*newNode.startingGoalDistance)) * allocationWeight);
     }
 
-} //grstaps
+}  // namespace grstaps

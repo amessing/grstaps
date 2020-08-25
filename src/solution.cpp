@@ -4,10 +4,15 @@
 
 #include "grstaps/solution.hpp"
 
+// global
+#include <set>
+
 // external
 #include <nlohmann/json.hpp>
 
 // local
+#include "grstaps/Connections/taskAllocationToScheduling.h"
+#include "grstaps/Task_Allocation/TaskAllocation.h"
 #include "grstaps/task_planning/plan.hpp"
 
 namespace grstaps
@@ -28,15 +33,18 @@ namespace grstaps
         std::set<std::pair<uint16_t, uint16_t>> ordering_constraints;
 
         // Ignore #initial and <goal>
+        j["schedule"] = nlohmann::json();
         for(unsigned int i = 1; i < plan_subcomponents.size() - 1; ++i)
         {
-            const Plan* p = plan_subcomponents[i];
-            j["schedule"].push_back({{"name", p->action->name},
-                                     {"index", i},
-                                     {"start_time", m_allocation->taToScheduling->sched.stn[i][0]},
-                                     {"end_time", m_allocation->taToScheduling->sched.stn[i][1]}});
+            const unsigned int index = i - 1;
+            const Plan* p            = plan_subcomponents[i];
+            nlohmann::json action    = {{"name", p->action->name},
+                                     {"index", index},
+                                     {"start_time", m_allocation->taToScheduling->sched.stn[index][0]},
+                                     {"end_time", m_allocation->taToScheduling->sched.stn[index][1]}};
+            j["schedule"].push_back(action);
 
-            for(unsigned int j = 0; j < plan_subcomponents[i]->orderings.size(); ++j)
+            for(unsigned int j = 0; j < p->orderings.size(); ++j)
             {
                 // uint16_t
                 TTimePoint fp = firstPoint(p->orderings[j]);
@@ -51,6 +59,10 @@ namespace grstaps
         j["ordering_constaints"] = ordering_constraints;
 
         j["allocation"] = m_allocation->getID();
+
+        j["makespan"] = m_allocation->taToScheduling->sched.getMakeSpan();
+
+        // TODO: motion plan
 
         std::ofstream output;
         output.open(filepath.c_str());

@@ -16,7 +16,6 @@
  * Inc., #59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-
 #ifndef GRSTAPS_MOTION_PLANNER_HPP
 #define GRSTAPS_MOTION_PLANNER_HPP
 
@@ -38,7 +37,7 @@
 namespace grstaps
 {
     // Forward Declarations
-    //class Location;
+    // class Location;
 
     /**
      * Wrapper for Open Motion Planning Library
@@ -72,6 +71,11 @@ namespace grstaps
         void setQueryTime(float run_time);
 
         /**
+         * Sets a list of possible locations
+         */
+        void setLocations(const std::vector<Location>& locations);
+
+        /**
          * \param from The idenifier for the location that a robot is travelling from
          * \param to The identifier for the location that a robot is travelling to
          *
@@ -99,9 +103,9 @@ namespace grstaps
         ompl::base::StateSpacePtr m_space;  //!< Outline of the space
         ompl::base::SpaceInformationPtr
             m_space_information;  //!< Information about the space (includes validity checker)
+        std::vector<Location> m_locations;
         std::mutex m_mutex;
     };
 }  // namespace grstaps
 
 #endif  // GRSTAPS_MOTION_PLANNER_HPP
-

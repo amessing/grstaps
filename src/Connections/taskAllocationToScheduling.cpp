@@ -16,16 +16,18 @@
  * Inc., #59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-#include <grstaps/Connections/taskAllocationToScheduling.h>
+#include "grstaps/Connections/taskAllocationToScheduling.h"
+
+#include "grstaps/Task_Allocation/TaskAllocation.h"
+#include "grstaps/motion_planning/motion_planner.hpp"
 
 namespace grstaps
 {
-    class TaskAllocation;
-
-    taskAllocationToScheduling::taskAllocationToScheduling(MotionPlanner* mPlanner, vector<int>* startingLoc, vector<int>* actionLoc){
-        motionPlanner = mPlanner;
-        startingLocations = startingLoc;
-        actionLocations = actionLoc;
+    taskAllocationToScheduling::taskAllocationToScheduling(MotionPlanner* motion_planner,
+                                                           const std::vector<unsigned int>& startingLoc)
+    {
+        m_motion_planner     = motion_planner;
+        m_starting_locations = startingLoc;
     }
 
     float taskAllocationToScheduling::getNonSpeciesSchedule(TaskAllocation* allocObject)
@@ -58,7 +60,7 @@ namespace grstaps
                *allocObject->getActionDuration(), *allocObject->getOrderingConstraints(), disjunctiveConstraints))
         {
             adjustScheduleNonSpeciesSchedule(allocObject);
-            return addMotionPlanningNonSpeciesSchedule( allocObject);
+            return addMotionPlanningNonSpeciesSchedule(allocObject);
         }
         return -10;
     }
@@ -70,162 +72,224 @@ namespace grstaps
 
     void taskAllocationToScheduling::adjustScheduleNonSpeciesSchedule(TaskAllocation* taskAlloc)
     {
-        //auto allocation = taskAlloc->getAllocation();
+        // auto allocation = taskAlloc->getAllocation();
 
         vector<int> checked(sched.stn.size(), 0);
 
-        for(int i = 0; i < stn.size(); ++i){
+        for(int i = 0; i < stn.size(); ++i)
+        {
             vector<vector<float>> stn = sched.stn;
 
-            //find action ending soonest
+            // find action ending soonest
 
-            float minEndTime             = std::numeric_limits<float>::max();
-            int currentSoonestEnd        = 0;
-            for(int j = 0; j < stn.size(); ++j){
-                if(stn[j][1] < minEndTime && !checked[j]){
+            float minEndTime      = std::numeric_limits<float>::max();
+            int currentSoonestEnd = 0;
+            for(int j = 0; j < stn.size(); ++j)
+            {
+                if(stn[j][1] < minEndTime && !checked[j])
+                {
                     minEndTime        = stn[j][1];
                     currentSoonestEnd = j;
                 }
             }
             actionOrder.emplace_back(currentSoonestEnd);
 
-            //find concurrent actionsector<int> concurrent{currentSoonestEnd};
+            // find concurrent actionsector<int> concurrent{currentSoonestEnd};
             concurrent.clear();
             concurrent.emplace_back(currentSoonestEnd);
-            for(int j = 0; j < stn.size(); ++j){
+            for(int j = 0; j < stn.size(); ++j)
+            {
                 if((j != currentSoonestEnd) && !checked[j] &&
                    ((stn[j][1] <= stn[currentSoonestEnd][0] && stn[j][1] > stn[currentSoonestEnd][0]) ||
-                    (stn[j][0] <= stn[currentSoonestEnd][1] && stn[j][0] >= stn[currentSoonestEnd][0]))){
+                    (stn[j][0] <= stn[currentSoonestEnd][1] && stn[j][0] >= stn[currentSoonestEnd][0])))
+                {
                     concurrent.emplace_back(j);
                 }
             }
 
-
-            //calc trait ussage at time of action
+            // calc trait ussage at time of action
             maxTraitTeam = *(taskAlloc->traitTeamMax);
-            for(int j = 0; j < concurrent.size(); ++j){
-                for(int k = 0; k < maxTraitTeam.size(); ++k){
+            for(int j = 0; j < concurrent.size(); ++j)
+            {
+                for(int k = 0; k < maxTraitTeam.size(); ++k)
+                {
                     maxTraitTeam[k] -= taskAlloc->allocationTraitDistribution[concurrent[j]][k] +
                                        taskAlloc->requirementsRemaining[concurrent[j]][k];
                 }
             }
 
             bool removeCurrent = true;
-            for(int j = 0; j < maxTraitTeam.size(); ++j){
-
-                while(maxTraitTeam[j] < 0){
-                    stn = sched.stn;
-                    int toUpdate = 1000;
-                    int direction = 0;
+            for(int j = 0; j < maxTraitTeam.size(); ++j)
+            {
+                while(maxTraitTeam[j] < 0)
+                {
+                    stn                 = sched.stn;
+                    int toUpdate        = 1000;
+                    int direction       = 0;
                     float bestSchedTime = std::numeric_limits<float>::max();
-                    float currentSched = std::numeric_limits<float>::max();
+                    float currentSched  = std::numeric_limits<float>::max();
 
-                    for(int k = 0; k < concurrent.size(); ++k){
-                        for(int l = 0; l < 2; ++l){
-                            if(((*taskAlloc->goalTraitDistribution)[concurrent[k]][j] > 0) || (taskAlloc->allocationTraitDistribution[concurrent[k]][j] > 0)){
-                                if(concurrent[k] != currentSoonestEnd){
-
-                                    if(l == 0){
-                                        currentSched = sched.addOCTemp(currentSoonestEnd, concurrent[k], stn, sched.beforeConstraints, sched.afterConstraints);
+                    for(int k = 0; k < concurrent.size(); ++k)
+                    {
+                        for(int l = 0; l < 2; ++l)
+                        {
+                            if(((*taskAlloc->goalTraitDistribution)[concurrent[k]][j] > 0) ||
+                               (taskAlloc->allocationTraitDistribution[concurrent[k]][j] > 0))
+                            {
+                                if(concurrent[k] != currentSoonestEnd)
+                                {
+                                    if(l == 0)
+                                    {
+                                        currentSched = sched.addOCTemp(currentSoonestEnd,
+                                                                       concurrent[k],
+                                                                       stn,
+                                                                       sched.beforeConstraints,
+                                                                       sched.afterConstraints);
 
                                         if(currentSched < bestSchedTime)
                                         {
-                                            bestSchedTime   = currentSched;
-                                            toUpdate        = k;
-                                            direction = l;
+                                            bestSchedTime = currentSched;
+                                            toUpdate      = k;
+                                            direction     = l;
                                         }
                                     }
-                                    else{
-                                        currentSched = sched.addOCTemp(currentSoonestEnd, concurrent[k], stn, sched.beforeConstraints, sched.afterConstraints);
+                                    else
+                                    {
+                                        currentSched = sched.addOCTemp(currentSoonestEnd,
+                                                                       concurrent[k],
+                                                                       stn,
+                                                                       sched.beforeConstraints,
+                                                                       sched.afterConstraints);
 
                                         if(currentSched < bestSchedTime)
                                         {
-                                            bestSchedTime   = currentSched;
-                                            toUpdate        = k;
-                                            direction = l;
+                                            bestSchedTime = currentSched;
+                                            toUpdate      = k;
+                                            direction     = l;
                                         }
                                     }
-
                                 }
                             }
                         }
                     }
 
-                    if(direction == 0){
+                    if(direction == 0)
+                    {
                         sched.addOC(currentSoonestEnd, concurrent[toUpdate]);
 
-                        for(int k = 0; k < (*taskAlloc->goalTraitDistribution)[concurrent[toUpdate]].size(); ++k){
-                            maxTraitTeam[k] += taskAlloc->allocationTraitDistribution[concurrent[toUpdate]][k] + taskAlloc->requirementsRemaining[concurrent[toUpdate]][k];
+                        for(int k = 0; k < (*taskAlloc->goalTraitDistribution)[concurrent[toUpdate]].size(); ++k)
+                        {
+                            maxTraitTeam[k] += taskAlloc->allocationTraitDistribution[concurrent[toUpdate]][k] +
+                                               taskAlloc->requirementsRemaining[concurrent[toUpdate]][k];
                         }
                         concurrent.erase(concurrent.begin() + toUpdate);
                     }
-                    else{
-
+                    else
+                    {
                         sched.addOC(concurrent[toUpdate], currentSoonestEnd);
                         concurrent.erase(concurrent.begin() + toUpdate);
-                        j = maxTraitTeam.size();
+                        j             = maxTraitTeam.size();
                         removeCurrent = false;
                         break;
                     }
-
                 }
             }
 
-            if(removeCurrent){
+            if(removeCurrent)
+            {
                 checked[currentSoonestEnd] = 1;
             }
-
         }
-        //return sched.getMakeSpan();
+        // return sched.getMakeSpan();
     }
 
-    float taskAllocationToScheduling::addMotionPlanningNonSpeciesSchedule(TaskAllocation* TaskAlloc){
-        if(motionPlanner == NULL){
+    float taskAllocationToScheduling::addMotionPlanningNonSpeciesSchedule(TaskAllocation* TaskAlloc)
+    {
+        if(m_motion_planner == nullptr)
+        {
             return sched.getMakeSpan();
         }
-        else{
-            vector<int> currentLocations = *startingLocations;
-            for(int i=0 ; i < actionOrder.size(); ++i){
+        else
+        {
+            std::vector<unsigned int> currentLocations = m_starting_locations;
+            for(int i = 0; i < actionOrder.size(); ++i)
+            {
+                // If the action is a move action then add in the move time
+                float action_move_time                      = 0.0;
+                std::pair<bool, float> action_travel_length = m_motion_planner->query(
+                    m_action_locations[actionOrder[i]].first, m_action_locations[actionOrder[i]].second);
+                if(action_travel_length.first)
+                {
+                    // TODO: speed...
+                    action_move_time = action_travel_length.second * 1.0;
+                }
+                // The movement required during action i is impossible
+                else
+                {
+                    return std::numeric_limits<float>::max();
+                }
+
                 float maxTravelTime = 0;
-                for(int j=0; TaskAlloc->getNumSpecies()->size(); j++){
-                    if(TaskAlloc->allocation[actionOrder[i] * TaskAlloc->getNumSpecies()->size() + j] == 1){
-                        std::pair<bool, float> travelTime = motionPlanner->query((unsigned int) currentLocations[j], (unsigned int) (*actionLocations)[actionOrder[i]]);
-                        if(travelTime.first == 1){
-                            if(travelTime.second > maxTravelTime){
+                for(int j = 0; TaskAlloc->getNumSpecies()->size(); j++)
+                {
+                    if(TaskAlloc->allocation[actionOrder[i] * TaskAlloc->getNumSpecies()->size() + j] == 1)
+                    {
+                        std::pair<bool, float> travelTime =
+                            m_motion_planner->query(currentLocations[j], m_action_locations[actionOrder[i]].first);
+                        if(travelTime.first)
+                        {
+                            if(travelTime.second > maxTravelTime)
+                            {
+                                // TODO: needs a speed component
                                 maxTravelTime = travelTime.second;
-                                currentLocations[j] = (*actionLocations)[actionOrder[i]];
+                                // Move to the end of the action
+                                currentLocations[j] = m_action_locations[actionOrder[i]].second;
                             }
                         }
-                        else{
-                            return  std::numeric_limits<float>::max();
+                        else
+                        {
+                            return std::numeric_limits<float>::max();
                         }
                     }
                 }
-                sched.increaseActionTime(actionOrder[i], maxTravelTime);
+                sched.increaseActionTime(actionOrder[i], maxTravelTime + action_move_time);
             }
             return sched.getMakeSpan();
         }
-
     }
 
-    vector<vector<float>> taskAllocationToScheduling::saveMotionPlanningNonSpeciesSchedule(TaskAllocation* TaskAlloc){
-        vector<vector<float>> motionPlans = vector<vector<float>>(TaskAlloc->getNumSpecies()->size(), std::vector<float>(1, 0));
-        if(motionPlanner != NULL){
-            vector<int> currentLocations = *startingLocations;
-            for(int i= 0; i < currentLocations.size(); ++i){
+    vector<vector<float>> taskAllocationToScheduling::saveMotionPlanningNonSpeciesSchedule(TaskAllocation* TaskAlloc)
+    {
+        std::vector<std::vector<float>> motionPlans(TaskAlloc->getNumSpecies()->size(), std::vector<float>(1, 0));
+        if(m_motion_planner != nullptr)
+        {
+            // Why is this vector created?
+            std::vector<unsigned int> currentLocations = m_starting_locations;
+            for(int i = 0; i < currentLocations.size(); ++i)
+            {
                 motionPlans[i][0] = currentLocations[i];
             }
-            for(int i=0 ; i < actionOrder.size(); ++i){
-                for(int j=0; TaskAlloc->getNumSpecies()->size(); j++){
-                    if(TaskAlloc->allocation[actionOrder[i] * TaskAlloc->getNumSpecies()->size() + j] == 1){
-                        motionPlans[j].emplace_back((*actionLocations)[actionOrder[i]]);
+            for(int i = 0; i < actionOrder.size(); ++i)
+            {
+                for(int j = 0; TaskAlloc->getNumSpecies()->size(); j++)
+                {
+                    if(TaskAlloc->allocation[actionOrder[i] * TaskAlloc->getNumSpecies()->size() + j] == 1)
+                    {
+                        motionPlans[j].emplace_back(m_action_locations[actionOrder[i]].first);
+                        if(m_action_locations[actionOrder[i]].second != m_action_locations[actionOrder[i]].first)
+                        {
+                            motionPlans[j].emplace_back(m_action_locations[actionOrder[i]].second);
+                        }
                     }
                 }
             }
         }
         return motionPlans;
-
     }
 
-
-}
+    void taskAllocationToScheduling::setActionLocations(
+        const std::vector<std::pair<unsigned int, unsigned int>>& action_locations)
+    {
+        m_action_locations = action_locations;
+    }
+}  // namespace grstaps
