@@ -84,8 +84,18 @@ namespace grstaps
          *
         *
         */
-        //todo finish this
         float addMotionPlanningNonSpeciesSchedule(TaskAllocation* TaskAlloc);
+
+        /**
+       * Save motion plans of agents
+       *
+        * \param the schedule that needs to be adjusted
+       * \param the allocation that needs to be scheduled
+        *
+         * \return the vector of locations agents will visit in order
+       *
+       */
+        vector<vector<float>> saveMotionPlanningNonSpeciesSchedule(TaskAllocation* TaskAlloc);
 
         Scheduler sched;
 

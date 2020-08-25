@@ -4,7 +4,7 @@ message("Building ${PROJECT_NAME}...")
 
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-set(optimization ON)
+set(optimization OFF)
 
 
 # Add external cmake modules

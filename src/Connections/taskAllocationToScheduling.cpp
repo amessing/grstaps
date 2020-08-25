@@ -207,4 +207,25 @@ namespace grstaps
         }
 
     }
+
+    vector<vector<float>> taskAllocationToScheduling::saveMotionPlanningNonSpeciesSchedule(TaskAllocation* TaskAlloc){
+        vector<vector<float>> motionPlans = vector<vector<float>>(TaskAlloc->getNumSpecies()->size(), std::vector<float>(1, 0));
+        if(motionPlanner != NULL){
+            vector<int> currentLocations = *startingLocations;
+            for(int i= 0; i < currentLocations.size(); ++i){
+                motionPlans[i][0] = currentLocations[i];
+            }
+            for(int i=0 ; i < actionOrder.size(); ++i){
+                for(int j=0; TaskAlloc->getNumSpecies()->size(); j++){
+                    if(TaskAlloc->allocation[actionOrder[i] * TaskAlloc->getNumSpecies()->size() + j] == 1){
+                        motionPlans[j].emplace_back((*actionLocations)[actionOrder[i]]);
+                    }
+                }
+            }
+        }
+        return motionPlans;
+
+    }
+
+
 }
