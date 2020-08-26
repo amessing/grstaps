@@ -73,7 +73,7 @@ namespace grstaps
     void taskAllocationToScheduling::adjustScheduleNonSpeciesSchedule(TaskAllocation* taskAlloc)
     {
         // auto allocation = taskAlloc->getAllocation();
-
+        stn = sched.stn;
         vector<int> checked(sched.stn.size(), 0);
 
         for(int i = 0; i < stn.size(); ++i)

@@ -115,7 +115,7 @@ namespace grstaps
                             order_constraints.insert({fp / 2 - 1, sp / 2 - 1});
                         }
 
-                        durations->push_back(plan->action->duration[0].exp.value);
+                        durations->push_back(p->action->duration[0].exp.value);
 
                         noncumTraitCutoff->push_back(
                             problem.actionNonCumRequirements[problem.actionToRequirements[p->action->name]]);
