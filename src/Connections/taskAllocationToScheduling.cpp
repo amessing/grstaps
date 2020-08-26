@@ -220,7 +220,6 @@ namespace grstaps
                     m_action_locations[actionOrder[i]].first, m_action_locations[actionOrder[i]].second);
                 if(action_travel_length.first)
                 {
-                    // TODO: speed...
                     action_move_time = action_travel_length.second ;
                 }
                 // The movement required during action i is impossible
@@ -230,6 +229,7 @@ namespace grstaps
                 }
 
                 float maxTravelTime = 0;
+                float slowestAgent = std::numeric_limits<float>::max();
                 auto traits = TaskAlloc->getSpeciesTraitDistribution();
                 for(int j = 0; TaskAlloc->getNumSpecies()->size(); j++)
                 {
@@ -247,6 +247,9 @@ namespace grstaps
                                 }
                             }
                             else{
+                                if(slowestAgent > (*traits)[j][TaskAlloc->speedIndex]){
+                                    slowestAgent = (*traits)[j][TaskAlloc->speedIndex];
+                                }
                                 if((travelTime.second  * (*traits)[j][TaskAlloc->speedIndex]) > maxTravelTime)
                                 {
                                     maxTravelTime = travelTime.second  * (*traits)[j][TaskAlloc->speedIndex];
@@ -256,7 +259,7 @@ namespace grstaps
                             }
                     }
                 }
-                sched.increaseActionTime(actionOrder[i], maxTravelTime + action_move_time);
+                sched.increaseActionTime(actionOrder[i], maxTravelTime + (action_move_time * slowestAgent));
             }
             return sched.getMakeSpan();
         }
