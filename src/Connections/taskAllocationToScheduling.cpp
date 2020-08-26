@@ -239,9 +239,9 @@ namespace grstaps
                             m_motion_planner->query(currentLocations[j], m_action_locations[actionOrder[i]].first);
                             if(TaskAlloc->speedIndex == -1)
                             {
+                                slowestAgent = 1;
                                 if((travelTime.second) > maxTravelTime)
                                 {
-                                    slowestAgent = 1;
                                     maxTravelTime = travelTime.second;
                                     // Move to the end of the action
                                     currentLocations[j] = m_action_locations[actionOrder[i]].second;
@@ -251,16 +251,16 @@ namespace grstaps
                                 if(slowestAgent < (*traits)[j][TaskAlloc->speedIndex]){
                                     slowestAgent = (*traits)[j][TaskAlloc->speedIndex];
                                 }
-                                if((travelTime.second  * (*traits)[j][TaskAlloc->speedIndex]) > maxTravelTime)
+                                if((travelTime.second  / (*traits)[j][TaskAlloc->speedIndex]) > maxTravelTime)
                                 {
-                                    maxTravelTime = travelTime.second  * (*traits)[j][TaskAlloc->speedIndex];
+                                    maxTravelTime = travelTime.second  / (*traits)[j][TaskAlloc->speedIndex];
                                     // Move to the end of the action
                                     currentLocations[j] = m_action_locations[actionOrder[i]].second;
                                 }
                             }
                     }
                 }
-                sched.increaseActionTime(actionOrder[i], maxTravelTime + (action_move_time * slowestAgent));
+                sched.increaseActionTime(actionOrder[i], maxTravelTime + (action_move_time / slowestAgent));
             }
             return sched.getMakeSpan();
         }
