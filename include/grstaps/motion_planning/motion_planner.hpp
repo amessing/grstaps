@@ -71,6 +71,11 @@ namespace grstaps
         void setQueryTime(float run_time);
 
         /**
+         * Sets the maximum distance for two coordinates to be connected
+         */
+        void setConnectionRange(float range);
+
+        /**
          * Sets a list of possible locations
          */
         void setLocations(const std::vector<Location>& locations);
@@ -91,11 +96,15 @@ namespace grstaps
          */
         std::pair<bool, float> query(const Location& from, const Location& to);
 
+        std::vector<std::pair<float, float>> getWaypoints(unsigned int from, unsigned int to);
+
        private:
         /**
          * Constructor
          */
         MotionPlanner();
+
+        void waypointQuery(unsigned int from, unsigned int to, ompl::base::ProblemDefinitionPtr problem_def);
 
         bool m_map_set;                     //!< Whether the map has been set for the motion planner
         float m_query_time;                 //!< How long a query can run for

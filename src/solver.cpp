@@ -56,6 +56,7 @@ namespace grstaps
         motion_planner.setMap(problem.obstacles(), boundary_min, boundary_max);
         motion_planner.setLocations(problem.locations());
         motion_planner.setQueryTime(config["mp_query_time"]);
+        motion_planner.setConnectionRange(config["mp_connection_range"]);
 
         // Task Allocation
         boost::shared_ptr<taskAllocationToScheduling> taToSched =

@@ -62,6 +62,16 @@ namespace grstaps
         m_query_time = run_time;
     }
 
+    void MotionPlanner::setConnectionRange(float range)
+    {
+        if(!m_map_set)
+        {
+            // Custom exception
+            throw "Cannot set connection range before setting the map";
+        }
+        std::dynamic_pointer_cast<og::LazyPRMstar>(m_planner)->setRange(range);
+    }
+
     void MotionPlanner::setLocations(const std::vector<Location>& locations)
     {
         m_locations = locations;
@@ -103,8 +113,64 @@ namespace grstaps
         return std::make_pair(false, -1.0);
     }
 
+    std::vector<std::pair<float, float>> MotionPlanner::getWaypoints(unsigned int from, unsigned int to)
+    {
+        auto problem = std::make_shared<ob::ProblemDefinition>(m_space_information);
+        waypointQuery(from, to, problem);
+
+        ob::PathPtr path               = problem->getSolutionPath();
+        auto path_geometric            = path->as<og::PathGeometric>();
+        std::vector<ob::State*> states = path_geometric->getStates();
+
+        std::vector<std::pair<float, float>> waypoints;
+        for(ob::State* state: states)
+        {
+            auto& real_vector_state = *state->as<ob::RealVectorStateSpace::StateType>();
+            const float x           = real_vector_state[0];
+            const float y           = real_vector_state[1];
+            if(waypoints.size() > 1 && waypoints.back().first == x && waypoints.back().second == y)
+            {
+                continue;
+            }
+            waypoints.push_back(std::make_pair(x, y));
+        }
+        return waypoints;
+    }
+
     MotionPlanner::MotionPlanner()
         : m_map_set(false)
         , m_query_time(1.0)
     {}
+
+    void MotionPlanner::waypointQuery(unsigned int from, unsigned int to, ompl::base::ProblemDefinitionPtr problem_def)
+    {
+        std::lock_guard<std::mutex> lock(m_mutex);
+
+        // Create the robot's starting state
+        ob::ScopedState<> start(m_space);
+        start->as<ob::RealVectorStateSpace::StateType>()->values[0] = m_locations[from].x();
+        start->as<ob::RealVectorStateSpace::StateType>()->values[1] = m_locations[from].y();
+
+        // Create the robot's goal state
+        ob::ScopedState<> goal(m_space);
+        goal->as<ob::RealVectorStateSpace::StateType>()->values[0] = m_locations[to].x();
+        goal->as<ob::RealVectorStateSpace::StateType>()->values[1] = m_locations[to].y();
+
+        // Create problem instance
+        problem_def->setStartAndGoalStates(start, goal);
+        problem_def->setOptimizationObjective(
+            std::make_shared<ob::PathLengthOptimizationObjective>(m_space_information));
+
+        // Clear the previous problem definition
+        std::dynamic_pointer_cast<og::LazyPRMstar>(m_planner)->clearQuery();
+        m_planner->setProblemDefinition(problem_def);
+
+        ob::PlannerStatus solved = m_planner->solve(m_query_time);
+        if(solved)
+        {
+            return;
+        }
+        // Custom exception needed
+        throw "Path could not be made";
+    }
 }  // namespace grstaps

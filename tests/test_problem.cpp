@@ -77,9 +77,10 @@ namespace grstaps
             nlohmann::json config;
 
             // Config
-            config["mp_boundary_min"] = 0;
-            config["mp_boundary_max"] = 2;
-            config["mp_query_time"]   = 0.0001;
+            config["mp_boundary_min"]     = 0;
+            config["mp_boundary_max"]     = 2;
+            config["mp_query_time"]       = 0.0001;
+            config["mp_connection_range"] = 0.1;
             problem.setConfig(config);
 
             Solver solver;

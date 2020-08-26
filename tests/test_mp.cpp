@@ -102,7 +102,7 @@ namespace grstaps
             std::vector<b2PolygonShape> obstacles;
             Location from("source", 0.5, 0.5);
             Location to("target", 1.5, 1.5);
-            double runtime = 0.1;
+            double runtime = 0.001;
 
             std::vector<Location> locations = {from, to};
 
@@ -110,10 +110,79 @@ namespace grstaps
             mp.setMap(obstacles, 0.0, 2.0);
             mp.setLocations(locations);
             mp.setQueryTime(runtime);
+            mp.setConnectionRange(0.1);
             std::pair<bool, float> result = mp.query(0, 1);
             if(result.first)
             {
                 std::cout << result.second << std::endl;
+            }
+            else
+            {
+                FAIL();
+            }
+        }
+
+        TEST(MotionPlanning, p1_waypoints)
+        {
+            std::vector<b2PolygonShape> obstacles;
+            Location from("source", 0.5, 0.5);
+            Location to("target", 1.5, 1.5);
+            double runtime = 0.0001;
+
+            std::vector<Location> locations = {from, to};
+
+            auto& mp = MotionPlanner::instance();
+            mp.setMap(obstacles, 0.0, 2.0);
+            mp.setLocations(locations);
+            mp.setQueryTime(runtime);
+            mp.setConnectionRange(0.1);
+            std::pair<bool, float> result = mp.query(0, 1);
+            if(result.first)
+            {
+                std::cout << result.second << std::endl;
+                std::vector<std::pair<float, float>> waypoints = mp.getWaypoints(0, 1);
+                std::cout << waypoints.size() << std::endl;
+                for(const std::pair<float, float>& waypoint: waypoints)
+                {
+                    std::cout << '\t' << waypoint.first << ", " << waypoint.second << std::endl;
+                }
+            }
+            else
+            {
+                FAIL();
+            }
+        }
+
+        TEST(MotionPlanning, p1_obstacles)
+        {
+            std::vector<b2PolygonShape> obstacles;
+
+            // Block the direct path
+            b2PolygonShape obstacle;
+            obstacle.SetAsBox(0.1, 0.1, b2Vec2(1.0, 1.0), 0);
+            obstacles.push_back(obstacle);
+
+            Location from("source", 0.5, 0.5);
+            Location to("target", 1.5, 1.5);
+            double runtime = 0.0001;
+
+            std::vector<Location> locations = {from, to};
+
+            auto& mp = MotionPlanner::instance();
+            mp.setMap(obstacles, 0.0, 2.0);
+            mp.setLocations(locations);
+            mp.setQueryTime(runtime);
+            mp.setConnectionRange(0.1);
+            std::pair<bool, float> result = mp.query(0, 1);
+            if(result.first)
+            {
+                std::cout << result.second << std::endl;
+                std::vector<std::pair<float, float>> waypoints = mp.getWaypoints(0, 1);
+                std::cout << waypoints.size() << std::endl;
+                for(const std::pair<float, float>& waypoint: waypoints)
+                {
+                    std::cout << '\t' << waypoint.first << ", " << waypoint.second << std::endl;
+                }
             }
             else
             {
