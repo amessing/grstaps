@@ -152,7 +152,7 @@ namespace grstaps
                 if(package->foundGoal)
                 {
                     successors[i]->h = package->finalNode->getPathCost();
-                    potential_successors.push_back({successors[i], (package->finalNode->getData())});
+                    potential_successors.push_back({successors[i], package->finalNode->getData()});
                 }
             }
 
