@@ -40,6 +40,7 @@ namespace grstaps
 
             std::vector<Location> locations = {Location("source", 0.5, 0.5), Location("target", 1.5, 1.5)};
             problem.setLocations(locations);
+            problem.setStartingLocations({0, 0, 0});
 
             std::vector<Problem::TraitVector> robot_traits = {{0.75, 1}, {0.75, 1}, {0.75, 1}};
             problem.setRobotTraitVector(robot_traits);

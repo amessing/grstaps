@@ -72,6 +72,7 @@ namespace grstaps
 
     void taskAllocationToScheduling::adjustScheduleNonSpeciesSchedule(TaskAllocation* taskAlloc)
     {
+        actionOrder.clear();
         // auto allocation = taskAlloc->getAllocation();
         stn = sched.stn;
         vector<int> checked(sched.stn.size(), 0);
@@ -231,7 +232,7 @@ namespace grstaps
                 float maxTravelTime = 0;
                 float slowestAgent = std::numeric_limits<float>::max();
                 auto traits = TaskAlloc->getSpeciesTraitDistribution();
-                for(int j = 0; TaskAlloc->getNumSpecies()->size(); j++)
+                for(int j = 0; j < TaskAlloc->getNumSpecies()->size(); j++)
                 {
                     if(TaskAlloc->allocation[actionOrder[i] * TaskAlloc->getNumSpecies()->size() + j] == 1)
                     {
