@@ -19,6 +19,7 @@
 #include "grstaps/Connections/taskAllocationToScheduling.h"
 
 #include "grstaps/Task_Allocation/TaskAllocation.h"
+#include "grstaps/logger.hpp"
 #include "grstaps/motion_planning/motion_planner.hpp"
 
 namespace grstaps
@@ -216,56 +217,68 @@ namespace grstaps
             for(int i = 0; i < actionOrder.size(); ++i)
             {
                 // If the action is a move action then add in the move time
-                float action_move_time                      = 0.0;
-                std::pair<bool, float> action_travel_length = m_motion_planner->query(
-                    m_action_locations[actionOrder[i]].first, m_action_locations[actionOrder[i]].second);
-                if(action_travel_length.first)
+                float action_move_time = 0.0;
+                if(m_action_locations[actionOrder[i]].first != m_action_locations[actionOrder[i]].second)
                 {
-                    action_move_time = action_travel_length.second ;
-                }
-                // The movement required during action i is impossible
-                else
-                {
-                    return std::numeric_limits<float>::max();
+                    Logger::debug("MP Query {} -> {}",
+                                  m_action_locations[actionOrder[i]].first,
+                                  m_action_locations[actionOrder[i]].second);
+                    std::pair<bool, float> action_travel_length = m_motion_planner->query(
+                        m_action_locations[actionOrder[i]].first, m_action_locations[actionOrder[i]].second);
+                    if(action_travel_length.first)
+                    {
+                        action_move_time = action_travel_length.second;
+                    }
+                    // The movement required during action i is impossible
+                    else
+                    {
+                        return std::numeric_limits<float>::max();
+                    }
                 }
 
                 float maxTravelTime = 0;
-                float slowestAgent = std::numeric_limits<float>::max();
-                auto traits = TaskAlloc->getSpeciesTraitDistribution();
+                float slowestAgent  = std::numeric_limits<float>::max();
+                auto traits         = TaskAlloc->getSpeciesTraitDistribution();
                 for(int j = 0; j < TaskAlloc->getNumSpecies()->size(); j++)
                 {
                     if(TaskAlloc->allocation[actionOrder[i] * TaskAlloc->getNumSpecies()->size() + j] == 1)
                     {
-                        std::pair<bool, float> travelTime =
-                            m_motion_planner->query(currentLocations[j], m_action_locations[actionOrder[i]].first);
-                        if(travelTime.first)
+                        if(currentLocations[j] != m_action_locations[actionOrder[i]].first)
                         {
-                            if(TaskAlloc->speedIndex == -1)
+                            Logger::debug(
+                                "MP Query {} -> {}", currentLocations[j], m_action_locations[actionOrder[i]].first);
+                            std::pair<bool, float> travelTime =
+                                m_motion_planner->query(currentLocations[j], m_action_locations[actionOrder[i]].first);
+                            if(travelTime.first)
                             {
-                                slowestAgent = 1;
-                                if((travelTime.second) > maxTravelTime)
+                                if(TaskAlloc->speedIndex == -1)
                                 {
-                                    maxTravelTime = travelTime.second;
-                                    // Move to the end of the action
-                                    currentLocations[j] = m_action_locations[actionOrder[i]].second;
+                                    slowestAgent = 1;
+                                    if((travelTime.second) > maxTravelTime)
+                                    {
+                                        maxTravelTime = travelTime.second;
+                                        // Move to the end of the action
+                                        currentLocations[j] = m_action_locations[actionOrder[i]].second;
+                                    }
+                                }
+                                else
+                                {
+                                    if(slowestAgent < (*traits)[j][TaskAlloc->speedIndex])
+                                    {
+                                        slowestAgent = (*traits)[j][TaskAlloc->speedIndex];
+                                    }
+                                    if((travelTime.second / (*traits)[j][TaskAlloc->speedIndex]) > maxTravelTime)
+                                    {
+                                        maxTravelTime = travelTime.second / (*traits)[j][TaskAlloc->speedIndex];
+                                        // Move to the end of the action
+                                        currentLocations[j] = m_action_locations[actionOrder[i]].second;
+                                    }
                                 }
                             }
                             else
                             {
-                                if(slowestAgent < (*traits)[j][TaskAlloc->speedIndex])
-                                {
-                                    slowestAgent = (*traits)[j][TaskAlloc->speedIndex];
-                                }
-                                if((travelTime.second / (*traits)[j][TaskAlloc->speedIndex]) > maxTravelTime)
-                                {
-                                    maxTravelTime = travelTime.second / (*traits)[j][TaskAlloc->speedIndex];
-                                    // Move to the end of the action
-                                    currentLocations[j] = m_action_locations[actionOrder[i]].second;
-                                }
+                                return std::numeric_limits<float>::max();
                             }
-                        }
-                        else{
-                            return std::numeric_limits<float>::max();
                         }
                     }
                 }

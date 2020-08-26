@@ -55,6 +55,7 @@ namespace grstaps
         const float boundary_max      = config["mp_boundary_max"];
         motion_planner.setMap(problem.obstacles(), boundary_min, boundary_max);
         motion_planner.setLocations(problem.locations());
+        motion_planner.setQueryTime(config["mp_query_time"]);
 
         // Task Allocation
         boost::shared_ptr<taskAllocationToScheduling> taToSched =

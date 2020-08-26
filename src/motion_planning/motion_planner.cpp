@@ -21,7 +21,7 @@
 #include <ompl/base/ProblemDefinition.h>
 #include <ompl/base/objectives/PathLengthOptimizationObjective.h>
 #include <ompl/base/spaces/RealVectorStateSpace.h>
-#include <ompl/geometric/planners/prm/LazyPRM.h>
+#include <ompl/geometric/planners/prm/LazyPRMstar.h>
 
 // local
 #include "grstaps/motion_planning/validity_checker.hpp"
@@ -41,13 +41,18 @@ namespace grstaps
     {
         // Construct the state space in which we are planning: R^2
         m_space = std::make_shared<ob::RealVectorStateSpace>(2);
+
+        // Set the boundary [min, max]
         std::dynamic_pointer_cast<ob::RealVectorStateSpace>(m_space)->setBounds(boundary_min, boundary_max);
 
+        // Create the space information
         m_space_information = std::make_shared<ob::SpaceInformation>(m_space);
         m_space_information->setStateValidityChecker(std::make_shared<ValidityChecker>(obstacles, m_space_information));
         m_space_information->setup();
 
-        m_planner = std::make_shared<og::LazyPRM>(m_space_information);
+        // Create the LazyPRMStar planner
+        m_planner = std::make_shared<og::LazyPRMstar>(m_space_information);
+        m_planner->setup();
 
         m_map_set = true;
     }
@@ -86,8 +91,10 @@ namespace grstaps
         problem->setStartAndGoalStates(start, goal);
         problem->setOptimizationObjective(std::make_shared<ob::PathLengthOptimizationObjective>(m_space_information));
 
+        // Clear the previous problem definition
+        std::dynamic_pointer_cast<og::LazyPRMstar>(m_planner)->clearQuery();
         m_planner->setProblemDefinition(problem);
-        m_planner->setup();
+
         ob::PlannerStatus solved = m_planner->solve(m_query_time);
         if(solved)
         {

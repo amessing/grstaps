@@ -34,7 +34,7 @@ namespace grstaps
 {
     namespace test
     {
-        TEST(Problem, simple)
+        TEST(Problem, p1)
         {
             Problem problem;
 
@@ -79,11 +79,13 @@ namespace grstaps
             // Config
             config["mp_boundary_min"] = 0;
             config["mp_boundary_max"] = 2;
+            config["mp_query_time"]   = 0.0001;
             problem.setConfig(config);
-            // Save problem
 
             Solver solver;
             std::shared_ptr<Solution> solution = solver.solve(problem);
+
+            // Save problem
             solver.writeSolution("outputs/p1", solution);
         }
     }  // namespace test

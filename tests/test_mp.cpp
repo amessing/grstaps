@@ -15,68 +15,110 @@
  * along with GRSTAPS; if not, write to the Free Software Foundation,
  * Inc., #59 Temple Plac
  */
-#if 0
-// external
 
+// global
+#include <memory>
+
+// external
+#include <fmt/format.h>
 #include <gtest/gtest.h>
+
+#include <box2d/b2_polygon_shape.h>
+#include <ompl/base/Planner.h>
+#include <ompl/base/ProblemDefinition.h>
+#include <ompl/base/SpaceInformation.h>
+#include <ompl/base/StateSpace.h>
+#include <ompl/base/objectives/PathLengthOptimizationObjective.h>
+#include <ompl/base/spaces/RealVectorStateSpace.h>
+#include <ompl/geometric/planners/prm/LazyPRM.h>
 
 // local
 #include <grstaps/motion_planning/motion_planner.hpp>
+#include <grstaps/motion_planning/validity_checker.hpp>
+
+namespace ob = ompl::base;
+namespace og = ompl::geometric;
 
 namespace grstaps
 {
     namespace test
     {
-        TEST(MotionPlanning, test1)
+        /**
+         * @see ompl.kavrakilab.org./OptimalPlanning_8cpp_source.html
+         */
+        TEST(MotionPlanning, isolated)
         {
             std::vector<b2PolygonShape> obstacles;
+            Location from("source", 0.5, 0.5);
+            Location to("target", 1.5, 1.5);
+            double runtime = 1.0;
 
-            /*
-            // Obstacle 1
+            // Construct the state space R^2
+            auto space = std::make_shared<ob::RealVectorStateSpace>(2);
+
+            // Set the bounds of the space [0, 2] x [0, 2]
+            space->setBounds(0.0, 2.0);
+
+            // Construct the space information
+            auto space_information = std::make_shared<ob::SpaceInformation>(space);
+
+            // Set the object used to check which states in the space are valid
+            space_information->setStateValidityChecker(std::make_shared<ValidityChecker>(obstacles, space_information));
+            space_information->setup();
+
+            // Set the robot's starting state
+            ob::ScopedState<> start(space);
+            start->as<ob::RealVectorStateSpace::StateType>()->values[0] = from.x();
+            start->as<ob::RealVectorStateSpace::StateType>()->values[1] = from.y();
+
+            // Set the robot's goal state
+            ob::ScopedState<> goal(space);
+            goal->as<ob::RealVectorStateSpace::StateType>()->values[0] = to.x();
+            goal->as<ob::RealVectorStateSpace::StateType>()->values[1] = to.y();
+
+            auto problem = std::make_shared<ob::ProblemDefinition>(space_information);
+            problem->setStartAndGoalStates(start, goal);
+            problem->setOptimizationObjective(std::make_shared<ob::PathLengthOptimizationObjective>(space_information));
+
+            ob::PlannerPtr planner = std::make_shared<og::LazyPRM>(space_information);
+            planner->setup();
+
+            planner->setProblemDefinition(problem);
+
+            ob::PlannerStatus solved = planner->solve(runtime);
+            if(solved)
             {
-                b2PolygonShape obstacle;
-
-                b2Vec2 vertices[6];
-
-                obstacle.Set(vertices, 6);
-                obstacles.push_back(obstacle);
+                std::cout << fmt::format(
+                    "{} found a solution of length {}", planner->getName(), problem->getSolutionPath()->length());
             }
-
-            // Obstacle 2// external
+            else
             {
-                b2PolygonShape obstacle;
-
-                b2Vec2 vertices[6];
-
-                obstacle.Set(vertices, 6);
-                obstacles.push_back(obstacle);
+                FAIL();
             }
+        }
 
-            // Obstacle 3
+        TEST(MotionPlanning, p1)
+        {
+            std::vector<b2PolygonShape> obstacles;
+            Location from("source", 0.5, 0.5);
+            Location to("target", 1.5, 1.5);
+            double runtime = 0.1;
+
+            std::vector<Location> locations = {from, to};
+
+            auto& mp = MotionPlanner::instance();
+            mp.setMap(obstacles, 0.0, 2.0);
+            mp.setLocations(locations);
+            mp.setQueryTime(runtime);
+            std::pair<bool, float> result = mp.query(0, 1);
+            if(result.first)
             {
-                b2PolygonShape obstacle;
-
-                b2Vec2 vertices[6];
-
-                obstacle.Set(vertices, 6);
-                obstacles.push_back(obstacle);
+                std::cout << result.second << std::endl;
             }
-
-            // Obstacle 4
+            else
             {
-                b2PolygonShape obstacle;
-
-                b2Vec2 vertices[6];
-
-                obstacle.Set(vertices, 6);
-                obstacles.push_back(obstacle);
+                FAIL();
             }
-
-            */
-
-            //MotionPlanner& mp = MotionPlanner::instance();
-            //mp.setMap(obstacles, 0, 10);
         }
     }  // namespace test
 }  // namespace grstaps
-#endif
