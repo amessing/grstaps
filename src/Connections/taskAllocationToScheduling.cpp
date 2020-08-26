@@ -218,16 +218,6 @@ namespace grstaps
                 float action_move_time                      = 0.0;
                 std::pair<bool, float> action_travel_length = m_motion_planner->query(
                     m_action_locations[actionOrder[i]].first, m_action_locations[actionOrder[i]].second);
-                if(action_travel_length.first)
-                {
-                    // TODO: speed...
-                    action_move_time = action_travel_length.second * 1.0;
-                }
-                // The movement required during action i is impossible
-                else
-                {
-                    return std::numeric_limits<float>::max();
-                }
 
                 float maxTravelTime = 0;
                 auto traits = TaskAlloc->getSpeciesTraitDistribution();
@@ -237,13 +227,10 @@ namespace grstaps
                     {
                         std::pair<bool, float> travelTime =
                             m_motion_planner->query(currentLocations[j], m_action_locations[actionOrder[i]].first);
-                        if(travelTime.first)
-                        {
                             if(TaskAlloc->speedIndex == -1)
                             {
                                 if((travelTime.second) > maxTravelTime)
                                 {
-                                    // TODO: needs a speed component
                                     maxTravelTime = travelTime.second;
                                     // Move to the end of the action
                                     currentLocations[j] = m_action_locations[actionOrder[i]].second;
@@ -252,17 +239,11 @@ namespace grstaps
                             else{
                                 if((travelTime.second  * (*traits)[j][TaskAlloc->speedIndex]) > maxTravelTime)
                                 {
-                                    // TODO: needs a speed component
-                                    maxTravelTime = travelTime.second;
+                                    maxTravelTime = travelTime.second  * (*traits)[j][TaskAlloc->speedIndex];
                                     // Move to the end of the action
                                     currentLocations[j] = m_action_locations[actionOrder[i]].second;
                                 }
                             }
-                        }
-                        else
-                        {
-                            return std::numeric_limits<float>::max();
-                        }
                     }
                 }
                 sched.increaseActionTime(actionOrder[i], maxTravelTime + action_move_time);

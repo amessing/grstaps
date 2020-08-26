@@ -41,8 +41,9 @@ namespace grstaps
             std::vector<Location> locations = {Location("source", 0.5, 0.5), Location("target", 1.5, 1.5)};
             problem.setLocations(locations);
 
-            std::vector<Problem::TraitVector> robot_traits = {{0.75}, {0.75}, {0.75}};
+            std::vector<Problem::TraitVector> robot_traits = {{0.75, 2}, {0.75, 2}, {0.75, 1}};
             problem.setRobotTraitVector(robot_traits);
+            problem.speedIndex = 1;
 
             char* domain_filename  = "tests/data/p1/domain.pddl";
             char* problem_filename = "tests/data/p1/problem.pddl";

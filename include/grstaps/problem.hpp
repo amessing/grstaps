@@ -73,6 +73,7 @@ namespace grstaps
 
         std::vector<RequirementsVector> actionRequirements;
         std::vector<NonCumVector> actionNonCumRequirements;
+        int speedIndex = -1;
 
        protected:
         std::vector<Location> m_locations;  //!< coordinates and name of location

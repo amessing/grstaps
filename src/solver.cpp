@@ -138,7 +138,8 @@ namespace grstaps
                                   taToSched,
                                   durations,
                                   orderingCon,
-                                  numSpec);
+                                  numSpec,
+                                  problem.speedIndex);
 
                 auto node1 = boost::make_shared<Node<TaskAllocation>>(ta.getID(), ta);
                 node1->setData(ta);
