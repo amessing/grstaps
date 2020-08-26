@@ -230,6 +230,7 @@ namespace grstaps
                 }
 
                 float maxTravelTime = 0;
+                auto traits = TaskAlloc->getSpeciesTraitDistribution();
                 for(int j = 0; TaskAlloc->getNumSpecies()->size(); j++)
                 {
                     if(TaskAlloc->allocation[actionOrder[i] * TaskAlloc->getNumSpecies()->size() + j] == 1)
@@ -238,12 +239,24 @@ namespace grstaps
                             m_motion_planner->query(currentLocations[j], m_action_locations[actionOrder[i]].first);
                         if(travelTime.first)
                         {
-                            if(travelTime.second > maxTravelTime)
+                            if(TaskAlloc->speedIndex == -1)
                             {
-                                // TODO: needs a speed component
-                                maxTravelTime = travelTime.second;
-                                // Move to the end of the action
-                                currentLocations[j] = m_action_locations[actionOrder[i]].second;
+                                if((travelTime.second) > maxTravelTime)
+                                {
+                                    // TODO: needs a speed component
+                                    maxTravelTime = travelTime.second;
+                                    // Move to the end of the action
+                                    currentLocations[j] = m_action_locations[actionOrder[i]].second;
+                                }
+                            }
+                            else{
+                                if((travelTime.second  * (*traits)[j][TaskAlloc->speedIndex]) > maxTravelTime)
+                                {
+                                    // TODO: needs a speed component
+                                    maxTravelTime = travelTime.second;
+                                    // Move to the end of the action
+                                    currentLocations[j] = m_action_locations[actionOrder[i]].second;
+                                }
                             }
                         }
                         else

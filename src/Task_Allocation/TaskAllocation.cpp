@@ -32,8 +32,10 @@ namespace grstaps
                                    boost::shared_ptr<taskAllocationToScheduling> taToSched,
                                    boost::shared_ptr<vector<float>> actionDur,
                                    boost::shared_ptr<vector<vector<int>>> orderingCon,
-                                   const boost::shared_ptr<vector<int>> numSpec)
+                                   const boost::shared_ptr<vector<int>> numSpec,
+                                   int speedInd)
     {
+        speedIndex = speedInd;
         usingSpecies                  = useSpec;
         taToScheduling                = taToSched;
         goalTraitDistribution         = goalDistribution;
@@ -78,7 +80,8 @@ namespace grstaps
                                    boost::shared_ptr<taskAllocationToScheduling> taToSched,
                                    boost::shared_ptr<vector<float>> actionDur,
                                    boost::shared_ptr<vector<vector<int>>> orderingCon,
-                                   boost::shared_ptr<vector<int>> numSpec)
+                                   boost::shared_ptr<vector<int>> numSpec,
+                                   int speedInd)
     {
         usingSpecies                  = useSpec;
         taToScheduling                = taToSched;
@@ -89,6 +92,7 @@ namespace grstaps
         actionNoncumulativeTraitValue = std::move(noncumTraitCutoff);
         requirementsRemaining         = *goalDistribution;
         goalDistance                  = 0.0;
+        speedIndex = speedInd;
         allocation.resize(goalTraitDistribution->size() * speciesTraitDistribution->size(), 0);
         scheduleTime = -1;
         allocationTraitDistribution =
@@ -139,6 +143,7 @@ namespace grstaps
         traitTeamMax                = copyAllocation.traitTeamMax;
         requirementsRemaining       = copyAllocation.requirementsRemaining;
         startingGoalDistance        = copyAllocation.startingGoalDistance;
+        speedIndex = copyAllocation.speedIndex;
     }
 
     bool TaskAllocation::checkGoalAllocation() const

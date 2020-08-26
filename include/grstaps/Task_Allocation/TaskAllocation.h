@@ -67,7 +67,8 @@ namespace grstaps
                        boost::shared_ptr<taskAllocationToScheduling> = nullptr,
                        boost::shared_ptr<vector<float>>              = nullptr,
                        boost::shared_ptr<vector<vector<int>>>        = nullptr,
-                       const boost::shared_ptr<vector<int>>          = nullptr);
+                       const boost::shared_ptr<vector<int>>          = nullptr,
+                       int = -1);
 
         /**
          * constructoring
@@ -82,7 +83,8 @@ namespace grstaps
                        boost::shared_ptr<taskAllocationToScheduling> = nullptr,
                        boost::shared_ptr<vector<float>>              = nullptr,
                        boost::shared_ptr<vector<vector<int>>>        = nullptr,
-                       boost::shared_ptr<vector<int>>                = nullptr);
+                       boost::shared_ptr<vector<int>>                = nullptr,
+                       int speedInd = -1);
 
         /**
          * Copy constructor
@@ -344,6 +346,7 @@ namespace grstaps
         boost::shared_ptr<vector<vector<float>>> goalTraitDistribution{};
         float* startingGoalDistance;
         boost::shared_ptr<taskAllocationToScheduling> taToScheduling;
+        int speedIndex;
 
        private:
         vector<vector<float>>* speciesTraitDistribution{};
@@ -356,6 +359,7 @@ namespace grstaps
 
         float scheduleTime;
         float goalDistance;
+
 
         bool isGoal;
         bool usingSpecies;
