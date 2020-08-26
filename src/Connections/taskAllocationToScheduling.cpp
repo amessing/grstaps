@@ -218,6 +218,16 @@ namespace grstaps
                 float action_move_time                      = 0.0;
                 std::pair<bool, float> action_travel_length = m_motion_planner->query(
                     m_action_locations[actionOrder[i]].first, m_action_locations[actionOrder[i]].second);
+                if(action_travel_length.first)
+                {
+                    // TODO: speed...
+                    action_move_time = action_travel_length.second ;
+                }
+                // The movement required during action i is impossible
+                else
+                {
+                    return std::numeric_limits<float>::max();
+                }
 
                 float maxTravelTime = 0;
                 auto traits = TaskAlloc->getSpeciesTraitDistribution();
