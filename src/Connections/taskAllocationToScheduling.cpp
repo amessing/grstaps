@@ -248,7 +248,7 @@ namespace grstaps
                                 }
                             }
                             else{
-                                if(slowestAgent > (*traits)[j][TaskAlloc->speedIndex]){
+                                if(slowestAgent < (*traits)[j][TaskAlloc->speedIndex]){
                                     slowestAgent = (*traits)[j][TaskAlloc->speedIndex];
                                 }
                                 if((travelTime.second  * (*traits)[j][TaskAlloc->speedIndex]) > maxTravelTime)
