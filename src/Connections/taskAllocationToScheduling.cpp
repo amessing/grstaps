@@ -237,6 +237,8 @@ namespace grstaps
                     {
                         std::pair<bool, float> travelTime =
                             m_motion_planner->query(currentLocations[j], m_action_locations[actionOrder[i]].first);
+                        if(travelTime.first)
+                        {
                             if(TaskAlloc->speedIndex == -1)
                             {
                                 slowestAgent = 1;
@@ -247,17 +249,23 @@ namespace grstaps
                                     currentLocations[j] = m_action_locations[actionOrder[i]].second;
                                 }
                             }
-                            else{
-                                if(slowestAgent < (*traits)[j][TaskAlloc->speedIndex]){
+                            else
+                            {
+                                if(slowestAgent < (*traits)[j][TaskAlloc->speedIndex])
+                                {
                                     slowestAgent = (*traits)[j][TaskAlloc->speedIndex];
                                 }
-                                if((travelTime.second  / (*traits)[j][TaskAlloc->speedIndex]) > maxTravelTime)
+                                if((travelTime.second / (*traits)[j][TaskAlloc->speedIndex]) > maxTravelTime)
                                 {
-                                    maxTravelTime = travelTime.second  / (*traits)[j][TaskAlloc->speedIndex];
+                                    maxTravelTime = travelTime.second / (*traits)[j][TaskAlloc->speedIndex];
                                     // Move to the end of the action
                                     currentLocations[j] = m_action_locations[actionOrder[i]].second;
                                 }
                             }
+                        }
+                        else{
+                            return std::numeric_limits<float>::max();
+                        }
                     }
                 }
                 sched.increaseActionTime(actionOrder[i], maxTravelTime + (action_move_time / slowestAgent));
