@@ -241,6 +241,7 @@ namespace grstaps
                             {
                                 if((travelTime.second) > maxTravelTime)
                                 {
+                                    slowestAgent = 1;
                                     maxTravelTime = travelTime.second;
                                     // Move to the end of the action
                                     currentLocations[j] = m_action_locations[actionOrder[i]].second;
