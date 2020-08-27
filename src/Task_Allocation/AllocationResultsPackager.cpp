@@ -57,15 +57,17 @@ namespace grstaps
                        << " end: " << finalNode->getData().taToScheduling->sched.stn[i][1] << std::endl;
             }
 
-            auto motionPlans =
-                finalNode->getData().taToScheduling->saveMotionPlanningNonSpeciesSchedule(&finalNode->getData());
+            auto motionPlans = finalNode->getData().taToScheduling->saveMotionPlanningNonSpeciesSchedule(&finalNode->getData()).second;
             myfile << endl << "Motion Plans" << endl;
             for(int i = 0; i < motionPlans.size(); ++i)
             {
                 myfile << "Agent " << i << "-";
-                for(int j = 0; j < motionPlans[i].size(); ++i)
+                for(int j = 0; j < motionPlans[i].size(); ++j)
                 {
-                    myfile << motionPlans[i][j] << ", ";
+                    myfile << "Motion Plan " << i << endl << "Start: " << motionPlans[i][j].first.first << "End: " <<  motionPlans[i][j].first.second << endl << "Waypoints" << endl;
+                    for(int k = 0; k < motionPlans[i][j].second.size(); ++k){
+                        myfile << "X: " << motionPlans[i][j].second[k].first << "Y: " << motionPlans[i][j].second[k].second;
+                    }
                 }
                 myfile << endl;
             }
