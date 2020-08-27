@@ -139,7 +139,7 @@ namespace grstaps
 
     MotionPlanner::MotionPlanner()
         : m_map_set(false)
-        , m_query_time(1.0)
+        , m_query_time(0.25)
     {}
 
     void MotionPlanner::waypointQuery(unsigned int from, unsigned int to, ompl::base::ProblemDefinitionPtr problem_def)
