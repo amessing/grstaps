@@ -96,7 +96,7 @@ namespace grstaps
          */
         std::pair<bool, float> query(const Location& from, const Location& to);
 
-        std::vector<std::pair<float, float>> getWaypoints(unsigned int from, unsigned int to);
+        std::tuple<bool, float, std::vector<std::pair<float, float>>> getWaypoints(unsigned int from, unsigned int to);
 
        private:
         /**
