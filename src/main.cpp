@@ -39,9 +39,11 @@ namespace grstaps
 
         std::vector<Location> locations = {Location("source", 0.5, 0.5), Location("target", 1.5, 1.5)};
         problem.setLocations(locations);
+        problem.setStartingLocations({0, 0, 0});
 
-        std::vector<Problem::TraitVector> robot_traits = {{0.75}, {0.75}, {0.75}};
+        std::vector<Problem::TraitVector> robot_traits = {{0.75, 1}, {0.75, 1}, {0.75, 1}};
         problem.setRobotTraitVector(robot_traits);
+        problem.speedIndex = 1;
 
         char* domain_filename  = "tests/data/p1/domain.pddl";
         char* problem_filename = "tests/data/p1/problem.pddl";
@@ -73,13 +75,16 @@ namespace grstaps
         nlohmann::json config;
 
         // Config
-        config["mp_boundary_min"] = 0;
-        config["mp_boundary_max"] = 2;
+        config["mp_boundary_min"]     = 0;
+        config["mp_boundary_max"]     = 2;
+        config["mp_query_time"]       = 0.0001;
+        config["mp_connection_range"] = 0.1;
         problem.setConfig(config);
-        // Save problem
 
         Solver solver;
         std::shared_ptr<Solution> solution = solver.solve(problem);
+
+        // Save problem
         solver.writeSolution("outputs/p1", solution);
         return 0;
     }
