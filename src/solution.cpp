@@ -62,7 +62,32 @@ namespace grstaps
 
         j["makespan"] = m_allocation->taToScheduling->sched.getMakeSpan();
 
-        // TODO: motion plan
+        const auto motion_plans =
+            m_allocation->taToScheduling->saveMotionPlanningNonSpeciesSchedule(m_allocation.get());
+        j["motion_plans"] = nlohmann::json();
+        if(motion_plans.first)
+        {
+            for(const auto& agent_motion_plans: motion_plans.second)
+            {
+                nlohmann::json agent;
+                for(const auto& motion_plan: agent_motion_plans)
+                {
+                    nlohmann::json mp;
+                    mp["start"]     = motion_plan.first.first;
+                    mp["end"]       = motion_plan.first.second;
+                    mp["waypoints"] = nlohmann::json();
+                    for(const std::pair<float, float>& waypoint: motion_plan.second)
+                    {
+                        nlohmann::json w;
+                        w.push_back(waypoint.first);
+                        w.push_back(waypoint.second);
+                        mp["waypoints"].push_back(w);
+                    }
+                    agent.push_back(mp);
+                }
+                j["motion_plans"].push_back(agent);
+            }
+        }
 
         std::ofstream output;
         output.open(filepath.c_str());
