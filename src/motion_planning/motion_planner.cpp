@@ -113,8 +113,13 @@ namespace grstaps
         return std::make_pair(false, -1.0);
     }
 
-    std::vector<std::pair<float, float>> MotionPlanner::getWaypoints(unsigned int from, unsigned int to)
+    std::tuple<bool, float, std::vector<std::pair<float, float>>> MotionPlanner::getWaypoints(unsigned int from, unsigned int to)
     {
+        if(from == to)
+        {
+            return std::make_tuple(false, -1, std::vector<std::pair<float, float>>());
+        }
+
         auto problem = std::make_shared<ob::ProblemDefinition>(m_space_information);
         waypointQuery(from, to, problem);
 
@@ -134,7 +139,7 @@ namespace grstaps
             }
             waypoints.push_back(std::make_pair(x, y));
         }
-        return waypoints;
+        return std::make_tuple(true, problem->getSolutionPath()->length(), waypoints);
     }
 
     MotionPlanner::MotionPlanner()
