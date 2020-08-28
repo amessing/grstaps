@@ -393,7 +393,7 @@ namespace grstaps
 
     bool Scheduler::increaseActionTime(int actionIndex, float duration)
     {
-        stn[actionIndex][1] = stn[actionIndex][0] + duration;
+        stn[actionIndex][1] += duration;
         std::vector<std::vector<int>> constraintsToUpdate;
         std::vector<std::vector<bool>> checkedAlready(int(stn.size()), std::vector<bool>(stn.size(), false));
         int second = actionIndex;
@@ -441,7 +441,7 @@ namespace grstaps
 
     bool Scheduler::decreaseActionTime(int actionIndex, float duration)
     {
-        stn[actionIndex][1] = duration + stn[actionIndex][0];
+        stn[actionIndex][1] -= duration;
 
         std::vector<std::vector<int>> constraintsToUpdate;
         std::vector<std::vector<bool>> checkedAlready(int(stn.size()), std::vector<bool>(stn.size(), false));
