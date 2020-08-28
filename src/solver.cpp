@@ -53,16 +53,17 @@ namespace grstaps
         MotionPlanner& motion_planner = MotionPlanner::instance();
         const float boundary_min      = config["mp_boundary_min"];
         const float boundary_max      = config["mp_boundary_max"];
+        const float query_time = config["mp_query_time"];
+        const float connection_range = config["mp_connection_range"];
         motion_planner.setMap(problem.obstacles(), boundary_min, boundary_max);
         motion_planner.setLocations(problem.locations());
-        motion_planner.setQueryTime(config["mp_query_time"]);
-        motion_planner.setConnectionRange(config["mp_connection_range"]);
+        motion_planner.setQueryTime(query_time);
+        motion_planner.setConnectionRange(connection_range);
 
         // Task Allocation
         boost::shared_ptr<taskAllocationToScheduling> taToSched =
             boost::make_shared<taskAllocationToScheduling>(&motion_planner, problem.startingLocations());
         bool usingSpecies = false;
-        // TODO: motion planning needs to be added
 
         // Also can any of them be const? That will help with multithreading in the future (fewer mutexes)
         boost::shared_ptr<Heuristic> heur = boost::make_shared<TAGoalDist>();

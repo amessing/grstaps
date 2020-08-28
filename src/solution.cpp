@@ -9,11 +9,13 @@
 
 // external
 #include <nlohmann/json.hpp>
+#include <fmt/format.h>
 
 // local
 #include "grstaps/Connections/taskAllocationToScheduling.h"
 #include "grstaps/Task_Allocation/TaskAllocation.h"
 #include "grstaps/task_planning/plan.hpp"
+#include "grstaps/motion_planning/motion_planner.hpp"
 
 namespace grstaps
 {
@@ -62,11 +64,13 @@ namespace grstaps
 
         j["makespan"] = m_allocation->taToScheduling->sched.getMakeSpan();
 
+        MotionPlanner::instance().setQueryTime(0.001);
         const auto motion_plans =
             m_allocation->taToScheduling->saveMotionPlanningNonSpeciesSchedule(m_allocation.get());
         j["motion_plans"] = nlohmann::json();
         if(motion_plans.first)
         {
+            unsigned int i = 0;
             for(const auto& agent_motion_plans: motion_plans.second)
             {
                 nlohmann::json agent;
@@ -85,8 +89,9 @@ namespace grstaps
                     }
                     agent.push_back(mp);
                 }
-                j["motion_plans"].push_back(agent);
+                j["motion_plans"][fmt::format("agent_{}", i)] = agent;
             }
+            ++i;
         }
 
         std::ofstream output;

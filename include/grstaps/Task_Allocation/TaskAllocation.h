@@ -346,6 +346,7 @@ namespace grstaps
         boost::shared_ptr<vector<vector<float>>> goalTraitDistribution{};
         float* startingGoalDistance;
         boost::shared_ptr<taskAllocationToScheduling> taToScheduling;
+        boost::shared_ptr<vector<float>> actionDurations{};
         int speedIndex;
 
        private:
@@ -354,7 +355,6 @@ namespace grstaps
         boost::shared_ptr<vector<int>> numSpecies{};
 
         boost::shared_ptr<vector<vector<float>>> actionNoncumulativeTraitValue{};
-        boost::shared_ptr<vector<float>> actionDurations{};
         boost::shared_ptr<vector<vector<int>>> orderingConstraints{};
 
         float scheduleTime;

@@ -77,8 +77,8 @@ namespace grstaps
         // Config
         config["mp_boundary_min"]     = 0;
         config["mp_boundary_max"]     = 2;
-        config["mp_query_time"]       = 0.0001;
-        config["mp_connection_range"] = 0.1;
+        config["mp_query_time"]       = 0.0001f;
+        config["mp_connection_range"] = 0.1f;
         problem.setConfig(config);
 
         Solver solver;
