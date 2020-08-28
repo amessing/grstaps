@@ -21,21 +21,21 @@
 
 #include "grstaps/Graph/Graph.h"
 
-
-namespace grstaps {
-
-    template<typename Data>
+namespace grstaps
+{
+    template <typename Data>
     using nodePtr = typename boost::shared_ptr<Node<Data>>;
 
     /**
      * Functor for taking in a goal node and returning the answer in an appropriate form
      *
-     * \note need to implement a verision of this for our search problems
+     * \note need to implement a version of this for our search problems
      *
      */
-    template<typename Data>
-    class SearchResultPackager{
-    public:
+    template <typename Data>
+    class SearchResultPackager
+    {
+       public:
         void addResults(Graph<Data>& resultGraph, nodePtr<Data>& goalNode, bool goalLocated);
 
         Graph<Data>* graph;
@@ -43,9 +43,8 @@ namespace grstaps {
         bool foundGoal;
     };
 
-} // namespace grstaps
-//#include "../src/Search/SearchResultPackager.cpp"
-#endif //GRSTAPS_SEARCHRESULTSPACKAGER
+}  // namespace grstaps
+#endif  // GRSTAPS_SEARCHRESULTSPACKAGER
 
 #ifndef GRSTAPS_SEARCHRESULTSPACKAGERCPP
 #include "../src/Search/SearchResultPackager.cpp"

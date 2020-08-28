@@ -27,9 +27,9 @@
 using std::string;
 using std::get;
 using std::vector;
-using start_end = std::pair<float, float>;
-using waypoints = std::vector<std::pair<float, float>>;
-using single_plan = std::pair<start_end, waypoints>;
+using start_end          = std::pair<float, float>;
+using waypoints          = std::vector<std::pair<float, float>>;
+using single_plan        = std::pair<start_end, waypoints>;
 using agent_motion_plans = vector<std::pair<start_end, waypoints>>;
 
 namespace grstaps
@@ -101,7 +101,7 @@ namespace grstaps
          * \return the vector of locations agents will visit in order
          *
          */
-        std::pair<bool,vector<agent_motion_plans>> saveMotionPlanningNonSpeciesSchedule(TaskAllocation* TaskAlloc);
+        std::pair<bool, vector<agent_motion_plans>> saveMotionPlanningNonSpeciesSchedule(TaskAllocation* TaskAlloc);
 
         /**
          * Sets a list of the indices of the start and end locations for the actions

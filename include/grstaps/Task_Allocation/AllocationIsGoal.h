@@ -19,14 +19,14 @@
 #ifndef GRSTAPS_TAGOAL
 #define GRSTAPS_TAGOAL
 
+#include <vector>
 
 #include "grstaps/Search/GoalLocator.h"
-#include <vector>
 #include "grstaps/Task_Allocation/TaskAllocation.h"
 
-namespace grstaps {
-
-    template<typename Data>
+namespace grstaps
+{
+    template <typename Data>
     using nodePtr = typename boost::shared_ptr<Node<Data>>;
 
     /**
@@ -35,22 +35,21 @@ namespace grstaps {
      * \note need to implement a verision of this for our search problems
      *
      */
-    class AllocationIsGoal:public GoalLocator<TaskAllocation>{
-    public:
+    class AllocationIsGoal : public GoalLocator<TaskAllocation>
+    {
+       public:
         /**
          * constructor
          *
          * \note need to implement a verision of this for our search problems
          *
          */
-        AllocationIsGoal();
+        AllocationIsGoal() = default;
+
         // This operator overloading enables calling
         // operator function () on objects of increment
-        virtual bool operator()(Graph<TaskAllocation>&, nodePtr<TaskAllocation>&);
-
-    private:
+        virtual bool operator()(const Graph<TaskAllocation>&, nodePtr<TaskAllocation>) override;
     };
 
-} // namespace grstaps
-//#include "AllocationIsGoal.cpp"
-#endif //GRSTAPS_GOALLOCATOR
+}  // namespace grstaps
+#endif  // GRSTAPS_GOALLOCATOR

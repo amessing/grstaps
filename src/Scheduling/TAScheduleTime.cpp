@@ -16,21 +16,20 @@
  * Inc., #59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-#include <iostream>
 #include <stdexcept>
-#include <cstdlib>
-#include <utility>
+
 #include "grstaps/Graph/Graph.h"
 #include "grstaps/Scheduling/TAScheduleTime.h"
 
-namespace grstaps {
-
-    float TAScheduleTime::operator()(Graph<TaskAllocation> &graph, TaskAllocation &parentNode, TaskAllocation &newNode){
+namespace grstaps
+{
+    float TAScheduleTime::operator()(const Graph<TaskAllocation> &graph, const TaskAllocation &parentNode, TaskAllocation &newNode)
+    {
         auto score = newNode.getScheduleTime();
-        if(score > 0){
+        if(score > 0)
+        {
             return score;
         }
         return std::numeric_limits<float>::infinity();
-    }//
-
-} //grstaps
+    }
+}  // namespace grstaps

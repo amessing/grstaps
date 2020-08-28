@@ -19,31 +19,30 @@
 #ifndef GRSTAPS_UNIFORMCOST
 #define GRSTAPS_UNIFORMCOST
 
-#include <boost/heap/binomial_heap.hpp>
 #include "SearchBase.h"
+#include <boost/heap/binomial_heap.hpp>
 
-
-namespace grstaps {
-
-    template<class Data>
-    class UniformCostSearch : public SearchBase<Data> {
-    public:
+namespace grstaps
+{
+    template <class Data>
+    class UniformCostSearch : public SearchBase<Data>
+    {
+       public:
+        /**
+         * Constructor
+         *
+         * \param the graph that the search is through
+         *
+         */
+        UniformCostSearch(Graph<Data> &, nodePtr<Data>);
 
         /**
-        * Constructor
-        *
-        * \param the graph that the search is through
-        *
-        */
-        UniformCostSearch(Graph<Data> &, nodePtr<Data> &);
-
-        /**
-       * Copy Constructor
-       *
-       * \param the search problem you are going to copy from
-       * \param the new expansion function you will use on the copy
-       *
-       */
+         * Copy Constructor
+         *
+         * \param the search problem you are going to copy from
+         * \param the new expansion function you will use on the copy
+         *
+         */
         UniformCostSearch(UniformCostSearch<Data> &, NodeExpander<Data> &);
 
         /**
@@ -57,25 +56,25 @@ namespace grstaps {
          *
          * \returns a search results object that contains all needed return information from the search
          */
-        virtual void search(GoalLocator<Data>*, NodeExpander<Data>*, SearchResultPackager<Data>*);
+        virtual void search(GoalLocator<Data> *, NodeExpander<Data> *, SearchResultPackager<Data> *);
 
         /**
          * Update the Currses unordered_map as a hasp_map for lookups. My question is..
 
-At one time many threads will be writing, and at another many will be reading but not both reading and writing at the same time i.e. either all the threads will be reading or all will be writing. Will that ent node
+At one time many threads will be writing, and at another many will be reading but not both reading and writing at the
+same time i.e. either all the threads will be reading or all will be writing. Will that ent node
          *
          */
         bool updateCurrent();
-    private:
+
+       private:
         nodePtr<Data> currentNode;
-        boost::heap::binomial_heap< nodePtr<Data>, boost::heap::compare<NodeCompareCost<Data>> > frontier;
-        boost::heap::binomial_heap< nodePtr<Data>, boost::heap::compare<NodeCompareCost<Data>> > closedList;
-
+        boost::heap::binomial_heap<nodePtr<Data>, boost::heap::compare<NodeCompareCost<Data>>> frontier;
+        boost::heap::binomial_heap<nodePtr<Data>, boost::heap::compare<NodeCompareCost<Data>>> closedList;
     };
-}// namespace grstaps
+}  // namespace grstaps
 
-
-#endif //GRSTAPS_UNIFORMCOST
+#endif  // GRSTAPS_UNIFORMCOST
 
 #ifndef GRSTAPS_UNIFORMCOSTCPP
 #include "../src/Search/UniformCostSearch.cpp"

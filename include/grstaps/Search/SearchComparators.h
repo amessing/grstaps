@@ -21,10 +21,9 @@
 
 #include "grstaps/Graph/Graph.h"
 
-
-namespace grstaps {
-
-    template<typename Data>
+namespace grstaps
+{
+    template <typename Data>
     using nodePtr = typename boost::shared_ptr<Node<Data>>;
 
     /**
@@ -33,14 +32,15 @@ namespace grstaps {
      * \note used for the heap
      *
      */
-    template<typename Data>
-    class SearchComparators{
-    public:
+    template <typename Data>
+    class SearchComparators
+    {
+       public:
         // This operator overloading enables calling
         // operator function () on objects of increment
-        virtual bool operator()(nodePtr<Data>&, nodePtr<Data>&) const = 0;
+        virtual bool operator()(nodePtr<Data>, nodePtr<Data>) const = 0;
     };
 
-} // namespace grstaps
+}  // namespace grstaps
 
-#endif //GRSTAPS_SEARCHCOMPARATORS
+#endif  // GRSTAPS_SEARCHCOMPARATORS

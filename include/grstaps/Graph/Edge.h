@@ -16,46 +16,43 @@
  * Inc., #59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-
-
 #ifndef GRSTAPS_EDGE
 #define GRSTAPS_EDGE
 
-#include <string>
-#include <vector>
-#include <boost/shared_ptr.hpp>
-#include <boost/weak_ptr.hpp>
 #include <iostream>
 #include <sstream>
+#include <string>
+#include <vector>
 
+#include <boost/shared_ptr.hpp>
+#include <boost/weak_ptr.hpp>
 
 // Explicitly call out types we are using, instead of "using namespace"
 // due to conflicts between boost and std smart pointer types
 using std::string;
 using std::vector;
 
-
-namespace grstaps {
-// Forward declaration of class Node, as well as typedefs
-// An Edge is like an arrow, and contains a pointer to the
-// Node object at its head and tail bothint, as shared pointers.
-    template<class Data>
+namespace grstaps
+{
+    // Forward declaration of class Node, as well as typedefs
+    // An Edge is like an arrow, and contains a pointer to the
+    // Node object at its head and tail bothint, as shared pointers.
+    template <class Data>
     class Node;
 
-    template<typename Data>
+    template <typename Data>
     using nodePtr = typename boost::shared_ptr<Node<Data>>;
 
-
-/**
- * Edge Class for graph library.
- *
- * \note Edges are data agnostic.
- *
- */
-    template<typename Data>
-    class Edge {
-    public:
-
+    /**
+     * Edge Class for graph library.
+     *
+     * \note Edges are data agnostic.
+     *
+     */
+    template <typename Data>
+    class Edge
+    {
+       public:
         /**
          *
          * Constructor
@@ -64,14 +61,14 @@ namespace grstaps {
          * \param Tail NodeGetter for edge tail node
          * \param Edge Cost
          *
-        */
+         */
         Edge(const string &, const string &, float);
 
         /**
          *
          * Destructor
          *
-        */
+         */
         ~Edge();
 
         /**
@@ -80,65 +77,63 @@ namespace grstaps {
          *
          * \return returns the string that is the edge id
          *
-        */
+         */
         string getEdgeID() const;
 
         /**
-        *
-        * Getter for edge cost
-        *
-        * \return returns the float that is the edges cost
-        *
-       */
+         *
+         * Getter for edge cost
+         *
+         * \return returns the float that is the edges cost
+         *
+         */
         float getEdgeCost() const;
 
         /**
-        *
-        * Getter for the edges head node
-        *
-        * \return returns a pointer to the edges head node
-        *
-       */
+         *
+         * Getter for the edges head node
+         *
+         * \return returns a pointer to the edges head node
+         *
+         */
         string getHeadNode() const;
 
         /**
-        *
-        * Getter for edge tail node
-        *
-        * \return returns a pointer to the edges head node
-        *
-       */
+         *
+         * Getter for edge tail node
+         *
+         * \return returns a pointer to the edges head node
+         *
+         */
         string getTailNode() const;
 
         /**
-       *
-       * Converts a edge to a string
-       *
-       * \return returns a conversion of the edge to a string
-       *
-      */
+         *
+         * Converts a edge to a string
+         *
+         * \return returns a conversion of the edge to a string
+         *
+         */
         string toString() const;
 
         /**
-        *
-        * Setter for edge cost
-        *
-        * \param what to set the edge cost too
-        *
-        */
+         *
+         * Setter for edge cost
+         *
+         * \param what to set the edge cost too
+         *
+         */
         void setEdgeCost(float);
 
-    private:
-        float edgeCost;    //!< The cost to travese the edge
+       private:
+        float edgeCost;   //!< The cost to travese the edge
         string tailNode;  //!< NodeID of tail node
         string headNode;  //!< NodeID of head node
 
         // private utility functions
         //
-
-
     };
-} //namespace grstaps
+}  // namespace grstaps
 
 #endif /* GRSTAPS_EDGE */
 

@@ -19,34 +19,34 @@
 #ifndef SEARCH_BASE_H
 #define SEARCH_BASE_H
 
-//internal
-#include "grstaps/Graph/Node.h"
+// internal
 #include "grstaps/Graph/Graph.h"
+#include "grstaps/Graph/Node.h"
 #include "grstaps/Search/GoalLocator.h"
 #include "grstaps/Search/NodeExpander.h"
 #include "grstaps/Search/SearchResultPackager.h"
 
-//external
+// external
 #include <boost/heap/binomial_heap.hpp>
 
-
-namespace grstaps {
-
-    template<class Data>
-    class SearchBase {
-    public:
+namespace grstaps
+{
+    template <class Data>
+    class SearchBase
+    {
+       public:
         /**
-        * Constructor
-        *initialNodePtr->setStatus(Node::FRONTIER);
-        * \param the graph that the search is through
-        *
-        */
-        SearchBase(Graph<Data> &,  nodePtr<Data>&);
+         * Constructor
+         *initialNodePtr->setStatus(Node::FRONTIER);
+         * \param the graph that the search is through
+         *
+         */
+        SearchBase(Graph<Data> &, nodePtr<Data> &);
 
         /**
-        * Default Constructor
-        *
-        */
+         * Default Constructor
+         *
+         */
         SearchBase();
 
         /**
@@ -60,20 +60,18 @@ namespace grstaps {
          *
          * \returns a search results object that contains all needed return information from the search
          */
-        virtual void search(boost::shared_ptr<GoalLocator<TaskAllocation>>, boost::shared_ptr<NodeExpander<TaskAllocation>>, SearchResultPackager<Data>*) = 0;
+        virtual void search(boost::shared_ptr<GoalLocator<TaskAllocation>>,
+                            boost::shared_ptr<NodeExpander<TaskAllocation>>,
+                            SearchResultPackager<Data> *) = 0;
 
-
-
-
-    protected:
-        nodePtr<Data> initialNodePtr; //!< Pointer to Starting Node in the search
+       protected:
+        nodePtr<Data> initialNodePtr;  //!< Pointer to Starting Node in the search
         Graph<Data> graph;
     };
 
-} // namespace GRSTAPS
+}  // namespace grstaps
 
-
-#endif //SEARCH_BASE_H
+#endif  // SEARCH_BASE_H
 
 #ifndef SEARCH_BASE_CPP
 #include "../src/Search/SearchBase.cpp"

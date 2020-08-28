@@ -64,7 +64,7 @@ namespace grstaps
 
         j["makespan"] = m_allocation->taToScheduling->sched.getMakeSpan();
 
-        MotionPlanner::instance().setQueryTime(0.001);
+        MotionPlanner::instance().setQueryTime(0.01);
         const auto motion_plans =
             m_allocation->taToScheduling->saveMotionPlanningNonSpeciesSchedule(m_allocation.get());
         j["motion_plans"] = nlohmann::json();
