@@ -58,13 +58,12 @@ namespace grstaps
             }
         }
 
-        j["ordering_constaints"] = ordering_constraints;
+        j["ordering_constraints"] = ordering_constraints;
 
         j["allocation"] = m_allocation->getID();
 
         j["makespan"] = m_allocation->taToScheduling->sched.getMakeSpan();
 
-        MotionPlanner::instance().setQueryTime(0.01);
         const auto motion_plans =
             m_allocation->taToScheduling->saveMotionPlanningNonSpeciesSchedule(m_allocation.get());
         j["motion_plans"] = nlohmann::json();
@@ -90,8 +89,8 @@ namespace grstaps
                     agent.push_back(mp);
                 }
                 j["motion_plans"][fmt::format("agent_{}", i)] = agent;
+                ++i;
             }
-            ++i;
         }
 
         std::ofstream output;

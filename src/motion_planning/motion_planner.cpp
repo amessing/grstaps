@@ -39,6 +39,7 @@ namespace grstaps
 
     void MotionPlanner::setMap(const std::vector<b2PolygonShape>& obstacles, float boundary_min, float boundary_max)
     {
+        std::lock_guard<std::mutex> lock(m_mutex);
         // Construct the state space in which we are planning: R^2
         m_space = std::make_shared<ob::RealVectorStateSpace>(2);
 
@@ -59,6 +60,7 @@ namespace grstaps
 
     void MotionPlanner::setQueryTime(float run_time)
     {
+        std::lock_guard<std::mutex> lock(m_mutex);
         m_query_time = run_time;
     }
 
@@ -69,55 +71,35 @@ namespace grstaps
             // Custom exception
             throw "Cannot set connection range before setting the map";
         }
+        std::lock_guard<std::mutex> lock(m_mutex);
         std::dynamic_pointer_cast<og::LazyPRMstar>(m_planner)->setRange(range);
     }
 
     void MotionPlanner::setLocations(const std::vector<Location>& locations)
     {
+        std::lock_guard<std::mutex> lock(m_mutex);
         m_locations = locations;
     }
 
     std::pair<bool, float> MotionPlanner::query(unsigned int from, unsigned int to)
     {
         assert(from < m_locations.size() && to < m_locations.size());
-        return query(m_locations[from], m_locations[to]);
-    }
-
-    std::pair<bool, float> MotionPlanner::query(const Location& from, const Location& to)
-    {
-        std::lock_guard<std::mutex> lock(m_mutex);
-        // Create the robot's starting state
-        ob::ScopedState<> start(m_space);
-        start->as<ob::RealVectorStateSpace::StateType>()->values[0] = from.x();
-        start->as<ob::RealVectorStateSpace::StateType>()->values[1] = from.y();
-
-        // Create the robot's goal state
-        ob::ScopedState<> goal(m_space);
-        goal->as<ob::RealVectorStateSpace::StateType>()->values[0] = to.x();
-        goal->as<ob::RealVectorStateSpace::StateType>()->values[1] = to.y();
-
-        // Create problem instance
-        auto problem = std::make_shared<ob::ProblemDefinition>(m_space_information);
-        problem->setStartAndGoalStates(start, goal);
-        problem->setOptimizationObjective(std::make_shared<ob::PathLengthOptimizationObjective>(m_space_information));
-
-        // Clear the previous problem definition
-        std::dynamic_pointer_cast<og::LazyPRMstar>(m_planner)->clearQuery();
-        m_planner->setProblemDefinition(problem);
-
-        ob::PlannerStatus solved = m_planner->solve(m_query_time);
-        if(solved)
-        {
-            return std::make_pair(true, problem->getSolutionPath()->length());
-        }
-        return std::make_pair(false, -1.0);
+        auto rv = getWaypoints(from, to);
+        return std::make_pair(std::get<0>(rv), std::get<1>(rv));
     }
 
     std::tuple<bool, float, std::vector<std::pair<float, float>>> MotionPlanner::getWaypoints(unsigned int from, unsigned int to)
     {
+        std::lock_guard<std::mutex> lock(m_mutex);
+        assert(from < m_locations.size() && to < m_locations.size());
         if(from == to)
         {
             return std::make_tuple(false, -1, std::vector<std::pair<float, float>>());
+        }
+        auto id = std::make_pair(from, to);
+        if(m_memory.find(id) != m_memory.end())
+        {
+            return m_memory[id];
         }
 
         auto problem = std::make_shared<ob::ProblemDefinition>(m_space_information);
@@ -139,7 +121,9 @@ namespace grstaps
             }
             waypoints.push_back(std::make_pair(x, y));
         }
-        return std::make_tuple(true, problem->getSolutionPath()->length(), waypoints);
+        auto val = std::make_tuple(true, problem->getSolutionPath()->length(), waypoints);
+        m_memory[id] = val;
+        return val;
     }
 
     MotionPlanner::MotionPlanner()
@@ -147,10 +131,8 @@ namespace grstaps
         , m_query_time(1.0)
     {}
 
-    void MotionPlanner::waypointQuery(unsigned int from, unsigned int to, ompl::base::ProblemDefinitionPtr problem_def)
+    bool MotionPlanner::waypointQuery(unsigned int from, unsigned int to, ompl::base::ProblemDefinitionPtr problem_def)
     {
-        std::lock_guard<std::mutex> lock(m_mutex);
-
         // Create the robot's starting state
         ob::ScopedState<> start(m_space);
         start->as<ob::RealVectorStateSpace::StateType>()->values[0] = m_locations[from].x();
@@ -173,9 +155,8 @@ namespace grstaps
         ob::PlannerStatus solved = m_planner->solve(m_query_time);
         if(solved)
         {
-            return;
+            return true;
         }
-        // Custom exception needed
-        throw "Path could not be made";
+        return false;
     }
 }  // namespace grstaps

@@ -220,9 +220,6 @@ namespace grstaps
                 float action_move_time = 0.0;
                 if(m_action_locations[actionOrder[i]].first != m_action_locations[actionOrder[i]].second)
                 {
-                    Logger::debug("Motion Planning Query {} -> {}",
-                                  m_action_locations[actionOrder[i]].first,
-                                  m_action_locations[actionOrder[i]].second);
                     std::pair<bool, float> action_travel_length = m_motion_planner->query(
                         m_action_locations[actionOrder[i]].first, m_action_locations[actionOrder[i]].second);
                     if(action_travel_length.first)
@@ -245,8 +242,6 @@ namespace grstaps
                     {
                         if(currentLocations[j] != m_action_locations[actionOrder[i]].first)
                         {
-                            Logger::debug(
-                                "MP Query {} -> {}", currentLocations[j], m_action_locations[actionOrder[i]].first);
                             std::pair<bool, float> travelTime =
                                 m_motion_planner->query(currentLocations[j], m_action_locations[actionOrder[i]].first);
                             if(travelTime.first)
@@ -291,7 +286,8 @@ namespace grstaps
     std::pair<bool, vector<agent_motion_plans>> taskAllocationToScheduling::saveMotionPlanningNonSpeciesSchedule(
         TaskAllocation* TaskAlloc)
     {
-        std::vector<agent_motion_plans> motionPlans(TaskAlloc->getNumSpecies()->size(), {{}});
+        std::vector<agent_motion_plans> motionPlans;
+        motionPlans.resize(TaskAlloc->getNumSpecies()->size());
 
         if(m_motion_planner == nullptr)
         {
@@ -358,7 +354,7 @@ namespace grstaps
                 }
             }
         }
-        return std::pair<bool, vector<agent_motion_plans>>(true, motionPlans);
+        return std::make_pair(true, motionPlans);
     }
 
     void taskAllocationToScheduling::setActionLocations(
