@@ -286,8 +286,7 @@ namespace grstaps
     std::pair<bool, vector<agent_motion_plans>> taskAllocationToScheduling::saveMotionPlanningNonSpeciesSchedule(
         TaskAllocation* TaskAlloc)
     {
-        std::vector<agent_motion_plans> motionPlans;
-        motionPlans.resize(TaskAlloc->getNumSpecies()->size());
+        std::vector<agent_motion_plans> motionPlans(TaskAlloc->getNumSpecies()->size());
 
         if(m_motion_planner == nullptr)
         {
@@ -318,7 +317,7 @@ namespace grstaps
                                 }
 
                                 currentLocations[j] = m_action_locations[actionOrder[i]].second;
-                                start_end time      = {stn[i][0] - travel_time, stn[i][0]};
+                                start_end time      = {sched.stn[i][0] - travel_time, sched.stn[i][0]};
                                 single_plan step    = std::make_pair(time, std::get<2>(waypoints));
                                 motionPlans[j].push_back(step);
                             }
@@ -340,7 +339,7 @@ namespace grstaps
                                 // float action_duration_half = (*TaskAlloc->actionDurations)[actionOrder[i]] / 2.0;
                                 // start_end  time = {stn[i][0] + action_duration_half, stn[i][1] -
                                 // action_duration_half};
-                                start_end time   = {stn[i][0], stn[i][1]};
+                                start_end time   = {sched.stn[i][0], sched.stn[i][1]};
                                 single_plan step = std::make_pair(time, std::get<2>(waypoints));
                                 motionPlans[j].push_back(step);
                             }
