@@ -63,7 +63,7 @@ namespace grstaps
             adjustScheduleNonSpeciesSchedule(allocObject);
             return addMotionPlanningNonSpeciesSchedule(allocObject);
         }
-        return -10;
+        return -1;
     }
 
     float taskAllocationToScheduling::getSpeciesSchedule(TaskAllocation* allocObject)
@@ -220,7 +220,7 @@ namespace grstaps
                 float action_move_time = 0.0;
                 if(m_action_locations[actionOrder[i]].first != m_action_locations[actionOrder[i]].second)
                 {
-                    Logger::debug("MP Query {} -> {}",
+                    Logger::debug("Motion Planning Query {} -> {}",
                                   m_action_locations[actionOrder[i]].first,
                                   m_action_locations[actionOrder[i]].second);
                     std::pair<bool, float> action_travel_length = m_motion_planner->query(
@@ -232,29 +232,17 @@ namespace grstaps
                     // The movement required during action i is impossible
                     else
                     {
-                        return std::numeric_limits<float>::max();
+                        return -1;
                     }
                 }
 
                 float maxTravelTime = 0;
-                float slowestAgent  = std::numeric_limits<float>::max();
-                auto traits         = TaskAlloc->getSpeciesTraitDistribution();
+                vector<vector<float>>* traits  = TaskAlloc->getSpeciesTraitDistribution();
+                float slowestAgent  = (*traits)[0][TaskAlloc->speedIndex];
                 for(int j = 0; j < TaskAlloc->getNumSpecies()->size(); j++)
                 {
                     if(TaskAlloc->allocation[actionOrder[i] * TaskAlloc->getNumSpecies()->size() + j] == 1)
                     {
-                        if(TaskAlloc->speedIndex == -1)
-                        {
-                            slowestAgent = 1;
-                        }
-                        else
-                        {
-                            if(slowestAgent > (*traits)[j][TaskAlloc->speedIndex])
-                            {
-                                slowestAgent = (*traits)[j][TaskAlloc->speedIndex];
-                            }
-                        }
-
                         if(currentLocations[j] != m_action_locations[actionOrder[i]].first)
                         {
                             Logger::debug(
@@ -265,6 +253,7 @@ namespace grstaps
                             {
                                 if(TaskAlloc->speedIndex == -1)
                                 {
+                                    slowestAgent = 1;
                                     if((travelTime.second) > maxTravelTime)
                                     {
                                         maxTravelTime = travelTime.second;
@@ -274,6 +263,10 @@ namespace grstaps
                                 }
                                 else
                                 {
+                                    if(slowestAgent < (*traits)[j][TaskAlloc->speedIndex])
+                                    {
+                                        slowestAgent = (*traits)[j][TaskAlloc->speedIndex];
+                                    }
                                     if((travelTime.second / (*traits)[j][TaskAlloc->speedIndex]) > maxTravelTime)
                                     {
                                         maxTravelTime = travelTime.second / (*traits)[j][TaskAlloc->speedIndex];
@@ -284,7 +277,7 @@ namespace grstaps
                             }
                             else
                             {
-                                return std::numeric_limits<float>::max();
+                                return -1;
                             }
                         }
                     }
@@ -296,7 +289,7 @@ namespace grstaps
     }
 
     std::pair<bool,vector<agent_motion_plans>> taskAllocationToScheduling::saveMotionPlanningNonSpeciesSchedule(TaskAllocation* TaskAlloc){
-        std::vector<agent_motion_plans> motionPlans(TaskAlloc->getNumSpecies()->size(), {{}});
+        vector<agent_motion_plans> motionPlans = vector<agent_motion_plans>(TaskAlloc->getNumSpecies()->size(), {{}});
 
         if(m_motion_planner == nullptr)
         {
@@ -305,8 +298,9 @@ namespace grstaps
         else
         {
             std::vector<unsigned int> currentLocations = m_starting_locations;
-            for(int i = 0; i < actionOrder.size(); ++i)
-            {
+            for(int i = 0; i < actionOrder.size(); ++i){
+                float maxTravelTime = 0;
+                float slowestAgent  = std::numeric_limits<float>::max();
                 auto traits         = TaskAlloc->getSpeciesTraitDistribution();
                 for(int j = 0; j < TaskAlloc->getNumSpecies()->size(); j++)
                 {
@@ -314,51 +308,64 @@ namespace grstaps
                     {
                         if(currentLocations[j] != m_action_locations[actionOrder[i]].first)
                         {
-                            std::tuple<bool, float, std::vector<std::pair<float, float>>> waypoints = m_motion_planner->getWaypoints(currentLocations[j], m_action_locations[actionOrder[i]].first);
+                            std::tuple<bool, float, vector<std::pair<float, float>>> waypoints = m_motion_planner->getWaypoints(currentLocations[j], m_action_locations[actionOrder[i]].first);
 
-                            if(std::get<0>(waypoints))
+                            if(get<0>(waypoints))
                             {
-                                float travel_time = std::get<1>(waypoints);
-                                if(TaskAlloc->speedIndex != -1)
+                                if(TaskAlloc->speedIndex == -1)
                                 {
-                                    travel_time = travel_time / (*traits)[j][TaskAlloc->speedIndex];
+                                    slowestAgent = 1;
+                                    currentLocations[j] = m_action_locations[actionOrder[i]].second;
                                 }
-                                currentLocations[j] = m_action_locations[actionOrder[i]].second;
-                                start_end  time = {stn[i][0] - travel_time, stn[i][0]};
-                                single_plan step = std::make_pair(time, std::get<2>(waypoints));
+                                else
+                                {
+                                    if(slowestAgent < (*traits)[j][TaskAlloc->speedIndex])
+                                    {
+                                        slowestAgent = (*traits)[j][TaskAlloc->speedIndex];
+                                    }
+                                    currentLocations[j] = m_action_locations[actionOrder[i]].second;
+                                    get<0>(waypoints) = get<1>(waypoints) * (*traits)[j][TaskAlloc->speedIndex];
+                                }
+                                start_end  time = {sched.stn[i][1]- get<1>(waypoints), sched.stn[i][1]};
+                                single_plan step = std::make_pair(time, get<2>(waypoints));
                                 motionPlans[j].push_back(step);
+                                //add waypoints
+                                //add start time
 
                             }
-                            // Motion plan couldn't be found (SHOULD NEVER HAPPEN)
                             else
                             {
-                                return std::pair<bool, std::vector<agent_motion_plans>>(false, std::vector<agent_motion_plans>());
+                                return std::pair<bool,vector<agent_motion_plans>>(false,motionPlans);
                             }
                         }
 
-                        // If the action is a move action then add in the motion plan for the action
+                        // If the action is a move action then add in the move time
+                        float action_move_time = 0.0;
                         if(m_action_locations[actionOrder[i]].first != m_action_locations[actionOrder[i]].second)
                         {
-                            std::tuple<bool, float, std::vector<std::pair<float, float>>> waypoints = m_motion_planner->getWaypoints(m_action_locations[actionOrder[i]].first, m_action_locations[actionOrder[i]].second);
-                            if(std::get<0>(waypoints))
+                            std::tuple<bool, float, vector<std::pair<float, float>>> waypoints = m_motion_planner->getWaypoints(currentLocations[j], m_action_locations[actionOrder[i]].first);
+
+                            if(get<0>(waypoints))
                             {
-                                //float action_duration_half = (*TaskAlloc->actionDurations)[actionOrder[i]] / 2.0;
-                                //start_end  time = {stn[i][0] + action_duration_half, stn[i][1] - action_duration_half};
-                                start_end  time = {stn[i][0], stn[i][1]};
-                                single_plan step = std::make_pair(time, std::get<2>(waypoints));
+                                get<1>(waypoints) = get<1>(waypoints) * slowestAgent;
+
+                                //for loop add to all agents
+                                // waypoints
+                                //start and end time
+                                start_end  time = {sched.stn[i][0], sched.stn[i][1]};
+                                single_plan step = std::make_pair(time, get<2>(waypoints));
                                 motionPlans[j].push_back(step);
                             }
                         }
-                        // The movement required during action i is impossible
-                        else
-                        {
-                            return std::pair<bool,vector<agent_motion_plans>>(false, motionPlans);
+                            // The movement required during action i is impossible
+                        else{
+                            return std::pair<bool,vector<agent_motion_plans>>(false,motionPlans);
                         }
                     }
                 }
             }
         }
-            return std::pair<bool,vector<agent_motion_plans>>(true, motionPlans);
+            return std::pair<bool,vector<agent_motion_plans>>(true,motionPlans);
     }
 
     void taskAllocationToScheduling::setActionLocations(

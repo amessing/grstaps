@@ -62,7 +62,7 @@ namespace grstaps {
 
             // This operator overloading enables calling
             // operator function () on objects of increment
-            virtual bool operator()(Graph<Data>&, nodePtr<Data>&);
+            virtual bool operator()(Graph<Data>&, nodePtr<Data>);
 
             boost::shared_ptr<Heuristic> heuristicFunc; //!< heuristic object
             boost::shared_ptr<Cost> costFunc; //!< cost object

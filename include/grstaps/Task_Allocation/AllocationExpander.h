@@ -60,7 +60,7 @@ namespace grstaps {
         * \param the node whos children you wish to add
         *
         */
-        bool operator()(Graph<TaskAllocation>& graph, nodePtr<TaskAllocation>& expandNode);
+        bool operator()(Graph<TaskAllocation>& graph, nodePtr<TaskAllocation> expandNode);
 
         /**
         * Gets the id of the new node by editing the parent node

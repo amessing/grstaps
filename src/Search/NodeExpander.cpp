@@ -38,7 +38,7 @@ namespace grstaps {
     }
 
     template<class Data>
-    bool NodeExpander<Data>::operator()(Graph<Data>& graph, nodePtr<Data>& node){
+    bool NodeExpander<Data>::operator()(Graph<Data>& graph, nodePtr<Data> node){
         return true;
     }
 
