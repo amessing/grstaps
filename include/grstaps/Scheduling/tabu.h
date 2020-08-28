@@ -21,7 +21,7 @@ namespace grstaps
         void getBestNearbySolution(int);
 
        private:
-        double bestSolverScore{};
+        double bestSolverScore;
         robin_hood::unordered_map<std::string, int> tabu_list;
         robin_hood::unordered_map<std::string, float> foundMakespans;
         Scheduler bestSolution;

@@ -17,14 +17,15 @@
  */
 #ifndef GRSTAPS_TASKASSIGNMINORDER_H
 #define GRSTAPS_TASKASSIGNMINORDER_H
-#include "grstaps/Search/Heuristic.h"
-#include "grstaps/Graph/Node.h"
 #include "grstaps/Graph/Graph.h"
+#include "grstaps/Graph/Node.h"
+#include "grstaps/Search/Heuristic.h"
 #include "grstaps/Task_Allocation/TaskAllocation.h"
 
-
-namespace grstaps {
-class TaskAssignMinOrder: public Heuristic {
+namespace grstaps
+{
+    class TaskAssignMinOrder : public Heuristic
+    {
        public:
         /**
          *
@@ -34,13 +35,9 @@ class TaskAssignMinOrder: public Heuristic {
          * \param id of the parent node
          * \param the new node to find cost of
          *
-        */
-        float operator()(Graph<TaskAllocation> &graph, TaskAllocation &parentNode, TaskAllocation &newNode);
+         */
+        float operator()(const Graph<TaskAllocation> &graph, const TaskAllocation &parentNode, TaskAllocation &newNode) override;
     };
-} //grstaps
+}  // namespace grstaps
 
 #endif  // GRSTAPS_TASKASSIGNMINORDER_H
-
-
-
-

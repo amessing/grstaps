@@ -16,18 +16,16 @@
  * Inc., #59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-#include <iostream>
-#include <stdexcept>
-#include <cstdlib>
-#include <utility>
 #include "grstaps/Graph/Node.h"
 #include "grstaps/Task_Allocation/TaskAssignMinOrder.h"
 
-
-namespace grstaps {
-
-    float TaskAssignMinOrder::operator()(Graph<TaskAllocation> &graph, TaskAllocation &parentNode, TaskAllocation &newNode){
+namespace grstaps
+{
+    float TaskAssignMinOrder::operator()(const Graph<TaskAllocation> &graph,
+                                         const TaskAllocation &parentNode,
+                                         TaskAllocation &newNode)
+    {
         return newNode.getGoalDistance();
     }
 
-} //grstaps
+}  // namespace grstaps

@@ -18,19 +18,18 @@
 #ifndef GRSTAPS_SCHEDULER_H
 #define GRSTAPS_SCHEDULER_H
 
-
-
-
-//external
-#include <boost/heap/binomial_heap.hpp>
-#include <map>
-#include <vector>
-#include <string>
-#include <iostream>
+// external
 #include <algorithm>
-#include <../lib/unordered_map/robin_hood.h>
+#include <iostream>
+#include <map>
+#include <string>
+#include <vector>
 
-namespace grstaps{
+#include <../lib/unordered_map/robin_hood.h>
+#include <boost/heap/binomial_heap.hpp>
+
+namespace grstaps
+{
     class tabu;
     class Scheduler
     {
@@ -60,7 +59,7 @@ namespace grstaps{
          * \param scheduler to copy
          *
          */
-        Scheduler(Scheduler& toCopy);
+        Scheduler(const Scheduler& toCopy);
 
         /**
          *
@@ -103,7 +102,11 @@ namespace grstaps{
          *
          * \return successfully added
          */
-        bool addOCTime(int first, int second, std::vector<std::vector<float>>& stnCopy, std::vector<std::vector<int>>& beforeConstraintVec, std::vector<std::vector<int>>& afterConstraintVec);
+        bool addOCTime(int first,
+                       int second,
+                       std::vector<std::vector<float>>& stnCopy,
+                       std::vector<std::vector<int>>& beforeConstraintVec,
+                       std::vector<std::vector<int>>& afterConstraintVec);
 
         /**
          *
@@ -116,7 +119,6 @@ namespace grstaps{
          * \return successfully added
          */
         float addOCTime2(int first, int second, float newMakespan);
-
 
         /**
          *
@@ -172,7 +174,6 @@ namespace grstaps{
          */
         float removeOCTime2(int first, int second);
 
-
         /**
          *
          * Gets makespan of past stn
@@ -218,11 +219,11 @@ namespace grstaps{
                        std::vector<std::vector<int>> disorderingConstraints);
 
         /**
-        *
-        * remove an action to the schedule
-        *
-        * \param the index of the action to remove
-        *
+         *
+         * remove an action to the schedule
+         *
+         * \param the index of the action to remove
+         *
          */
         bool removeAction(int actionID);
 
@@ -318,7 +319,6 @@ namespace grstaps{
          */
         double getShedSwitchTime(int disIndex);
 
-
         /**
          *
          * Updates an stn and a set of constraints passed in adding an ordering constraint between two actions
@@ -332,14 +332,16 @@ namespace grstaps{
          * \return makespan after ordering switch
          *
          */
-         float addOCTemp(int first, int second, std::vector<std::vector<float>> stnCopy, std::vector<std::vector<int>>& beforeConstraintVec, std::vector<std::vector<int>>& afterConstraintVec);
+        float addOCTemp(int first,
+                        int second,
+                        std::vector<std::vector<float>> stnCopy,
+                        std::vector<std::vector<int>>& beforeConstraintVec,
+                        std::vector<std::vector<int>>& afterConstraintVec);
 
-
-
-        bool scheduleValid{};  // is the schedule valid
-        std::vector<std::vector<float>> stn;                 // stn representing the disjuntive graph
-        std::vector<std::vector<int>> beforeConstraints;     // constraints on actions happening before other actions
-        std::vector<std::vector<int>> afterConstraints;      // constraints on actions happening after other actions
+        bool scheduleValid{};                             // is the schedule valid
+        std::vector<std::vector<float>> stn;              // stn representing the disjuntive graph
+        std::vector<std::vector<int>> beforeConstraints;  // constraints on actions happening before other actions
+        std::vector<std::vector<int>> afterConstraints;   // constraints on actions happening after other actions
         float bestSchedule;
         float worstSchedule;
 
@@ -353,10 +355,6 @@ namespace grstaps{
         std::vector<std::vector<float>> copySTN;
         std::vector<int> constraintsToUpdate;
         robin_hood::unordered_map<int, std::vector<float>> editedActionTimes;
-
-
     };
-}
-
-#include <grstaps/Scheduling/tabu.h>
-#endif //GRSTAPS_SCHEDULER_H
+}  // namespace grstaps
+#endif  // GRSTAPS_SCHEDULER_H

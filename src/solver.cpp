@@ -53,8 +53,8 @@ namespace grstaps
         MotionPlanner& motion_planner = MotionPlanner::instance();
         const float boundary_min      = config["mp_boundary_min"];
         const float boundary_max      = config["mp_boundary_max"];
-        const float query_time = config["mp_query_time"];
-        const float connection_range = config["mp_connection_range"];
+        const float query_time        = config["mp_query_time"];
+        const float connection_range  = config["mp_connection_range"];
         motion_planner.setMap(problem.obstacles(), boundary_min, boundary_max);
         motion_planner.setLocations(problem.locations());
         motion_planner.setQueryTime(query_time);
@@ -102,29 +102,28 @@ namespace grstaps
                 std::set<std::pair<uint16_t, uint16_t>> order_constraints;
                 for(unsigned int j = 0; j < plan_subcomponents.size(); ++j)
                 {
-                    const Plan* p = plan_subcomponents[j];
-                    // Ignore the fictituous action
+                    const Plan* subcomponent = plan_subcomponents[j];
+                    // Ignore the fictitious action
                     // TODO: ignore TILs?
-                    if(p->action->name != "<goal>" && p->action->name != "#initial")
+                    if(subcomponent->action->name != "<goal>" && subcomponent->action->name != "#initial")
                     {
-                        for(unsigned int k = 0; k < p->orderings.size(); ++k)
+                        for(unsigned int k = 0; k < subcomponent->orderings.size(); ++k)
                         {
                             // uint16_t
-                            TTimePoint fp = firstPoint(p->orderings[k]);
-                            TTimePoint sp = secondPoint(p->orderings[k]);
+                            TTimePoint fp = firstPoint(subcomponent->orderings[k]);
+                            TTimePoint sp = secondPoint(subcomponent->orderings[k]);
                             // Time points are based on start and end snap actions
-                            // Also include the initial action
-
+                            // Also remove the initial action
                             order_constraints.insert({fp / 2 - 1, sp / 2 - 1});
                         }
 
-                        durations->push_back(p->action->duration[0].exp.value);
+                        durations->push_back(subcomponent->action->duration[0].exp.value);
 
                         noncumTraitCutoff->push_back(
-                            problem.actionNonCumRequirements[problem.actionToRequirements[p->action->name]]);
+                            problem.actionNonCumRequirements[problem.actionToRequirements[subcomponent->action->name]]);
                         goalDistribution->push_back(
-                            problem.actionRequirements[problem.actionToRequirements[p->action->name]]);
-                        actionLocations.push_back(problem.actionLocation(p->action->name));
+                            problem.actionRequirements[problem.actionToRequirements[subcomponent->action->name]]);
+                        actionLocations.push_back(problem.actionLocation(subcomponent->action->name));
                     }
                 }
                 taToSched->setActionLocations(actionLocations);

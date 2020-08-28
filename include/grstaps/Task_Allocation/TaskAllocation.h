@@ -50,7 +50,7 @@ namespace grstaps
          * default constructor
          *
          */
-        TaskAllocation();
+        TaskAllocation() = default;
 
         /**
          * constructor
@@ -68,7 +68,7 @@ namespace grstaps
                        boost::shared_ptr<vector<float>>              = nullptr,
                        boost::shared_ptr<vector<vector<int>>>        = nullptr,
                        const boost::shared_ptr<vector<int>>          = nullptr,
-                       int = -1);
+                       int                                           = -1);
 
         /**
          * constructoring
@@ -84,7 +84,7 @@ namespace grstaps
                        boost::shared_ptr<vector<float>>              = nullptr,
                        boost::shared_ptr<vector<vector<int>>>        = nullptr,
                        boost::shared_ptr<vector<int>>                = nullptr,
-                       int speedInd = -1);
+                       int speedInd                                  = -1);
 
         /**
          * Copy constructor
@@ -166,7 +166,7 @@ namespace grstaps
          * \param returns the allocation as a vector<vector<float>>
          *
          */
-        vector<short> getAllocation() const;
+        const std::vector<short>& getAllocation() const;
 
         /**
          * getter for  getGoalTraitDistribution
@@ -182,7 +182,7 @@ namespace grstaps
          * \param returns the getAllocationTraitDistribution as a vector<vector<float>>
          *
          */
-        [[maybe_unused]] vector<vector<float>> getAllocationTraitDistribution() const;
+        [[maybe_unused]] const std::vector<std::vector<float>>& getAllocationTraitDistribution() const;
 
         /**
          * getter for getSpeciesTraitDistribution
@@ -205,7 +205,7 @@ namespace grstaps
          *
          *
          */
-        [[maybe_unused]] void setAllocation(vector<short>);
+        [[maybe_unused]] void setAllocation(const std::vector<short>&);
 
         /**
          * setter for GoalTraitDistribution
@@ -234,7 +234,7 @@ namespace grstaps
          * vector of strings that is the names
          *
          */
-        void setSpeciesNames(vector<std::string>);
+        void setSpeciesNames(const std::vector<std::string>&);
 
         /**
          * setter for ActionNames
@@ -242,7 +242,7 @@ namespace grstaps
          * vector of strings that is the names
          *
          */
-        void setActionNames(vector<std::string>);
+        void setActionNames(const std::vector<std::string>&);
 
         /**
          * setter for Number of each species
@@ -340,17 +340,17 @@ namespace grstaps
                        vector<vector<int>>* = NULL);
 
         vector<short> allocation;
-        boost::shared_ptr<vector<float>> traitTeamMax{};
-        vector<vector<float>> requirementsRemaining{};
-        vector<vector<float>> allocationTraitDistribution{};
-        boost::shared_ptr<vector<vector<float>>> goalTraitDistribution{};
+        boost::shared_ptr<vector<float>> traitTeamMax;
+        vector<vector<float>> requirementsRemaining;
+        vector<vector<float>> allocationTraitDistribution;
+        boost::shared_ptr<vector<vector<float>>> goalTraitDistribution;
         float* startingGoalDistance;
         boost::shared_ptr<taskAllocationToScheduling> taToScheduling;
-        boost::shared_ptr<vector<float>> actionDurations{};
+        boost::shared_ptr<vector<float>> actionDurations;
         int speedIndex;
 
        private:
-        vector<vector<float>>* speciesTraitDistribution{};
+        vector<vector<float>>* speciesTraitDistribution;
 
         boost::shared_ptr<vector<int>> numSpecies{};
 
@@ -360,12 +360,9 @@ namespace grstaps
         float scheduleTime;
         float goalDistance;
 
-
         bool isGoal;
         bool usingSpecies;
     };
 
 }  // namespace grstaps
-
-//#include "../src/Task_Allocation/TaskAllocation.cpp"
 #endif  // UNTITLED_TASKALLOCATION_H

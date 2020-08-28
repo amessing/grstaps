@@ -35,7 +35,7 @@ namespace grstaps
                                    const boost::shared_ptr<vector<int>> numSpec,
                                    int speedInd)
     {
-        speedIndex = speedInd;
+        speedIndex                    = speedInd;
         usingSpecies                  = useSpec;
         taToScheduling                = taToSched;
         goalTraitDistribution         = goalDistribution;
@@ -92,7 +92,7 @@ namespace grstaps
         actionNoncumulativeTraitValue = std::move(noncumTraitCutoff);
         requirementsRemaining         = *goalDistribution;
         goalDistance                  = 0.0;
-        speedIndex = speedInd;
+        speedIndex                    = speedInd;
         allocation.resize(goalTraitDistribution->size() * speciesTraitDistribution->size(), 0);
         scheduleTime = -1;
         allocationTraitDistribution =
@@ -121,8 +121,6 @@ namespace grstaps
         startingGoalDistance    = &startGoalDistance;
     }
 
-    TaskAllocation::TaskAllocation() = default;
-
     TaskAllocation::TaskAllocation(const TaskAllocation& copyAllocation)
     {
         usingSpecies             = copyAllocation.usingSpecies;
@@ -143,7 +141,7 @@ namespace grstaps
         traitTeamMax                = copyAllocation.traitTeamMax;
         requirementsRemaining       = copyAllocation.requirementsRemaining;
         startingGoalDistance        = copyAllocation.startingGoalDistance;
-        speedIndex = copyAllocation.speedIndex;
+        speedIndex                  = copyAllocation.speedIndex;
     }
 
     bool TaskAllocation::checkGoalAllocation() const
@@ -151,9 +149,9 @@ namespace grstaps
         return goalDistance <= 0;
     }
 
-    [[maybe_unused]] void TaskAllocation::setAllocation(vector<short> newAllocation)
+    [[maybe_unused]] void TaskAllocation::setAllocation(const std::vector<short>& newAllocation)
     {
-        allocation = std::move(newAllocation);
+        allocation = newAllocation;
         updateAllocationTraitDistribution();
     }
 
@@ -179,7 +177,7 @@ namespace grstaps
         updateAllocationTraitDistribution();
     }
 
-    [[maybe_unused]] vector<vector<float>> TaskAllocation::getAllocationTraitDistribution() const
+    [[maybe_unused]] const vector<vector<float>>& TaskAllocation::getAllocationTraitDistribution() const
     {
         return allocationTraitDistribution;
     }
@@ -189,7 +187,7 @@ namespace grstaps
         return numSpecies;
     }
 
-    vector<short> TaskAllocation::getAllocation() const
+    const std::vector<short>& TaskAllocation::getAllocation() const
     {
         return allocation;
     }

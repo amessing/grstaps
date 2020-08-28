@@ -18,15 +18,13 @@
 
 #include "grstaps/Task_Allocation/AllocationIsGoal.h"
 
-namespace grstaps {
-
-    AllocationIsGoal::AllocationIsGoal(): GoalLocator(){
-    }
-
+namespace grstaps
+{
     // This operator overloading enables calling
     // operator function () on objects of increment
-    bool AllocationIsGoal::operator()(Graph<TaskAllocation>& graph, nodePtr<TaskAllocation>& goalNode){
+    bool AllocationIsGoal::operator()(const Graph<TaskAllocation>& graph, nodePtr<TaskAllocation> goalNode)
+    {
         return goalNode->getData().isGoalAllocation();
     }
 
-}// namespace grstaps
+}  // namespace grstaps

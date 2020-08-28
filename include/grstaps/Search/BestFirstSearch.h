@@ -19,38 +19,37 @@
 #ifndef GRSTAPS_GRSTAPS_BESTFIRST
 #define GRSTAPS_GRSTAPS_BESTFIRST
 
-#include <boost/heap/binomial_heap.hpp>
-#include <boost/heap/d_ary_heap.hpp>
-#include "grstaps/Graph/Node.h"
+#include "SearchBase.h"
 #include "grstaps/Graph/Graph.h"
+#include "grstaps/Graph/Node.h"
 #include "grstaps/Search/GoalLocator.h"
 #include "grstaps/Search/NodeExpander.h"
-#include "grstaps/Search/SearchResultPackager.h"
 #include "grstaps/Search/SearchComparators.h"
-#include "SearchBase.h"
+#include "grstaps/Search/SearchResultPackager.h"
+#include <boost/heap/binomial_heap.hpp>
+#include <boost/heap/d_ary_heap.hpp>
 
-
-namespace grstaps {
-
-    template<class Data>
-    class BestFirstSearch : public SearchBase<Data> {
-    public:
-
+namespace grstaps
+{
+    template <class Data>
+    class BestFirstSearch : public SearchBase<Data>
+    {
+       public:
         /**
-        * Constructor
-        *
-        * \param the graph that the search is through
-        *
-        */
+         * Constructor
+         *
+         * \param the graph that the search is through
+         *
+         */
         BestFirstSearch(Graph<Data> &, nodePtr<Data> &);
 
         /**
-       * Copy Constructor
-       *
-       * \param the search problem you are going to copy from
-       * \param the new expansion function you will use on the copy
-       *
-       */
+         * Copy Constructor
+         *
+         * \param the search problem you are going to copy from
+         * \param the new expansion function you will use on the copy
+         *
+         */
         BestFirstSearch(BestFirstSearch<Data> &, NodeExpander<Data> &);
 
         /**
@@ -64,24 +63,23 @@ namespace grstaps {
          *
          * \returns a search results object that contains all needed return information from the search
          */
-        virtual void search(GoalLocator<Data>*, NodeExpander<Data>*, SearchResultPackager<Data>*);
+        virtual void search(GoalLocator<Data> *, NodeExpander<Data> *, SearchResultPackager<Data> *) override;
 
         /**
          * Update the Current node
          *
          */
         bool updateCurrent();
-    private:
+
+       private:
         nodePtr<Data> currentNode;
-        boost::heap::binomial_heap< nodePtr<Data>, boost::heap::compare<NodeCompareF<Data>> > frontier;
-        boost::heap::binomial_heap< nodePtr<Data>, boost::heap::compare<NodeCompareF<Data>> > closedList;
-
+        boost::heap::binomial_heap<nodePtr<Data>, boost::heap::compare<NodeCompareF<Data>>> frontier;
+        boost::heap::binomial_heap<nodePtr<Data>, boost::heap::compare<NodeCompareF<Data>>> closedList;
     };
-}// namespace grstaps
+}  // namespace grstaps
 
-
-#endif //GRSTAPS_BESTFIRST
+#endif  // GRSTAPS_BESTFIRST
 
 #ifndef GRSTAPS_GRSTAPS_BESTFIRSTCPP
-    #include "../src/Search/BestFirstSearch.cpp"
+#include "../src/Search/BestFirstSearch.cpp"
 #endif
