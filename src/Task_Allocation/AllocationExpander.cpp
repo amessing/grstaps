@@ -31,7 +31,7 @@ namespace grstaps
     AllocationExpander::AllocationExpander(boost::shared_ptr<Heuristic> heur, boost::shared_ptr<Cost> cos): NodeExpander(heur, cos){}
 
     //check to prevent duplicate
-    bool AllocationExpander::operator()(Graph<TaskAllocation>& graph, nodePtr<TaskAllocation>& expandNode)
+    bool AllocationExpander::operator()(Graph<TaskAllocation>& graph, nodePtr<TaskAllocation> expandNode)
     {
         TaskAllocation data = expandNode->getData();
         vector<short> allocation = data.getAllocation();
@@ -56,7 +56,7 @@ namespace grstaps
                     if(newNodeData.getGoalDistance() < parentsGoalDistance)
                     {
                         float heur = (*this->heuristicFunc)(graph, data, newNodeData);
-                        float cost = (*this->costFunc)(graph, data, newNodeData);
+                        //float cost = (*this->costFunc)(graph, data, newNodeData);
                         auto newNode = nodePtr<TaskAllocation>(new Node<TaskAllocation>(newNodeID, newNodeData));
                         newNode->setHeuristic(heur);
                         newNode->setPathCost(heur);

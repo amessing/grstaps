@@ -178,8 +178,8 @@ namespace grstaps
             {
                 std::cout << result.second << std::endl;
                 std::tuple<bool, float, std::vector<std::pair<float, float>>> waypoints = mp.getWaypoints(0, 1);
-                std::cout << std::get<2>(waypoints).size() << std::endl;
-                for(const std::pair<float, float>& waypoint: std::get<2>(waypoints))
+                std::cout << get<2>(waypoints).size() << std::endl;
+                for(const std::pair<float, float>& waypoint: get<2>(waypoints))
                 {
                     std::cout << '\t' << waypoint.first << ", " << waypoint.second << std::endl;
                 }

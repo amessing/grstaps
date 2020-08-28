@@ -25,6 +25,7 @@
 #include <grstaps/Scheduling/Scheduler.h>
 
 using std::string;
+using std::get;
 using std::vector;
 using start_end = std::pair<float, float>;
 using waypoints = std::vector<std::pair<float, float>>;
