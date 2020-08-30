@@ -304,7 +304,7 @@ namespace grstaps
        public:
         bool operator()(const nodePtr<Data>& n1, const nodePtr<Data>& n2) const
         {
-            return n1->getPathCost() > n2->getPathCost();
+            return n1->getPathCost() < n2->getPathCost();
         }
     };
 
@@ -322,7 +322,7 @@ namespace grstaps
        public:
         bool operator()(const nodePtr<Data>& n1, const nodePtr<Data>& n2) const
         {
-            return n1->getHeuristic() > n2->getHeuristic();
+            return n1->getHeuristic() < n2->getHeuristic();
         }
     };
 
@@ -342,7 +342,7 @@ namespace grstaps
         {
             float f1 = n1->getHeuristic() + n1->getPathCost();
             float f2 = n2->getHeuristic() + n1->getPathCost();
-            return f1 > f2;
+            return f1 < f2;
         }
     };
 

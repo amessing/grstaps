@@ -393,6 +393,10 @@ namespace grstaps
 
     bool Scheduler::increaseActionTime(int actionIndex, float duration)
     {
+        worstSchedule += duration;
+        if((stn[actionIndex][1] - stn[actionIndex][1]) == bestSchedule){
+            bestSchedule += duration;
+        }
         stn[actionIndex][1] += duration;
         std::vector<std::vector<int>> constraintsToUpdate;
         std::vector<std::vector<bool>> checkedAlready(int(stn.size()), std::vector<bool>(stn.size(), false));
@@ -441,6 +445,11 @@ namespace grstaps
 
     bool Scheduler::decreaseActionTime(int actionIndex, float duration)
     {
+        worstSchedule -= duration;
+        bool updateBestSched = true;
+        if((stn[actionIndex][1] - stn[actionIndex][1]) == bestSchedule){
+            updateBestSched = true;
+        }
         stn[actionIndex][1] -= duration;
 
         std::vector<std::vector<int>> constraintsToUpdate;
@@ -517,6 +526,13 @@ namespace grstaps
         }
         stn.erase(stn.begin() + actionID);
         setDisjuctive();
+
+        bestSchedule = 0;
+        for(int i= 0 ; i < stn.size(); ++i){
+            if(bestSchedule < (stn[i][1]-stn[i][0])){
+                bestSchedule = (stn[i][1]-stn[i][0]);
+            }
+        }
         return scheduleValid;
     }
 
