@@ -348,6 +348,7 @@ namespace grstaps
         boost::shared_ptr<taskAllocationToScheduling> taToScheduling;
         boost::shared_ptr<vector<float>> actionDurations;
         int speedIndex;
+        float maxSpeed;
 
        private:
         vector<vector<float>>* speciesTraitDistribution;
@@ -362,6 +363,7 @@ namespace grstaps
 
         bool isGoal;
         bool usingSpecies;
+
     };
 
 }  // namespace grstaps

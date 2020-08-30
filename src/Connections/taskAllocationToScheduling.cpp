@@ -213,6 +213,7 @@ namespace grstaps
         }
         else
         {
+
             std::vector<unsigned int> currentLocations = m_starting_locations;
             for(int i = 0; i < actionOrder.size(); ++i)
             {
@@ -235,7 +236,7 @@ namespace grstaps
 
                 float maxTravelTime           = 0;
                 vector<vector<float>>* traits = TaskAlloc->getSpeciesTraitDistribution();
-                float slowestAgent            = (*traits)[0][TaskAlloc->speedIndex];
+                float slowestAgent            = TaskAlloc->maxSpeed;
                 for(int j = 0; j < TaskAlloc->getNumSpecies()->size(); j++)
                 {
                     if(TaskAlloc->allocation[actionOrder[i] * TaskAlloc->getNumSpecies()->size() + j] == 1)

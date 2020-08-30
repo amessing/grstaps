@@ -186,6 +186,7 @@ namespace grstaps
             searchFailed = updateCurrent();
         }
         results->addResults(this->graph, currentNode, searchFailed);
+        cout << "Done" << endl;
     }
 
     template <class Data>
@@ -207,7 +208,6 @@ namespace grstaps
             currentNode = frontier.top();
             closedList.push(currentNode);
             frontier.pop();
-            cout << (*currentNode).getNodeID() << "  " << ((*currentNode).getData().taToScheduling)->sched.makeSpan << endl;
         }
         return searchFailed;
     }
