@@ -27,7 +27,7 @@
 
 namespace grstaps
 {
-    float allocationWeight = 1.0;
+    float allocationWeight = 0.0;
 
     float TAGoalDist::operator()(const Graph<TaskAllocation> &graph, const TaskAllocation &parentNode, TaskAllocation &newNode)
     {

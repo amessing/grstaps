@@ -201,12 +201,13 @@ namespace grstaps
             //for(int i=0; !frontier.empty(); ++i){
             //    currentNode = frontier.top();
             //    frontier.pop();
-            //    cout << (*currentNode).getNodeID() << endl;
+            //cout << (*currentNode).getNodeID() << endl;
             //}
-            cout << "done" << endl;
+            //cout << "done" << endl;
             currentNode = frontier.top();
             closedList.push(currentNode);
             frontier.pop();
+            cout << (*currentNode).getNodeID() << "  " << ((*currentNode).getData().taToScheduling)->sched.makeSpan << endl;
         }
         return searchFailed;
     }
