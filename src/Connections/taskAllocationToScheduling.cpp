@@ -33,6 +33,9 @@ namespace grstaps
 
     float taskAllocationToScheduling::getNonSpeciesSchedule(TaskAllocation* allocObject)
     {
+        if(allocObject->allocation == vector<short>{1,0,0,0,1,0,0,0,1}){
+            std::cout << "here";
+        }
         std::vector<std::vector<int>> disjunctiveConstraints;
         int numAction = allocObject->allocation.size() / (*allocObject->getNumSpecies()).size();
 
@@ -340,7 +343,21 @@ namespace grstaps
                                 // float action_duration_half = (*TaskAlloc->actionDurations)[actionOrder[i]] / 2.0;
                                 // start_end  time = {stn[i][0] + action_duration_half, stn[i][1] -
                                 // action_duration_half};
-                                start_end time   = {sched.stn[i][0], sched.stn[i][1]};
+                                float travel_time = std::get<1>(waypoints);
+                                float adj_travel_time = travel_time;
+                                if(TaskAlloc->speedIndex != -1)
+                                {
+                                    float adj_travel_time = 0;
+                                    for(int k=0; k <  TaskAlloc->getNumSpecies()->size(); ++k){
+                                        if(TaskAlloc->allocation[actionOrder[i] * TaskAlloc->getNumSpecies()->size() + k] == 1)
+                                        {
+                                            if(adj_travel_time < (travel_time/(*traits)[k][TaskAlloc->speedIndex])){
+                                                adj_travel_time =  (travel_time/(*traits)[k][TaskAlloc->speedIndex]);
+                                            }
+                                        }
+                                    }
+                                }
+                                start_end time   = {sched.stn[i][1] - adj_travel_time - (*TaskAlloc->actionDurations)[i], sched.stn[i][1]};
                                 single_plan step = std::make_pair(time, std::get<2>(waypoints));
                                 motionPlans[j].push_back(step);
                             }
