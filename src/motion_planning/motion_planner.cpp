@@ -88,6 +88,11 @@ namespace grstaps
         return std::make_pair(std::get<0>(rv), std::get<1>(rv));
     }
 
+    bool floatEqual(const float a, const float b, const float epsilon=1e-6)
+    {
+        return fabs(a - b) <= ( (fabs(a) > fabs(b) ? fabs(b) : fabs(a)) * epsilon);
+    }
+
     std::tuple<bool, float, std::vector<std::pair<float, float>>> MotionPlanner::getWaypoints(unsigned int from, unsigned int to)
     {
         std::lock_guard<std::mutex> lock(m_mutex);
@@ -115,7 +120,7 @@ namespace grstaps
             auto& real_vector_state = *state->as<ob::RealVectorStateSpace::StateType>();
             const float x           = real_vector_state[0];
             const float y           = real_vector_state[1];
-            if(waypoints.size() > 1 && waypoints.back().first == x && waypoints.back().second == y)
+            if(waypoints.size() > 1 && floatEqual(waypoints.back().first, x) && floatEqual(waypoints.back().second, y))
             {
                 continue;
             }
