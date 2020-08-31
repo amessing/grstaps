@@ -318,7 +318,7 @@ namespace grstaps
                                 }
 
                                 currentLocations[j] = m_action_locations[actionOrder[i]].second;
-                                start_end time      = {sched.stn[i][0] - travel_time, sched.stn[i][0]};
+                                start_end time      = {sched.stn[i][0], sched.stn[i][0] + travel_time};
                                 single_plan step    = std::make_pair(time, std::get<2>(waypoints));
                                 motionPlans[j].push_back(step);
                             }
