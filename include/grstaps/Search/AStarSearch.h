@@ -186,6 +186,7 @@ namespace grstaps
             searchFailed = updateCurrent();
         }
         results->addResults(this->graph, currentNode, searchFailed);
+        cout << "Done" << endl;
     }
 
     template <class Data>
@@ -198,6 +199,12 @@ namespace grstaps
         }
         else
         {
+            //for(int i=0; !frontier.empty(); ++i){
+            //    currentNode = frontier.top();
+            //    frontier.pop();
+            //cout << (*currentNode).getNodeID() << endl;
+            //}
+            //cout << "done" << endl;
             currentNode = frontier.top();
             closedList.push(currentNode);
             frontier.pop();

@@ -344,11 +344,11 @@ namespace grstaps
         std::vector<std::vector<int>> afterConstraints;   // constraints on actions happening after other actions
         float bestSchedule;
         float worstSchedule;
+        double makeSpan;
 
        private:
         std::vector<std::vector<int>> disjuctiveConstraints;  // list of disjunctive constraints
         std::vector<int> disjuctiveOrderings;                 // the orderings on those constraints
-        double makeSpan;
         int lastAction;
         std::string disID;
         int flag = 1;

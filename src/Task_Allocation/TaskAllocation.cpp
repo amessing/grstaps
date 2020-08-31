@@ -62,11 +62,15 @@ namespace grstaps
         }
 
         traitTeamMax = boost::shared_ptr<vector<float>>(new vector<float>(speciesDistribution[0].size(), 0));
+        maxSpeed = 0;
         for(int i = 0; i < numSpec->size(); ++i)
         {
             for(int j = 0; j < (*speciesDistribution)[0].size(); ++j)
             {
                 (*traitTeamMax)[j] += (*speciesDistribution)[i][j] * (*numSpec)[i];
+                if(j == speedInd && maxSpeed < (*speciesDistribution)[i][j]){
+                    maxSpeed = (*speciesDistribution)[i][j];
+                }
             }
         }
         float startGoalDistance = goalDistance;
@@ -110,11 +114,15 @@ namespace grstaps
         }
 
         traitTeamMax = boost::shared_ptr<vector<float>>(new vector<float>((*speciesDistribution)[0].size(), 0));
+        maxSpeed = 0;
         for(int i = 0; i < numSpec->size(); ++i)
         {
             for(int j = 0; j < (*speciesDistribution)[0].size(); ++j)
             {
                 (*traitTeamMax)[j] += (*speciesDistribution)[i][j] * (*numSpec)[i];
+                if(j == speedInd && maxSpeed < (*speciesDistribution)[i][j]){
+                    maxSpeed = (*speciesDistribution)[i][j];
+                }
             }
         }
         float startGoalDistance = goalDistance;
@@ -142,6 +150,7 @@ namespace grstaps
         requirementsRemaining       = copyAllocation.requirementsRemaining;
         startingGoalDistance        = copyAllocation.startingGoalDistance;
         speedIndex                  = copyAllocation.speedIndex;
+        maxSpeed                    = copyAllocation.maxSpeed;
     }
 
     bool TaskAllocation::checkGoalAllocation() const
