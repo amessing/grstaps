@@ -45,7 +45,7 @@ namespace grstaps
             problem.setLocations(locations);
             problem.setStartingLocations({0, 0, 0});
 
-            std::vector<Problem::TraitVector> robot_traits = {{0.75, 1}, {0.75, 1}, {0.75, 1}};
+            std::vector<Problem::TraitVector> robot_traits = {{0.25, 1}, {0.25, 1}, {0.25, 1}};
             problem.setRobotTraitVector(robot_traits);
             problem.speedIndex = 1;
 
@@ -68,7 +68,7 @@ namespace grstaps
             for(unsigned int i = 0; i < task->actions.size(); ++i)
             {
                 problem.actionToRequirements[task->actions[i].name] = i;
-                problem.actionRequirements.push_back({0.25, 0});
+                problem.actionRequirements.push_back({0.75, 0});
                 problem.actionNonCumRequirements.push_back({0, 0});
 
                 problem.addActionLocation(
