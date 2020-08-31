@@ -23,6 +23,7 @@
 
 #include <grstaps/Scheduling/Scheduler.h>
 #include <grstaps/Scheduling/tabu.h>
+#include <vector>
 
 namespace grstaps
 {
@@ -130,6 +131,10 @@ namespace grstaps
 
     bool Scheduler::addOC(int first, int second)
     {
+        if(find(beforeConstraints[first].begin(), beforeConstraints[first].end(), second) != beforeConstraints[first].end()){
+            return true;
+        }
+        makeSpan = -1;
         int originalFirst = first;
         constraintsToUpdate.clear();
         beforeConstraints[first].emplace_back(second);
@@ -163,6 +168,7 @@ namespace grstaps
                 if(second == originalFirst)
                 {
                     scheduleValid = false;
+                    makeSpan = -1;
                     return scheduleValid;
                 }
             }
@@ -260,6 +266,7 @@ namespace grstaps
 
     void Scheduler::removeOC(int first, int second)
     {
+        makeSpan = -1;
         constraintsToUpdate.clear();
         beforeConstraints[first].erase(
             std::remove(beforeConstraints[first].begin(), beforeConstraints[first].end(), second),
@@ -393,7 +400,11 @@ namespace grstaps
 
     bool Scheduler::increaseActionTime(int actionIndex, float duration)
     {
-        stn[actionIndex][1] = stn[actionIndex][0] + duration;
+        worstSchedule += duration;
+        if((stn[actionIndex][1] - stn[actionIndex][1]) == bestSchedule){
+            bestSchedule += duration;
+        }
+        stn[actionIndex][1] += duration;
         std::vector<std::vector<int>> constraintsToUpdate;
         std::vector<std::vector<bool>> checkedAlready(int(stn.size()), std::vector<bool>(stn.size(), false));
         int second = actionIndex;
@@ -436,12 +447,18 @@ namespace grstaps
                 }
             }
         }
+        makeSpan = -1;
         return true;
     }
 
     bool Scheduler::decreaseActionTime(int actionIndex, float duration)
     {
-        stn[actionIndex][1] = duration + stn[actionIndex][0];
+        worstSchedule -= duration;
+        bool updateBestSched = true;
+        if((stn[actionIndex][1] - stn[actionIndex][1]) == bestSchedule){
+            updateBestSched = true;
+        }
+        stn[actionIndex][1] -= duration;
 
         std::vector<std::vector<int>> constraintsToUpdate;
         std::vector<std::vector<bool>> checkedAlready(int(stn.size()), std::vector<bool>(stn.size(), false));
@@ -495,11 +512,13 @@ namespace grstaps
                 }
             }
         }
+        makeSpan = -1;
         return true;
     }
 
     bool Scheduler::removeAction(int actionID)
     {
+        makeSpan = -1;
         while(!beforeConstraints[actionID].empty())
         {
             Scheduler::removeOC(actionID, beforeConstraints[actionID][0]);
@@ -517,11 +536,19 @@ namespace grstaps
         }
         stn.erase(stn.begin() + actionID);
         setDisjuctive();
+
+        bestSchedule = 0;
+        for(int i= 0 ; i < stn.size(); ++i){
+            if(bestSchedule < (stn[i][1]-stn[i][0])){
+                bestSchedule = (stn[i][1]-stn[i][0]);
+            }
+        }
         return scheduleValid;
     }
 
     bool Scheduler::addAction(float duration, const std::vector<int>& orderingConstraints)
     {
+        makeSpan = -1;
         stn.emplace_back(std::vector<float>{0, duration});
         for(auto& orderingConstraint: orderingConstraints)
         {
@@ -536,7 +563,7 @@ namespace grstaps
 
     bool Scheduler::schedule(const std::vector<float>& durations, std::vector<std::vector<int>>& orderingConstraints)
     {
-        scheduleValid = true;
+
         initSTN(durations);
         beforeConstraints = std::vector<std::vector<int>>(durations.size(), std::vector<int>(0));
         afterConstraints  = std::vector<std::vector<int>>(durations.size(), std::vector<int>(0));
@@ -549,6 +576,7 @@ namespace grstaps
             }
             if(added == 0)
             {
+                scheduleValid = false;
                 return false;
             }
         }
@@ -560,7 +588,6 @@ namespace grstaps
                              std::vector<std::vector<int>>& orderingConstraints,
                              std::vector<std::vector<int>>& disConstraints)
     {
-        scheduleValid = true;
         initSTN(durations);
         makeSpan          = -1;
         beforeConstraints = std::vector<std::vector<int>>(durations.size(), std::vector<int>(0));
@@ -570,6 +597,7 @@ namespace grstaps
             bool added = addOC(orderingConstraint[0], orderingConstraint[1]);
             if(!added)
             {
+                scheduleValid = false;
                 return false;
             }
         }
@@ -580,7 +608,6 @@ namespace grstaps
         {
             setDisjuctive();
         }
-
         return scheduleValid;
     }
 
@@ -588,6 +615,7 @@ namespace grstaps
                               const std::vector<int>& orderingConstraints,
                               std::vector<std::vector<int>> disorderingConstraints)
     {
+        makeSpan = -1;
         stn.emplace_back(std::vector<float>{0, duration});
         for(auto& orderingConstraint: orderingConstraints)
         {
@@ -735,13 +763,13 @@ namespace grstaps
             int i     = 0;
             for(i; i < disjuctiveConstraints.size(); ++i)
             {
-                if(copySched.stn[disjuctiveConstraints[i][0]][0] > copySched.stn[disjuctiveConstraints[i][1]][1])
+                if(copySched.stn[disjuctiveConstraints[i][0]][0] >= copySched.stn[disjuctiveConstraints[i][1]][1])
                 {
                     copySched.addOC(disjuctiveConstraints[i][1], disjuctiveConstraints[i][0]);
                     disjuctiveOrderings[i] = 0;
                     disID[i]               = 0;
                 }
-                else if(copySched.stn[disjuctiveConstraints[i][0]][1] < copySched.stn[disjuctiveConstraints[i][1]][0])
+                else if(copySched.stn[disjuctiveConstraints[i][0]][1] <= copySched.stn[disjuctiveConstraints[i][1]][0])
                 {
                     copySched.addOC(disjuctiveConstraints[i][0], disjuctiveConstraints[i][1]);
                     disjuctiveOrderings[i] = 1;
@@ -755,13 +783,13 @@ namespace grstaps
 
                     if(allowedFirst && (order == 0 || (!allowedSecond)))
                     {
-                        copySched.addOC(disjuctiveConstraints[i][0], disjuctiveConstraints[i][1]);
+                        copySched.addOC(disjuctiveConstraints[i][1], disjuctiveConstraints[i][0]);
                         disjuctiveOrderings[i] = 0;
                         disID[i]               = 0;
                     }
                     else if(allowedSecond)
                     {
-                        copySched.addOC(disjuctiveConstraints[i][1], disjuctiveConstraints[i][0]);
+                        copySched.addOC(disjuctiveConstraints[i][0], disjuctiveConstraints[i][1]);
                         disjuctiveOrderings[i] = 1;
                         disID[i]               = 1;
                     }

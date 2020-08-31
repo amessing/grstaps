@@ -34,11 +34,12 @@ namespace grstaps
     float taskAllocationToScheduling::getNonSpeciesSchedule(TaskAllocation* allocObject)
     {
         std::vector<std::vector<int>> disjunctiveConstraints;
+        int numAction = allocObject->allocation.size() / (*allocObject->getNumSpecies()).size();
+
         for(int species = 0; species < (*allocObject->getNumSpecies()).size(); ++species)
         {
             concurrent.clear();
 
-            int numAction = allocObject->allocation.size() / (*allocObject->getNumSpecies()).size();
             for(int action = 0; action < numAction; ++action)
             {
                 if(allocObject->allocation[(*allocObject->getNumSpecies()).size() * action + species] > 0)
@@ -46,8 +47,7 @@ namespace grstaps
                     for(int concur = 0; concur < concurrent.size(); ++concur)
                     {
                         vector<int> constraint = {concurrent[concur], action};
-                        auto found =
-                            std::find(disjunctiveConstraints.begin(), disjunctiveConstraints.end(), constraint);
+                        auto found = std::find(disjunctiveConstraints.begin(), disjunctiveConstraints.end(), constraint);
                         if(found == disjunctiveConstraints.end())
                         {
                             disjunctiveConstraints.push_back(constraint);
@@ -213,6 +213,7 @@ namespace grstaps
         }
         else
         {
+
             std::vector<unsigned int> currentLocations = m_starting_locations;
             for(int i = 0; i < actionOrder.size(); ++i)
             {
@@ -235,7 +236,7 @@ namespace grstaps
 
                 float maxTravelTime           = 0;
                 vector<vector<float>>* traits = TaskAlloc->getSpeciesTraitDistribution();
-                float slowestAgent            = (*traits)[0][TaskAlloc->speedIndex];
+                float slowestAgent            = TaskAlloc->maxSpeed;
                 for(int j = 0; j < TaskAlloc->getNumSpecies()->size(); j++)
                 {
                     if(TaskAlloc->allocation[actionOrder[i] * TaskAlloc->getNumSpecies()->size() + j] == 1)
