@@ -51,14 +51,14 @@ namespace grstaps
             myfile << "Node= " << this->finalNode->getNodeID() << std::endl;
             myfile << "Makespan = " << (finalNode->getData().getScheduleTime()) << std::endl;
 
-            for(int i = 0; i < finalNode->getData().taToScheduling->sched.stn.size(); ++i)
+            for(int i = 0; i < finalNode->getData().taToScheduling.sched.stn.size(); ++i)
             {
-                myfile << "Action " << i << " start: " << finalNode->getData().taToScheduling->sched.stn[i][0]
-                       << " end: " << finalNode->getData().taToScheduling->sched.stn[i][1] << std::endl;
+                myfile << "Action " << i << " start: " << finalNode->getData().taToScheduling.sched.stn[i][0]
+                       << " end: " << finalNode->getData().taToScheduling.sched.stn[i][1] << std::endl;
             }
 
             auto motionPlans =
-                finalNode->getData().taToScheduling->saveMotionPlanningNonSpeciesSchedule(&finalNode->getData()).second;
+                finalNode->getData().taToScheduling.saveMotionPlanningNonSpeciesSchedule(&finalNode->getData()).second;
             myfile << endl << "Motion Plans" << endl;
             for(int i = 0; i < motionPlans.size(); ++i)
             {

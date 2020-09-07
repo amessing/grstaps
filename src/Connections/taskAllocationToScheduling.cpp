@@ -25,7 +25,7 @@
 namespace grstaps
 {
     taskAllocationToScheduling::taskAllocationToScheduling(MotionPlanner* motion_planner,
-                                                           const std::vector<unsigned int>& startingLoc)
+                                                           const std::vector<unsigned int>* startingLoc)
     {
         m_motion_planner     = motion_planner;
         m_starting_locations = startingLoc;
@@ -33,9 +33,7 @@ namespace grstaps
 
     float taskAllocationToScheduling::getNonSpeciesSchedule(TaskAllocation* allocObject)
     {
-        if(allocObject->allocation == vector<short>{1,0,0,0,1,0,0,0,1}){
-            std::cout << "here";
-        }
+
         std::vector<std::vector<int>> disjunctiveConstraints;
         int numAction = allocObject->allocation.size() / (*allocObject->getNumSpecies()).size();
 
@@ -47,6 +45,7 @@ namespace grstaps
             {
                 if(allocObject->allocation[(*allocObject->getNumSpecies()).size() * action + species] > 0)
                 {
+
                     for(int concur = 0; concur < concurrent.size(); ++concur)
                     {
                         vector<int> constraint = {concurrent[concur], action};
@@ -64,6 +63,7 @@ namespace grstaps
                *allocObject->getActionDuration(), *allocObject->getOrderingConstraints(), disjunctiveConstraints))
         {
             adjustScheduleNonSpeciesSchedule(allocObject);
+
             return addMotionPlanningNonSpeciesSchedule(allocObject);
         }
         return -1;
@@ -217,15 +217,15 @@ namespace grstaps
         else
         {
 
-            std::vector<unsigned int> currentLocations = m_starting_locations;
+            std::vector<unsigned int> currentLocations = *m_starting_locations;
             for(int i = 0; i < actionOrder.size(); ++i)
             {
                 // If the action is a move action then add in the move time
                 float action_move_time = 0.0;
-                if(m_action_locations[actionOrder[i]].first != m_action_locations[actionOrder[i]].second)
+                if((*m_action_locations)[actionOrder[i]].first != (*m_action_locations)[actionOrder[i]].second)
                 {
                     std::pair<bool, float> action_travel_length = m_motion_planner->query(
-                        m_action_locations[actionOrder[i]].first, m_action_locations[actionOrder[i]].second);
+                        (*m_action_locations)[actionOrder[i]].first, (*m_action_locations)[actionOrder[i]].second);
                     if(action_travel_length.first)
                     {
                         action_move_time = action_travel_length.second;
@@ -244,10 +244,10 @@ namespace grstaps
                 {
                     if(TaskAlloc->allocation[actionOrder[i] * TaskAlloc->getNumSpecies()->size() + j] == 1)
                     {
-                        if(currentLocations[j] != m_action_locations[actionOrder[i]].first)
+                        if(currentLocations[j] != (*m_action_locations)[actionOrder[i]].first)
                         {
                             std::pair<bool, float> travelTime =
-                                m_motion_planner->query(currentLocations[j], m_action_locations[actionOrder[i]].first);
+                                m_motion_planner->query(currentLocations[j], (*m_action_locations)[actionOrder[i]].first);
                             if(travelTime.first)
                             {
                                 if(TaskAlloc->speedIndex == -1)
@@ -258,7 +258,7 @@ namespace grstaps
                                         maxTravelTime = travelTime.second;
                                         // Move to the end of the action
                                     }
-                                    currentLocations[j] = m_action_locations[actionOrder[i]].second;
+                                    currentLocations[j] = (*m_action_locations)[actionOrder[i]].second;
                                 }
                                 else
                                 {
@@ -271,7 +271,7 @@ namespace grstaps
                                         maxTravelTime = travelTime.second / (*traits)[j][TaskAlloc->speedIndex];
                                         // Move to the end of the action
                                     }
-                                    currentLocations[j] = m_action_locations[actionOrder[i]].second;
+                                    currentLocations[j] = (*m_action_locations)[actionOrder[i]].second;
                                 }
                             }
                             else
@@ -298,7 +298,7 @@ namespace grstaps
         }
         else
         {
-            std::vector<unsigned int> currentLocations = m_starting_locations;
+            std::vector<unsigned int> currentLocations = *m_starting_locations;
             for(int i = 0; i < actionOrder.size(); ++i)
             {
                 auto traits = TaskAlloc->getSpeciesTraitDistribution();
@@ -306,11 +306,11 @@ namespace grstaps
                 {
                     if(TaskAlloc->allocation[actionOrder[i] * TaskAlloc->getNumSpecies()->size() + j] == 1)
                     {
-                        if(currentLocations[j] != m_action_locations[actionOrder[i]].first)
+                        if(currentLocations[j] != (*m_action_locations)[actionOrder[i]].first)
                         {
                             std::tuple<bool, float, std::vector<std::pair<float, float>>> waypoints =
                                 m_motion_planner->getWaypoints(currentLocations[j],
-                                                               m_action_locations[actionOrder[i]].first);
+                                                               (*m_action_locations)[actionOrder[i]].first);
 
                             if(std::get<0>(waypoints))
                             {
@@ -320,7 +320,7 @@ namespace grstaps
                                     travel_time /= (*traits)[j][TaskAlloc->speedIndex];
                                 }
 
-                                currentLocations[j] = m_action_locations[actionOrder[i]].second;
+                                currentLocations[j] = (*m_action_locations)[actionOrder[i]].second;
                                 start_end time      = {sched.stn[i][0], sched.stn[i][0] + travel_time};
                                 single_plan step    = std::make_pair(time, std::get<2>(waypoints));
                                 motionPlans[j].push_back(step);
@@ -333,11 +333,11 @@ namespace grstaps
                         }
 
                         // If the action is a move action then add in the move time
-                        if(m_action_locations[actionOrder[i]].first != m_action_locations[actionOrder[i]].second)
+                        if((*m_action_locations)[actionOrder[i]].first != (*m_action_locations)[actionOrder[i]].second)
                         {
                             std::tuple<bool, float, std::vector<std::pair<float, float>>> waypoints =
-                                m_motion_planner->getWaypoints(m_action_locations[actionOrder[i]].first,
-                                                               m_action_locations[actionOrder[i]].second);
+                                m_motion_planner->getWaypoints((*m_action_locations)[actionOrder[i]].first,
+                                                               (*m_action_locations)[actionOrder[i]].second);
                             if(std::get<0>(waypoints))
                             {
                                 // float action_duration_half = (*TaskAlloc->actionDurations)[actionOrder[i]] / 2.0;
@@ -375,7 +375,7 @@ namespace grstaps
     }
 
     void taskAllocationToScheduling::setActionLocations(
-        const std::vector<std::pair<unsigned int, unsigned int>>& action_locations)
+        boost::shared_ptr<const std::vector<std::pair<unsigned int, unsigned int>>> action_locations)
     {
         m_action_locations = action_locations;
     }

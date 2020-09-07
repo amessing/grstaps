@@ -29,7 +29,7 @@ namespace grstaps
                                    vector<vector<float>>* speciesDistribution,
                                    vector<short> startAllocation,
                                    boost::shared_ptr<vector<vector<float>>> noncumTraitCutoff,
-                                   boost::shared_ptr<taskAllocationToScheduling> taToSched,
+                                   taskAllocationToScheduling taToSched,
                                    boost::shared_ptr<vector<float>> actionDur,
                                    boost::shared_ptr<vector<vector<int>>> orderingCon,
                                    const boost::shared_ptr<vector<int>> numSpec,
@@ -81,7 +81,7 @@ namespace grstaps
                                    const boost::shared_ptr<vector<vector<float>>> goalDistribution,
                                    vector<vector<float>>* speciesDistribution,
                                    boost::shared_ptr<vector<vector<float>>> noncumTraitCutoff,
-                                   boost::shared_ptr<taskAllocationToScheduling> taToSched,
+                                   taskAllocationToScheduling taToSched,
                                    boost::shared_ptr<vector<float>> actionDur,
                                    boost::shared_ptr<vector<vector<int>>> orderingCon,
                                    boost::shared_ptr<vector<int>> numSpec,
@@ -433,11 +433,11 @@ namespace grstaps
         {
             if(!usingSpecies)
             {
-                scheduleTime = taToScheduling->getNonSpeciesSchedule(this);
+                scheduleTime = taToScheduling.getNonSpeciesSchedule(this);
             }
             else
             {
-                scheduleTime = taToScheduling->getSpeciesSchedule(this);
+                scheduleTime = taToScheduling.getSpeciesSchedule(this);
             }
             return scheduleTime;
         }

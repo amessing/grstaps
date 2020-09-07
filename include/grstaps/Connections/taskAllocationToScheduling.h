@@ -47,7 +47,7 @@ namespace grstaps
          *
          */
         taskAllocationToScheduling(MotionPlanner* mPlanner                      = nullptr,
-                                   const std::vector<unsigned int>& startingLoc = std::vector<unsigned int>());
+                                   const std::vector<unsigned int>* = nullptr);
 
         /**
          * Get the schedule for a task allocation that does not use species
@@ -106,18 +106,20 @@ namespace grstaps
         /**
          * Sets a list of the indices of the start and end locations for the actions
          */
-        void setActionLocations(const std::vector<std::pair<unsigned int, unsigned int>>& action_locations);
+        void setActionLocations(boost::shared_ptr<const std::vector<std::pair<unsigned int, unsigned int>>> action_locations);
 
         Scheduler sched;
 
        private:
-        std::vector<int> concurrent;
         std::vector<std::vector<float>> stn;
-        MotionPlanner* m_motion_planner;
-        std::vector<unsigned int> m_starting_locations;
-        std::vector<std::pair<unsigned int, unsigned int>> m_action_locations;
         std::vector<int> actionOrder;
         std::vector<float> maxTraitTeam;
+        std::vector<int> concurrent;
+
+        MotionPlanner* m_motion_planner;
+        const std::vector<unsigned int>* m_starting_locations;
+        boost::shared_ptr<const std::vector<std::pair<unsigned int, unsigned int>>> m_action_locations;
+
     };
 }  // namespace grstaps
 
