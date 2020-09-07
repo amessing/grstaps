@@ -61,8 +61,7 @@ namespace grstaps
         motion_planner.setConnectionRange(connection_range);
 
         // Task Allocation
-        boost::shared_ptr<taskAllocationToScheduling> taToSched =
-            boost::make_shared<taskAllocationToScheduling>(&motion_planner, problem.startingLocations());
+        taskAllocationToScheduling taToSched = taskAllocationToScheduling(&motion_planner, &problem.startingLocations());
         bool usingSpecies = false;
 
         // Also can any of them be const? That will help with multithreading in the future (fewer mutexes)
@@ -92,7 +91,7 @@ namespace grstaps
                 auto durations         = boost::make_shared<std::vector<float>>();
                 auto noncumTraitCutoff = boost::make_shared<std::vector<std::vector<float>>>();
                 auto goalDistribution  = boost::make_shared<std::vector<std::vector<float>>>();
-                std::vector<std::pair<unsigned int, unsigned int>> actionLocations;
+                boost::shared_ptr<std::vector<std::pair<unsigned int, unsigned int>>>  actionLocations = boost::make_shared<std::vector<std::pair<unsigned int, unsigned int>>>();
 
                 Plan* plan = successors[i];
 
@@ -123,10 +122,10 @@ namespace grstaps
                             problem.actionNonCumRequirements[problem.actionToRequirements[subcomponent->action->name]]);
                         goalDistribution->push_back(
                             problem.actionRequirements[problem.actionToRequirements[subcomponent->action->name]]);
-                        actionLocations.push_back(problem.actionLocation(subcomponent->action->name));
+                        actionLocations->push_back(problem.actionLocation(subcomponent->action->name));
                     }
                 }
-                taToSched->setActionLocations(actionLocations);
+                taToSched.setActionLocations(actionLocations);
 
                 for(auto oc: order_constraints)
                 {

@@ -37,8 +37,8 @@ namespace grstaps
         {
             return makespan;
         }
-        return ((makespan - newNode.taToScheduling->sched.bestSchedule) /
-                (newNode.taToScheduling->sched.worstSchedule - newNode.taToScheduling->sched.bestSchedule)) +
+        return ((makespan - newNode.taToScheduling.sched.bestSchedule) /
+                (newNode.taToScheduling.sched.worstSchedule - newNode.taToScheduling.sched.bestSchedule)) +
                ((newNode.getGoalDistance() / (*newNode.startingGoalDistance)) * allocationWeight);
     }
 

@@ -29,6 +29,7 @@
 
 #include <../lib/unordered_map/robin_hood.h>
 #include <boost/shared_ptr.hpp>
+#include <grstaps/Connections/taskAllocationToScheduling.h>
 
 using std::vector;
 
@@ -64,7 +65,7 @@ namespace grstaps
                        vector<vector<float>>*,
                        vector<short>,
                        boost::shared_ptr<vector<vector<float>>>,
-                       boost::shared_ptr<taskAllocationToScheduling> = nullptr,
+                       taskAllocationToScheduling,
                        boost::shared_ptr<vector<float>>              = nullptr,
                        boost::shared_ptr<vector<vector<int>>>        = nullptr,
                        const boost::shared_ptr<vector<int>>          = nullptr,
@@ -80,7 +81,7 @@ namespace grstaps
                        const boost::shared_ptr<vector<vector<float>>>,
                        vector<vector<float>>*,
                        boost::shared_ptr<vector<vector<float>>>,
-                       boost::shared_ptr<taskAllocationToScheduling> = nullptr,
+                       taskAllocationToScheduling,
                        boost::shared_ptr<vector<float>>              = nullptr,
                        boost::shared_ptr<vector<vector<int>>>        = nullptr,
                        boost::shared_ptr<vector<int>>                = nullptr,
@@ -345,7 +346,7 @@ namespace grstaps
         vector<vector<float>> allocationTraitDistribution;
         boost::shared_ptr<vector<vector<float>>> goalTraitDistribution;
         float* startingGoalDistance;
-        boost::shared_ptr<taskAllocationToScheduling> taToScheduling;
+        taskAllocationToScheduling taToScheduling;
         boost::shared_ptr<vector<float>> actionDurations;
         int speedIndex;
         float maxSpeed;

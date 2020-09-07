@@ -42,8 +42,8 @@ namespace grstaps
             const Plan* p            = plan_subcomponents[i];
             nlohmann::json action    = {{"name", p->action->name},
                                      {"index", index},
-                                     {"start_time", m_allocation->taToScheduling->sched.stn[index][0]},
-                                     {"end_time", m_allocation->taToScheduling->sched.stn[index][1]}};
+                                     {"start_time", m_allocation->taToScheduling.sched.stn[index][0]},
+                                     {"end_time", m_allocation->taToScheduling.sched.stn[index][1]}};
             j["schedule"].push_back(action);
 
             for(unsigned int j = 0; j < p->orderings.size(); ++j)
@@ -62,10 +62,10 @@ namespace grstaps
 
         j["allocation"] = m_allocation->getID();
 
-        j["makespan"] = m_allocation->taToScheduling->sched.getMakeSpan();
+        j["makespan"] = m_allocation->taToScheduling.sched.getMakeSpan();
 
         const auto motion_plans =
-            m_allocation->taToScheduling->saveMotionPlanningNonSpeciesSchedule(m_allocation.get());
+            m_allocation->taToScheduling.saveMotionPlanningNonSpeciesSchedule(m_allocation.get());
         j["motion_plans"] = nlohmann::json();
         if(motion_plans.first)
         {
