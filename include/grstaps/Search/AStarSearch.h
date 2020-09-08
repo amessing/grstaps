@@ -186,7 +186,6 @@ namespace grstaps
             searchFailed = updateCurrent();
         }
         results->addResults(this->graph, currentNode, searchFailed);
-        cout << "Done" << endl;
     }
 
     template <class Data>
