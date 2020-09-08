@@ -152,7 +152,7 @@ namespace grstaps
                 graphAllocateAndSchedule.search(isGoal, expander, package);
                 if(package->foundGoal)
                 {
-                    successors[i]->h = package->finalNode->getPathCost();
+                    successors[i]->h = package->finalNode->getData().taToScheduling.sched.getMakeSpan();
                     potential_successors.push_back({successors[i], package->finalNode->getData()});
                 }
             }

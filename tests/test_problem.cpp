@@ -68,7 +68,7 @@ namespace grstaps
             for(unsigned int i = 0; i < task->actions.size(); ++i)
             {
                 problem.actionToRequirements[task->actions[i].name] = i;
-                problem.actionRequirements.push_back({0.75, 0});
+                problem.actionRequirements.push_back({0.25, 0});
                 problem.actionNonCumRequirements.push_back({0, 0});
 
                 problem.addActionLocation(
@@ -127,8 +127,8 @@ namespace grstaps
             for(unsigned int i = 0; i < task->actions.size(); ++i)
             {
                 problem.actionToRequirements[task->actions[i].name] = i;
-                problem.actionRequirements.push_back({0.25});
-                problem.actionNonCumRequirements.push_back({0});
+                problem.actionRequirements.push_back({0.25,0});
+                problem.actionNonCumRequirements.push_back({0,0});
 
                 problem.addActionLocation(
                     task->actions[i].name,
@@ -187,8 +187,8 @@ namespace grstaps
             for(unsigned int i = 0; i < task->actions.size(); ++i)
             {
                 problem.actionToRequirements[task->actions[i].name] = i;
-                problem.actionRequirements.push_back({0.25});
-                problem.actionNonCumRequirements.push_back({0});
+                problem.actionRequirements.push_back({0.25,0});
+                problem.actionNonCumRequirements.push_back({0,0});
 
                 problem.addActionLocation(
                     task->actions[i].name,
@@ -246,8 +246,8 @@ namespace grstaps
             for(unsigned int i = 0; i < task->actions.size(); ++i)
             {
                 problem.actionToRequirements[task->actions[i].name] = i;
-                problem.actionRequirements.push_back({0.25});
-                problem.actionNonCumRequirements.push_back({0});
+                problem.actionRequirements.push_back({0.25,0});
+                problem.actionNonCumRequirements.push_back({0,0});
 
                 problem.addActionLocation(
                     task->actions[i].name,
@@ -306,8 +306,8 @@ namespace grstaps
             for(unsigned int i = 0; i < task->actions.size(); ++i)
             {
                 problem.actionToRequirements[task->actions[i].name] = i;
-                problem.actionRequirements.push_back({0.25});
-                problem.actionNonCumRequirements.push_back({0});
+                problem.actionRequirements.push_back({0.25, 0});
+                problem.actionNonCumRequirements.push_back({0,0});
 
                 problem.addActionLocation(
                     task->actions[i].name,
@@ -366,8 +366,8 @@ namespace grstaps
             for(unsigned int i = 0; i < task->actions.size(); ++i)
             {
                 problem.actionToRequirements[task->actions[i].name] = i;
-                problem.actionRequirements.push_back({0.4});
-                problem.actionNonCumRequirements.push_back({0});
+                problem.actionRequirements.push_back({0.4,0});
+                problem.actionNonCumRequirements.push_back({0,0});
 
                 problem.addActionLocation(
                     task->actions[i].name,

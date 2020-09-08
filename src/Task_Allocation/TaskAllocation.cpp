@@ -22,6 +22,8 @@
 #include <boost/shared_ptr.hpp>
 #include <grstaps/Connections/taskAllocationToScheduling.h>
 
+float epsilon = 0.0001;
+
 namespace grstaps
 {
     TaskAllocation::TaskAllocation(bool useSpec,
@@ -155,7 +157,7 @@ namespace grstaps
 
     bool TaskAllocation::checkGoalAllocation() const
     {
-        return goalDistance <= 0;
+        return goalDistance <= epsilon;
     }
 
     [[maybe_unused]] void TaskAllocation::setAllocation(const std::vector<short>& newAllocation)
@@ -340,7 +342,7 @@ namespace grstaps
             }
         }
 
-        if(goalDistance <= 0)
+        if(goalDistance <= epsilon)
         {
             goalDistance = 0;
         }
@@ -393,7 +395,7 @@ namespace grstaps
                 }
             }
         }
-        if(goalDistance <= 0)
+        if(goalDistance <= epsilon)
         {
             goalDistance = 0;
         }

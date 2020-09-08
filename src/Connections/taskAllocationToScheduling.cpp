@@ -262,7 +262,7 @@ namespace grstaps
                                 }
                                 else
                                 {
-                                    if(slowestAgent < (*traits)[j][TaskAlloc->speedIndex])
+                                    if(slowestAgent > (*traits)[j][TaskAlloc->speedIndex])
                                     {
                                         slowestAgent = (*traits)[j][TaskAlloc->speedIndex];
                                     }
@@ -347,7 +347,7 @@ namespace grstaps
                                 float adj_travel_time = travel_time;
                                 if(TaskAlloc->speedIndex != -1)
                                 {
-                                    float adj_travel_time = 0;
+                                    adj_travel_time = 0;
                                     for(int k=0; k <  TaskAlloc->getNumSpecies()->size(); ++k){
                                         if(TaskAlloc->allocation[actionOrder[i] * TaskAlloc->getNumSpecies()->size() + k] == 1)
                                         {
@@ -365,7 +365,11 @@ namespace grstaps
                         // The movement required during action i is impossible
                         else
                         {
-                            return std::pair<bool, vector<agent_motion_plans>>(false, motionPlans);
+                            start_end time   = {sched.stn[i][1] - (*TaskAlloc->actionDurations)[i], sched.stn[i][1]};
+                            std::vector<std::pair<float, float>> waypoints = std::vector<std::pair<float, float>>();
+                            single_plan step = std::make_pair(time, waypoints);
+                            motionPlans[j].push_back(step);
+                            //    return std::pair<bool, vector<agent_motion_plans>>(false, motionPlans);
                         }
                     }
                 }
