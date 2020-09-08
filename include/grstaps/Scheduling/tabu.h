@@ -9,7 +9,7 @@
 #define TABU_LENGTH 200
 #define NUM_INTERATION 20
 #define TIME_TRY 50
-#define QUALITY_THRESHOLD 1.5
+#define QUALITY_THRESHOLD 1.2
 
 namespace grstaps
 {
