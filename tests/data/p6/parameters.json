@@ -1,0 +1,27 @@
+{
+  "robot_traits" : [
+    [0.25, 1],
+    [0.25, 1],
+    [0.25, 1]
+  ],
+  "starting_locations": [
+    1, 1, 1
+  ],
+  "speed_index": 1,
+  "locations": [
+    {
+      "type": "source",
+      "x": 0.5,
+      "y": 0.5
+    },
+    {
+      "type": "target",
+      "x": 1.5,
+      "y": 1.5
+    }
+  ],
+  "mp_boundary_min" : 0,
+  "mp_boundary_max" : 2,
+  "mp_query_time": 0.001,
+  "mp_connection_range": 0.1
+}

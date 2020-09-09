@@ -41,28 +41,23 @@ namespace grstaps
         {
             Problem problem;
 
-            std::vector<Location> locations = {Location("source", 0.5, 0.5), Location("target", 1.5, 1.5)};
-            problem.setLocations(locations);
-            problem.setStartingLocations({0, 0, 0});
-
-            std::vector<Problem::TraitVector> robot_traits = {{0.25, 1}, {0.25, 1}, {0.25, 1}};
-            problem.setRobotTraitVector(robot_traits);
-            problem.speedIndex = 1;
-
+            PlannerParameters parameters;
             char* domain_filename  = "tests/data/p1/domain.pddl";
             char* problem_filename = "tests/data/p1/problem.pddl";
-            char* output_filename  = "tests/data/p1/output";
-
-            PlannerParameters parameters;
-
             parameters.domainFileName  = domain_filename;
             parameters.problemFileName = problem_filename;
-            parameters.outputFileName  = output_filename;
-            // parameters.generateGroundedDomain = true;
-            // parameters.generateMutexFile = true;
-            // parameters.generateTrace = true;
             SASTask* task = Setup::doPreprocess(&parameters);
             problem.setTask(task);
+
+            std::ifstream ifs("tests/data/p1/parameters.json");
+            nlohmann::json config;
+            ifs >> config;
+
+            problem.setLocations(config["locations"]);
+            problem.setStartingLocations(config["starting_locations"]);
+
+            problem.setRobotTraitVector(config["robot_traits"]);
+            problem.speedIndex = config["speed_index"];
 
             // All Actions have the same requirements
             for(unsigned int i = 0; i < task->actions.size(); ++i)
@@ -76,14 +71,6 @@ namespace grstaps
                     std::make_pair(task->actions[i].name[9] - '1', task->actions[i].name[12] - '1'));
             }
 
-            // No obstacles
-            nlohmann::json config;
-
-            // Config
-            config["mp_boundary_min"]     = 0;
-            config["mp_boundary_max"]     = 2;
-            config["mp_query_time"]       = 0.001;
-            config["mp_connection_range"] = 0.1;
             problem.setConfig(config);
 
             Solver solver;
@@ -100,28 +87,23 @@ namespace grstaps
         {
             Problem problem;
 
-            std::vector<Location> locations = {Location("source", 0.5, 0.5), Location("target", 1.5, 1.5)};
-            problem.setLocations(locations);
-            problem.setStartingLocations({1, 1, 1});
-
-            std::vector<Problem::TraitVector> robot_traits = {{0.75, 1}, {0.75, 1}, {0.75, 1}};
-            problem.setRobotTraitVector(robot_traits);
-            problem.speedIndex = 1;
-
-            char* domain_filename  = "tests/data/p1/domain.pddl";
-            char* problem_filename = "tests/data/p1/problem.pddl";
-            char* output_filename  = "tests/data/p1/output";
-
             PlannerParameters parameters;
-
+            char* domain_filename  = "tests/data/p2/domain.pddl";
+            char* problem_filename = "tests/data/p2/problem.pddl";
             parameters.domainFileName  = domain_filename;
             parameters.problemFileName = problem_filename;
-            parameters.outputFileName  = output_filename;
-            // parameters.generateGroundedDomain = true;
-            // parameters.generateMutexFile = true;
-            // parameters.generateTrace = true;
             SASTask* task = Setup::doPreprocess(&parameters);
             problem.setTask(task);
+
+            std::ifstream ifs("tests/data/p2/parameters.json");
+            nlohmann::json config;
+            ifs >> config;
+
+            problem.setLocations(config["locations"]);
+            problem.setStartingLocations(config["starting_locations"]);
+
+            problem.setRobotTraitVector(config["robot_traits"]);
+            problem.speedIndex = config["speed_index"];
 
             // All Actions have the same requirements
             for(unsigned int i = 0; i < task->actions.size(); ++i)
@@ -135,14 +117,6 @@ namespace grstaps
                     std::make_pair(task->actions[i].name[9] - '1', task->actions[i].name[12] - '1'));
             }
 
-            // No obstacles
-            nlohmann::json config;
-
-            // Config
-            config["mp_boundary_min"]     = 0;
-            config["mp_boundary_max"]     = 2;
-            config["mp_query_time"]       = 0.001;
-            config["mp_connection_range"] = 0.1;
             problem.setConfig(config);
 
             Solver solver;
@@ -160,28 +134,23 @@ namespace grstaps
         {
             Problem problem;
 
-            std::vector<Location> locations = {Location("source", 0.5, 0.5), Location("target", 1.5, 1.5)};
-            problem.setLocations(locations);
-            problem.setStartingLocations({1, 1, 1});
-
-            std::vector<Problem::TraitVector> robot_traits = {{0.75, 3}, {0.75, 2}, {0.75, 1}};
-            problem.setRobotTraitVector(robot_traits);
-            problem.speedIndex = 1;
-
-            char* domain_filename  = "tests/data/p1/domain.pddl";
-            char* problem_filename = "tests/data/p1/problem.pddl";
-            char* output_filename  = "tests/data/p1/output";
-
             PlannerParameters parameters;
-
+            char* domain_filename  = "tests/data/p3/domain.pddl";
+            char* problem_filename = "tests/data/p3/problem.pddl";
             parameters.domainFileName  = domain_filename;
             parameters.problemFileName = problem_filename;
-            parameters.outputFileName  = output_filename;
-            // parameters.generateGroundedDomain = true;
-            // parameters.generateMutexFile = true;
-            // parameters.generateTrace = true;
             SASTask* task = Setup::doPreprocess(&parameters);
             problem.setTask(task);
+
+            std::ifstream ifs("tests/data/p3/parameters.json");
+            nlohmann::json config;
+            ifs >> config;
+
+            problem.setLocations(config["locations"]);
+            problem.setStartingLocations(config["starting_locations"]);
+
+            problem.setRobotTraitVector(config["robot_traits"]);
+            problem.speedIndex = config["speed_index"];
 
             // All Actions have the same requirements
             for(unsigned int i = 0; i < task->actions.size(); ++i)
@@ -194,15 +163,6 @@ namespace grstaps
                     task->actions[i].name,
                     std::make_pair(task->actions[i].name[9] - '1', task->actions[i].name[12] - '1'));
             }
-
-            // No obstacles
-            nlohmann::json config;
-
-            // Config
-            config["mp_boundary_min"]     = 0;
-            config["mp_boundary_max"]     = 2;
-            config["mp_query_time"]       = 0.001;
-            config["mp_connection_range"] = 0.1;
             problem.setConfig(config);
 
             Solver solver;
@@ -219,28 +179,23 @@ namespace grstaps
         {
             Problem problem;
 
-            std::vector<Location> locations = {Location("source", 0.5, 0.5), Location("target", 1.5, 1.5)};
-            problem.setLocations(locations);
-            problem.setStartingLocations({1, 1, 1});
-
-            std::vector<Problem::TraitVector> robot_traits = {{0.75, 1}, {0.75, 1}, {0.75, 1}};
-            problem.setRobotTraitVector(robot_traits);
-            problem.speedIndex = 1;
-
+            PlannerParameters parameters;
             char* domain_filename  = "tests/data/p4/domain.pddl";
             char* problem_filename = "tests/data/p4/problem.pddl";
-            char* output_filename  = "tests/data/p4/output";
-
-            PlannerParameters parameters;
-
             parameters.domainFileName  = domain_filename;
             parameters.problemFileName = problem_filename;
-            parameters.outputFileName  = output_filename;
-            // parameters.generateGroundedDomain = true;
-            // parameters.generateMutexFile = true;
-            // parameters.generateTrace = true;
             SASTask* task = Setup::doPreprocess(&parameters);
             problem.setTask(task);
+
+            std::ifstream ifs("tests/data/p4/parameters.json");
+            nlohmann::json config;
+            ifs >> config;
+
+            problem.setLocations(config["locations"]);
+            problem.setStartingLocations(config["starting_locations"]);
+
+            problem.setRobotTraitVector(config["robot_traits"]);
+            problem.speedIndex = config["speed_index"];
 
             // All Actions have the same requirements
             for(unsigned int i = 0; i < task->actions.size(); ++i)
@@ -253,15 +208,6 @@ namespace grstaps
                     task->actions[i].name,
                     std::make_pair(task->actions[i].name[9] - '1', task->actions[i].name[12] - '1'));
             }
-
-            // No obstacles
-            nlohmann::json config;
-
-            // Config
-            config["mp_boundary_min"]     = 0;
-            config["mp_boundary_max"]     = 2;
-            config["mp_query_time"]       = 0.001;
-            config["mp_connection_range"] = 0.1;
             problem.setConfig(config);
 
             Solver solver;
@@ -273,34 +219,29 @@ namespace grstaps
 
         /**
          * 3 robots start at the target and there are 6 boxes at the source to bring to the target
-         * Differt speeds
+         * Different speeds
          */
         TEST(Problem, p5)
         {
             Problem problem;
 
-            std::vector<Location> locations = {Location("source", 0.5, 0.5), Location("target", 1.5, 1.5)};
-            problem.setLocations(locations);
-            problem.setStartingLocations({1, 1, 1});
-
-            std::vector<Problem::TraitVector> robot_traits = {{0.75, 3}, {0.75, 2}, {0.75, 1}};
-            problem.setRobotTraitVector(robot_traits);
-            problem.speedIndex = 1;
-
-            char* domain_filename  = "tests/data/p4/domain.pddl";
-            char* problem_filename = "tests/data/p4/problem.pddl";
-            char* output_filename  = "tests/data/p4/output";
-
             PlannerParameters parameters;
-
+            char* domain_filename  = "tests/data/p5/domain.pddl";
+            char* problem_filename = "tests/data/p5/problem.pddl";
             parameters.domainFileName  = domain_filename;
             parameters.problemFileName = problem_filename;
-            parameters.outputFileName  = output_filename;
-            // parameters.generateGroundedDomain = true;
-            // parameters.generateMutexFile = true;
-            // parameters.generateTrace = true;
             SASTask* task = Setup::doPreprocess(&parameters);
             problem.setTask(task);
+
+            std::ifstream ifs("tests/data/p5/parameters.json");
+            nlohmann::json config;
+            ifs >> config;
+
+            problem.setLocations(config["locations"]);
+            problem.setStartingLocations(config["starting_locations"]);
+
+            problem.setRobotTraitVector(config["robot_traits"]);
+            problem.speedIndex = config["speed_index"];
 
             // All Actions have the same requirements
             for(unsigned int i = 0; i < task->actions.size(); ++i)
@@ -313,15 +254,6 @@ namespace grstaps
                     task->actions[i].name,
                     std::make_pair(task->actions[i].name[9] - '1', task->actions[i].name[12] - '1'));
             }
-
-            // No obstacles
-            nlohmann::json config;
-
-            // Config
-            config["mp_boundary_min"]     = 0;
-            config["mp_boundary_max"]     = 2;
-            config["mp_query_time"]       = 0.001;
-            config["mp_connection_range"] = 0.1;
             problem.setConfig(config);
 
             Solver solver;
@@ -339,28 +271,23 @@ namespace grstaps
         {
             Problem problem;
 
-            std::vector<Location> locations = {Location("source", 0.5, 0.5), Location("target", 1.5, 1.5)};
-            problem.setLocations(locations);
-            problem.setStartingLocations({1, 1, 1});
-
-            std::vector<Problem::TraitVector> robot_traits = {{0.25, 1}, {0.25, 1}, {0.25, 1}};
-            problem.setRobotTraitVector(robot_traits);
-            problem.speedIndex = 1;
-
-            char* domain_filename  = "tests/data/p4/domain.pddl";
-            char* problem_filename = "tests/data/p4/problem.pddl";
-            char* output_filename  = "tests/data/p4/output";
-
             PlannerParameters parameters;
-
+            char* domain_filename  = "tests/data/p2/domain.pddl";
+            char* problem_filename = "tests/data/p2/problem.pddl";
             parameters.domainFileName  = domain_filename;
             parameters.problemFileName = problem_filename;
-            parameters.outputFileName  = output_filename;
-            // parameters.generateGroundedDomain = true;
-            // parameters.generateMutexFile = true;
-            // parameters.generateTrace = true;
             SASTask* task = Setup::doPreprocess(&parameters);
             problem.setTask(task);
+
+            std::ifstream ifs("tests/data/p2/parameters.json");
+            nlohmann::json config;
+            ifs >> config;
+
+            problem.setLocations(config["locations"]);
+            problem.setStartingLocations(config["starting_locations"]);
+
+            problem.setRobotTraitVector(config["robot_traits"]);
+            problem.speedIndex = config["speed_index"];
 
             // All Actions have the same requirements
             for(unsigned int i = 0; i < task->actions.size(); ++i)
@@ -373,15 +300,6 @@ namespace grstaps
                     task->actions[i].name,
                     std::make_pair(task->actions[i].name[9] - '1', task->actions[i].name[12] - '1'));
             }
-
-            // No obstacles
-            nlohmann::json config;
-
-            // Config
-            config["mp_boundary_min"]     = 0;
-            config["mp_boundary_max"]     = 2;
-            config["mp_query_time"]       = 0.001;
-            config["mp_connection_range"] = 0.1;
             problem.setConfig(config);
 
             Solver solver;

@@ -50,7 +50,7 @@ namespace grstaps
         void setActionLocationMap(
             const std::map<std::string, std::pair<unsigned int, unsigned int>>& action_location_map);
         void addActionLocation(const std::string& action, const std::pair<unsigned int, unsigned int>& location);
-        void setRobotTraitVector(std::vector<TraitVector>& robot_traits);
+        void setRobotTraitVector(const std::vector<TraitVector>& robot_traits);
         void setTask(SASTask* task);
         void setObstacles(const std::vector<b2PolygonShape>& obstacles);
         void setConfig(const nlohmann::json& config);

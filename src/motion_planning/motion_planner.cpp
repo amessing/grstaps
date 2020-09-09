@@ -120,7 +120,7 @@ namespace grstaps
             auto& real_vector_state = *state->as<ob::RealVectorStateSpace::StateType>();
             const float x           = real_vector_state[0];
             const float y           = real_vector_state[1];
-            if(waypoints.size() > 1 && floatEqual(waypoints.back().first, x) && floatEqual(waypoints.back().second, y))
+            if(waypoints.size() > 0 && floatEqual(waypoints.back().first, x) && floatEqual(waypoints.back().second, y))
             {
                 continue;
             }
