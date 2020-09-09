@@ -50,7 +50,7 @@ namespace grstaps
         m_starting_locations = starting_locations;
     }
 
-    void Problem::setRobotTraitVector(std::vector<Problem::TraitVector>& robot_traits)
+    void Problem::setRobotTraitVector(const std::vector<Problem::TraitVector>& robot_traits)
     {
         m_robot_traits = robot_traits;
     }
