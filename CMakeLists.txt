@@ -39,7 +39,7 @@ target_include_directories(_${PROJECT_NAME} PUBLIC include PRIVATE ${OMPL_INCLUD
 # Create executable
 if(BUILD_EXE)
     message("Building executable...")
-    add_executable(${PROJECT_NAME} src/main.cpp)
+    add_executable(${PROJECT_NAME} src/main.cpp src/task_planning/visualizer.cpp src/task_planning/visualizer.h)
     set_target_properties(${PROJECT_NAME} PROPERTIES CXX_STANDARD 17 CXX_STANDARD_REQUIRED YES)
     target_link_libraries(${PROJECT_NAME} PRIVATE
             box2d nlohmann_json spdlog stdc++fs
@@ -48,6 +48,14 @@ endif(BUILD_EXE)
 
 if(BUILD_DOC)
     # Check if Doxygen is installed
+    find_package(Qt5Widgets REQUIRED)
+
+    add_executable(
+            helloworld
+            main.cpp mainwindow.cpp
+            application.qrc
+    )
+
     find_package(Doxygen)
 
     if(DOXYGEN_FOUND)

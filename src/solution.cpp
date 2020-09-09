@@ -36,39 +36,40 @@ namespace grstaps
 
         // Ignore #initial and <goal>
         j["schedule"] = nlohmann::json();
-        for(unsigned int i = 1; i < plan_subcomponents.size() - 1; ++i)
-        {
-            const unsigned int index = i - 1;
-            const Plan* p            = plan_subcomponents[i];
-            nlohmann::json action    = {{"name", p->action->name},
-                                     {"index", index},
-                                     {"start_time", m_allocation->taToScheduling.sched.stn[index][0]},
-                                     {"end_time", m_allocation->taToScheduling.sched.stn[index][1]}};
-            j["schedule"].push_back(action);
-
-            for(unsigned int j = 0; j < p->orderings.size(); ++j)
-            {
-                // uint16_t
-                TTimePoint fp = firstPoint(p->orderings[j]);
-                TTimePoint sp = secondPoint(p->orderings[j]);
-                // Time points are based on start and end snap actions
-                // Also include the initial action
-
-                ordering_constraints.insert({fp / 2 - 1, sp / 2 - 1});
-            }
-        }
-
-        j["ordering_constraints"] = ordering_constraints;
-
-        j["allocation"] = m_allocation->getID();
-
-        j["makespan"] = m_allocation->taToScheduling.sched.getMakeSpan();
-
         const auto motion_plans =
             m_allocation->taToScheduling.saveMotionPlanningNonSpeciesSchedule(m_allocation.get());
-        j["motion_plans"] = nlohmann::json();
         if(motion_plans.first)
         {
+            for(unsigned int i = 1; i < plan_subcomponents.size() - 1; ++i)
+            {
+                const unsigned int index = i - 1;
+                const Plan* p            = plan_subcomponents[i];
+                nlohmann::json action    = {{"name", p->action->name},
+                                         {"index", index},
+                                         {"start_time", m_allocation->taToScheduling.sched.actionStartTimes[index]},
+                                         {"end_time", m_allocation->taToScheduling.sched.stn[index][1]}};
+                j["schedule"].push_back(action);
+
+                for(unsigned int j = 0; j < p->orderings.size(); ++j)
+                {
+                    // uint16_t
+                    TTimePoint fp = firstPoint(p->orderings[j]);
+                    TTimePoint sp = secondPoint(p->orderings[j]);
+                    // Time points are based on start and end snap actions
+                    // Also include the initial action
+
+                    ordering_constraints.insert({fp / 2 - 1, sp / 2 - 1});
+                }
+            }
+
+            j["ordering_constraints"] = ordering_constraints;
+
+            j["allocation"] = m_allocation->getID();
+
+            j["makespan"] = m_allocation->taToScheduling.sched.getMakeSpan();
+
+            j["motion_plans"] = nlohmann::json();
+
             unsigned int i = 0;
             for(const auto& agent_motion_plans: motion_plans.second)
             {

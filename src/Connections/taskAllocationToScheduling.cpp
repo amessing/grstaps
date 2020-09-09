@@ -358,6 +358,15 @@ namespace grstaps
                                     }
                                 }
                                 start_end time   = {sched.stn[i][1] - adj_travel_time - (*TaskAlloc->actionDurations)[i], sched.stn[i][1]};
+                                if(time.first < 0.00001){
+                                    time.first = 0;
+                                }
+                                if(i == sched.actionStartTimes.size()){
+                                    sched.actionStartTimes.push_back(sched.stn[i][1] - adj_travel_time - (*TaskAlloc->actionDurations)[i]);
+                                    if(sched.stn[i][1] - adj_travel_time - (*TaskAlloc->actionDurations)[i] < 0.00001){
+                                        sched.actionStartTimes[ sched.actionStartTimes.size()-1] = 0;
+                                    }
+                                }
                                 single_plan step = std::make_pair(time, std::get<2>(waypoints));
                                 motionPlans[j].push_back(step);
                             }
