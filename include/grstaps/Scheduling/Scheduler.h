@@ -345,6 +345,7 @@ namespace grstaps
         float bestSchedule;
         float worstSchedule;
         double makeSpan;
+        std::vector<float> actionStartTimes;
 
        private:
         std::vector<std::vector<int>> disjuctiveConstraints;  // list of disjunctive constraints
