@@ -1,19 +1,40 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.10...3.18)
 project(grstaps LANGUAGES CXX)
 message("Building ${PROJECT_NAME}...")
 
+# Fallback for using newer policies on CMake <3.12.
+if(${CMAKE_VERSION} VERSION_LESS 3.12)
+    cmake_policy(VERSION ${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION})
+endif(${CMAKE_VERSION} VERSION_LESS 3.12)
 
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-set(optimization ON)
+if(NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE Release)
+endif(NOT CMAKE_BUILD_TYPE)
 
+if(NOT DEFINED _opts)
+    string(
+        APPEND _opts
+            "$<$<CONFIG:DEBUG>:-Og>"
+            "$<$<CONFIG:RELEASE>:-O3>"
+            "$<$<CXX_COMPILER_ID:Clang>:-stdlib=libc++>"
+    )
+endif(NOT DEFINED _opts)
 
 # Add external cmake modules
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 include(FileOutputs)
 
-option(BUILD_DOC "Build Documentation" OFF)
-option(BUILD_TESTS "Build Unit Tests" ON)
-option(BUILD_EXE "Build Executable" ON)
+# Determine if this project is built as a subproject (using add_subdirectory)
+# or if it is the master project.
+set(MASTER_PROJECT OFF)
+if (CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
+    set(MASTER_PROJECT ON)
+    message(STATUS "CMake version: ${CMAKE_VERSION}")
+endif (CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
+
+option(BUILD_DOC "Build Documentation" ${MASTER_PROJECT})
+option(BUILD_TESTS "Build Unit Tests" ${MASTER_PROJECT})
+option(BUILD_EXE "Build Executable" ${MASTER_PROJECT})
 
 # Add external libraries
 add_subdirectory(lib)
@@ -35,27 +56,21 @@ set_target_properties(_${PROJECT_NAME} PROPERTIES CXX_STANDARD 17 CXX_STANDARD_R
 target_link_libraries(_${PROJECT_NAME} PRIVATE
         box2d fmt nlohmann_json ${OMPL_LIBRARIES} spdlog stdc++fs)
 target_include_directories(_${PROJECT_NAME} PUBLIC include PRIVATE ${OMPL_INCLUDE_DIRS})
+target_compile_options(_${PROJECT_NAME} PRIVATE ${_opts})
 
 # Create executable
 if(BUILD_EXE)
     message("Building executable...")
-    add_executable(${PROJECT_NAME} src/main.cpp src/task_planning/visualizer.cpp src/task_planning/visualizer.h)
+    add_executable(${PROJECT_NAME} src/main.cpp)
     set_target_properties(${PROJECT_NAME} PROPERTIES CXX_STANDARD 17 CXX_STANDARD_REQUIRED YES)
     target_link_libraries(${PROJECT_NAME} PRIVATE
             box2d nlohmann_json spdlog stdc++fs
             _${PROJECT_NAME})
+    target_compile_options(${PROJECT_NAME} PRIVATE ${_opts})
 endif(BUILD_EXE)
 
 if(BUILD_DOC)
     # Check if Doxygen is installed
-    find_package(Qt5Widgets REQUIRED)
-
-    add_executable(
-            helloworld
-            main.cpp mainwindow.cpp
-            application.qrc
-    )
-
     find_package(Doxygen)
 
     if(DOXYGEN_FOUND)
@@ -99,19 +114,7 @@ if(BUILD_TESTS)
     target_link_libraries(${PROJECT_NAME}_test PRIVATE
             box2d fmt gtest gmock nlohmann_json stdc++fs
             _${PROJECT_NAME})
+    target_compile_options(${PROJECT_NAME}_test PRIVATE ${_opts})
 endif(BUILD_TESTS)
 
 set(CMAKE_CXX_FLAGS "-fprofile-arcs -ftest-coverage ")
-
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O0")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0")
-
-IF(CMAKE_COMPILER_IS_GNUCC)
-    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O0")
-    set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -O0")
-ENDIF(CMAKE_COMPILER_IS_GNUCC)
-
-IF(optimization)
-    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O3")
-    set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -O3")
-ENDIF(optimization)
