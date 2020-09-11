@@ -50,17 +50,22 @@ namespace grstaps
         Plan* base;
 
         // Motion Planning
-        MotionPlanner& motion_planner = MotionPlanner::instance();
-        const float boundary_min      = config["mp_boundary_min"];
-        const float boundary_max      = config["mp_boundary_max"];
-        const float query_time        = config["mp_query_time"];
-        const float connection_range  = config["mp_connection_range"];
-        motion_planner.setMap(problem.obstacles(), boundary_min, boundary_max);
-        motion_planner.setLocations(problem.locations());
-        motion_planner.setQueryTime(query_time);
-        motion_planner.setConnectionRange(connection_range);
+        auto obstacles =  problem.obstacles();
         boost::shared_ptr<vector<MotionPlanner*>> agentMotionPlanners(new vector<MotionPlanner*>());
-        agentMotionPlanners->push_back(&motion_planner);
+        for(int i=0; i < obstacles.size(); ++i)
+        {
+            MotionPlanner& motion_planner = MotionPlanner::instance();
+            const float boundary_min      = config["mp_boundary_min"];
+            const float boundary_max      = config["mp_boundary_max"];
+            const float query_time        = config["mp_query_time"];
+            const float connection_range  = config["mp_connection_range"];
+            motion_planner.setMap(obstacles[i], boundary_min, boundary_max);
+            motion_planner.setLocations(problem.locations());
+            motion_planner.setQueryTime(query_time);
+            motion_planner.setConnectionRange(connection_range);
+            agentMotionPlanners->push_back(&motion_planner);
+        }
+
 
         // Task Allocation
         taskAllocationToScheduling taToSched = taskAllocationToScheduling(agentMotionPlanners, &problem.startingLocations());
