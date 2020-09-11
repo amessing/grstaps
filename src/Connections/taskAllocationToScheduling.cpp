@@ -230,9 +230,19 @@ namespace grstaps
                 {
                     if(TaskAlloc->allocation[actionOrder[i] * TaskAlloc->getNumSpecies()->size() + j] == 1)
                     {
+                        if(TaskAlloc->speedIndex == -1)
+                        {
+                            slowestAgent = 1;
+                            slowestAgentIndex = 0;}
+                        else{
+                            if(slowestAgent >= (*traits)[j][TaskAlloc->speedIndex])
+                            {
+                                slowestAgent = (*traits)[j][TaskAlloc->speedIndex];
+                                slowestAgentIndex = j;
+                            }
+                        }
                         if(currentLocations[j] != (*m_action_locations)[actionOrder[i]].first)
                         {
-
                             std::pair<bool, float> travelTime =
                                 (*m_motion_planners)[(*TaskAlloc->speciesTraitDistribution)[j][TaskAlloc->mp_Index]]->query(currentLocations[j], (*m_action_locations)[actionOrder[i]].first);
                             if(travelTime.first)
@@ -240,6 +250,7 @@ namespace grstaps
                                 if(TaskAlloc->speedIndex == -1)
                                 {
                                     slowestAgent = 1;
+                                    slowestAgentIndex = 0;
                                     if((travelTime.second) > maxTravelTime)
                                     {
                                         maxTravelTime = travelTime.second;
@@ -249,14 +260,9 @@ namespace grstaps
                                 }
                                 else
                                 {
-                                    if(slowestAgent > (*traits)[j][TaskAlloc->speedIndex])
-                                    {
-                                        slowestAgent = (*traits)[j][TaskAlloc->speedIndex];
-                                    }
                                     if((travelTime.second / (*traits)[j][TaskAlloc->speedIndex]) > maxTravelTime)
                                     {
                                         maxTravelTime = travelTime.second / (*traits)[j][TaskAlloc->speedIndex];
-                                        slowestAgentIndex = j;
                                         // Move to the end of the action
                                     }
                                     currentLocations[j] = (*m_action_locations)[actionOrder[i]].second;
