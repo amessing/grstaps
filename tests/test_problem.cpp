@@ -23,12 +23,8 @@
 #include <nlohmann/json.hpp>
 
 // local
-#include <grstaps/location.hpp>
 #include <grstaps/problem.hpp>
 #include <grstaps/solver.hpp>
-#include <grstaps/task_planning/planner_parameters.hpp>
-#include <grstaps/task_planning/sas_task.hpp>
-#include <grstaps/task_planning/setup.hpp>
 
 namespace grstaps
 {
@@ -36,283 +32,296 @@ namespace grstaps
     {
         /**
          * 3 robots start at the source with 3 boxes to bring to the target
+         *
+         * \note Basic test
          */
         TEST(Problem, p1)
         {
             Problem problem;
+            problem.init("tests/data/p1/domain.pddl", "tests/data/p1/problem.pddl", "tests/data/p1/parameters.json");
 
-            PlannerParameters parameters;
-            char* domain_filename  = "tests/data/p1/domain.pddl";
-            char* problem_filename = "tests/data/p1/problem.pddl";
-            parameters.domainFileName  = domain_filename;
-            parameters.problemFileName = problem_filename;
-            SASTask* task = Setup::doPreprocess(&parameters);
-            problem.setTask(task);
-
-            std::ifstream ifs("tests/data/p1/parameters.json");
-            nlohmann::json config;
-            ifs >> config;
-
-            problem.setLocations(config["locations"]);
-            problem.setStartingLocations(config["starting_locations"]);
-
-            problem.setRobotTraitVector(config["robot_traits"]);
-            problem.speedIndex = config["speed_index"];
-            problem.mpIndex = config["mp_index"];
-
-            // All Actions have the same requirements
-            for(unsigned int i = 0; i < task->actions.size(); ++i)
+            problem.configureActions([](const std::vector<SASAction>& actions, Problem* p)
             {
-                problem.actionToRequirements[task->actions[i].name] = i;
-                problem.actionRequirements.push_back({0.25, 0, 0});
-                problem.actionNonCumRequirements.push_back({0, 0, 0});
+              // All Actions have the same requirements
+              for(unsigned int i = 0; i < actions.size(); ++i)
+              {
+                  p->actionToRequirements[actions[i].name] = i;
+                  p->actionRequirements.push_back({0.25, 0, 0});
+                  p->actionNonCumRequirements.push_back({0, 0, 0});
 
-                problem.addActionLocation(
-                    task->actions[i].name,
-                    std::make_pair(task->actions[i].name[9] - '1', task->actions[i].name[12] - '1'));
-            }
+                  p->addActionLocation(
+                      actions[i].name,
+                      std::make_pair(actions[i].name[9] - '1', actions[i].name[12] - '1'));
+              }
+            });
 
-            problem.setConfig(config);
 
             Solver solver;
             std::shared_ptr<Solution> solution = solver.solve(problem);
 
             // Save problem
-            solver.writeSolution("outputs/p1", solution);
+            solver.writeSolution("tests/data/p1", solution);
         }
 
         /**
          * 3 robots start at the target and there are 3 boxes at the source to bring to the target
+         *
+         * \note Tests move to action
          */
         TEST(Problem, p2)
         {
             Problem problem;
+            problem.init("tests/data/p2/domain.pddl", "tests/data/p2/problem.pddl", "tests/data/p2/parameters.json");
 
-            PlannerParameters parameters;
-            char* domain_filename  = "tests/data/p2/domain.pddl";
-            char* problem_filename = "tests/data/p2/problem.pddl";
-            parameters.domainFileName  = domain_filename;
-            parameters.problemFileName = problem_filename;
-            SASTask* task = Setup::doPreprocess(&parameters);
-            problem.setTask(task);
+            problem.configureActions([](const std::vector<SASAction>& actions, Problem* p)
+                                     {
+                // All Actions have the same requirements
+                for(unsigned int i = 0; i < actions.size(); ++i)
+                {
+                    p->actionToRequirements[actions[i].name] = i;
+                    p->actionRequirements.push_back({0.25, 0, 0});
+                    p->actionNonCumRequirements.push_back({0, 0, 0});
 
-            std::ifstream ifs("tests/data/p2/parameters.json");
-            nlohmann::json config;
-            ifs >> config;
+                    p->addActionLocation(
+                        actions[i].name,
+                        std::make_pair(actions[i].name[9] - '1', actions[i].name[12] - '1'));
+                }
+            });
 
-            problem.setLocations(config["locations"]);
-            problem.setStartingLocations(config["starting_locations"]);
-
-            problem.setRobotTraitVector(config["robot_traits"]);
-            problem.speedIndex = config["speed_index"];
-            problem.mpIndex = config["mp_index"];
-
-            // All Actions have the same requirements
-            for(unsigned int i = 0; i < task->actions.size(); ++i)
-            {
-                problem.actionToRequirements[task->actions[i].name] = i;
-                problem.actionRequirements.push_back({0.25,0, 0});
-                problem.actionNonCumRequirements.push_back({0,0, 0});
-
-                problem.addActionLocation(
-                    task->actions[i].name,
-                    std::make_pair(task->actions[i].name[9] - '1', task->actions[i].name[12] - '1'));
-            }
-
-            problem.setConfig(config);
 
             Solver solver;
             std::shared_ptr<Solution> solution = solver.solve(problem);
 
             // Save problem
-            solver.writeSolution("outputs/p2", solution);
+            solver.writeSolution("tests/data/p2", solution);
         }
 
         /**
          * 3 robots start at the target and there are 3 boxes at the source to bring to the target
          * different robot speeds
+         *
+         * \note Tests hetero
          */
         TEST(Problem, p3)
         {
             Problem problem;
+            problem.init("tests/data/p3/domain.pddl", "tests/data/p3/problem.pddl", "tests/data/p3/parameters.json");
 
-            PlannerParameters parameters;
-            char* domain_filename  = "tests/data/p3/domain.pddl";
-            char* problem_filename = "tests/data/p3/problem.pddl";
-            parameters.domainFileName  = domain_filename;
-            parameters.problemFileName = problem_filename;
-            SASTask* task = Setup::doPreprocess(&parameters);
-            problem.setTask(task);
+            problem.configureActions([](const std::vector<SASAction>& actions, Problem* p)
+                                     {
+                // All Actions have the same requirements
+                for(unsigned int i = 0; i < actions.size(); ++i)
+                {
+                    p->actionToRequirements[actions[i].name] = i;
+                    p->actionRequirements.push_back({0.25, 0, 0});
+                    p->actionNonCumRequirements.push_back({0, 0, 0});
 
-            std::ifstream ifs("tests/data/p3/parameters.json");
-            nlohmann::json config;
-            ifs >> config;
-
-            problem.setLocations(config["locations"]);
-            problem.setStartingLocations(config["starting_locations"]);
-
-            problem.setRobotTraitVector(config["robot_traits"]);
-            problem.speedIndex = config["speed_index"];
-            problem.mpIndex = config["mp_index"];
-
-            // All Actions have the same requirements
-            for(unsigned int i = 0; i < task->actions.size(); ++i)
-            {
-                problem.actionToRequirements[task->actions[i].name] = i;
-                problem.actionRequirements.push_back({0.25,0, 0});
-                problem.actionNonCumRequirements.push_back({0,0, 0});
-
-                problem.addActionLocation(
-                    task->actions[i].name,
-                    std::make_pair(task->actions[i].name[9] - '1', task->actions[i].name[12] - '1'));
-            }
-            problem.setConfig(config);
+                    p->addActionLocation(
+                        actions[i].name,
+                        std::make_pair(actions[i].name[9] - '1', actions[i].name[12] - '1'));
+                }
+            });
 
             Solver solver;
             std::shared_ptr<Solution> solution = solver.solve(problem);
 
             // Save problem
-            solver.writeSolution("outputs/p3", solution);
+            solver.writeSolution("tests/data/p3", solution);
         }
 
         /**
          * 3 robots start at the target and there are 6 boxes at the source to bring to the target
+         *
+         * \note Tests reassigning
          */
         TEST(Problem, p4)
         {
             Problem problem;
+            problem.init("tests/data/p4/domain.pddl", "tests/data/p4/problem.pddl", "tests/data/p4/parameters.json");
 
-            PlannerParameters parameters;
-            char* domain_filename  = "tests/data/p4/domain.pddl";
-            char* problem_filename = "tests/data/p4/problem.pddl";
-            parameters.domainFileName  = domain_filename;
-            parameters.problemFileName = problem_filename;
-            SASTask* task = Setup::doPreprocess(&parameters);
-            problem.setTask(task);
+            problem.configureActions([](const std::vector<SASAction>& actions, Problem* p)
+                                     {
+                // All Actions have the same requirements
+                for(unsigned int i = 0; i < actions.size(); ++i)
+                {
+                    p->actionToRequirements[actions[i].name] = i;
+                    p->actionRequirements.push_back({0.25, 0, 0});
+                    p->actionNonCumRequirements.push_back({0, 0, 0});
 
-            std::ifstream ifs("tests/data/p4/parameters.json");
-            nlohmann::json config;
-            ifs >> config;
-
-            problem.setLocations(config["locations"]);
-            problem.setStartingLocations(config["starting_locations"]);
-
-            problem.setRobotTraitVector(config["robot_traits"]);
-            problem.speedIndex = config["speed_index"];
-            problem.mpIndex = config["mp_index"];
-
-            // All Actions have the same requirements
-            for(unsigned int i = 0; i < task->actions.size(); ++i)
-            {
-                problem.actionToRequirements[task->actions[i].name] = i;
-                problem.actionRequirements.push_back({0.25,0, 0});
-                problem.actionNonCumRequirements.push_back({0,0,0});
-
-                problem.addActionLocation(
-                    task->actions[i].name,
-                    std::make_pair(task->actions[i].name[9] - '1', task->actions[i].name[12] - '1'));
-            }
-            problem.setConfig(config);
+                    p->addActionLocation(
+                        actions[i].name,
+                        std::make_pair(actions[i].name[9] - '1', actions[i].name[12] - '1'));
+                }
+            });
 
             Solver solver;
             std::shared_ptr<Solution> solution = solver.solve(problem);
 
             // Save problem
-            solver.writeSolution("outputs/p4", solution);
+            solver.writeSolution("tests/data/p4", solution);
         }
 
         /**
          * 3 robots start at the target and there are 6 boxes at the source to bring to the target
          * Different speeds
+         *
+         * \note Tests more complex reassigning (hetero)
          */
         TEST(Problem, p5)
         {
             Problem problem;
+            problem.init("tests/data/p5/domain.pddl", "tests/data/p5/problem.pddl", "tests/data/p5/parameters.json");
 
-            PlannerParameters parameters;
-            char* domain_filename  = "tests/data/p5/domain.pddl";
-            char* problem_filename = "tests/data/p5/problem.pddl";
-            parameters.domainFileName  = domain_filename;
-            parameters.problemFileName = problem_filename;
-            SASTask* task = Setup::doPreprocess(&parameters);
-            problem.setTask(task);
+            problem.configureActions([](const std::vector<SASAction>& actions, Problem* p)
+                                     {
+                // All Actions have the same requirements
+                for(unsigned int i = 0; i < actions.size(); ++i)
+                {
+                    p->actionToRequirements[actions[i].name] = i;
+                    p->actionRequirements.push_back({0.25, 0, 0});
+                    p->actionNonCumRequirements.push_back({0, 0, 0});
 
-            std::ifstream ifs("tests/data/p5/parameters.json");
-            nlohmann::json config;
-            ifs >> config;
-
-            problem.setLocations(config["locations"]);
-            problem.setStartingLocations(config["starting_locations"]);
-
-            problem.setRobotTraitVector(config["robot_traits"]);
-            problem.speedIndex = config["speed_index"];
-            problem.mpIndex = config["mp_index"];
-
-            // All Actions have the same requirements
-            for(unsigned int i = 0; i < task->actions.size(); ++i)
-            {
-                problem.actionToRequirements[task->actions[i].name] = i;
-                problem.actionRequirements.push_back({0.25, 0, 0});
-                problem.actionNonCumRequirements.push_back({0,0,0});
-
-                problem.addActionLocation(
-                    task->actions[i].name,
-                    std::make_pair(task->actions[i].name[9] - '1', task->actions[i].name[12] - '1'));
-            }
-            problem.setConfig(config);
+                    p->addActionLocation(
+                        actions[i].name,
+                        std::make_pair(actions[i].name[9] - '1', actions[i].name[12] - '1'));
+                }
+            });
 
             Solver solver;
             std::shared_ptr<Solution> solution = solver.solve(problem);
 
             // Save problem
-            solver.writeSolution("outputs/p5", solution);
+            solver.writeSolution("tests/data/p5", solution);
         }
 
         /**
          * 3 robots start at the target and there are 3 boxes at the source to bring to the target
          * boxes require 2 robots to carry
+         *
+         * \note Tests collab
          */
         TEST(Problem, p6)
         {
             Problem problem;
+            problem.init("tests/data/p6/domain.pddl", "tests/data/p6/problem.pddl", "tests/data/p6/parameters.json");
 
-            PlannerParameters parameters;
-            char* domain_filename  = "tests/data/p2/domain.pddl";
-            char* problem_filename = "tests/data/p2/problem.pddl";
-            parameters.domainFileName  = domain_filename;
-            parameters.problemFileName = problem_filename;
-            SASTask* task = Setup::doPreprocess(&parameters);
-            problem.setTask(task);
+            problem.configureActions([](const std::vector<SASAction>& actions, Problem* p)
+                                     {
+                // All Actions have the same requirements
+                for(unsigned int i = 0; i < actions.size(); ++i)
+                {
+                    p->actionToRequirements[actions[i].name] = i;
+                    p->actionRequirements.push_back({0.4, 0, 0});
+                    p->actionNonCumRequirements.push_back({0, 0, 0});
 
-            std::ifstream ifs("tests/data/p2/parameters.json");
-            nlohmann::json config;
-            ifs >> config;
-
-            problem.setLocations(config["locations"]);
-            problem.setStartingLocations(config["starting_locations"]);
-
-            problem.setRobotTraitVector(config["robot_traits"]);
-            problem.speedIndex = config["speed_index"];
-            problem.mpIndex = config["mp_index"];
-
-            // All Actions have the same requirements
-            for(unsigned int i = 0; i < task->actions.size(); ++i)
-            {
-                problem.actionToRequirements[task->actions[i].name] = i;
-                problem.actionRequirements.push_back({0.4,0,0});
-                problem.actionNonCumRequirements.push_back({0,0,0});
-
-                problem.addActionLocation(
-                    task->actions[i].name,
-                    std::make_pair(task->actions[i].name[9] - '1', task->actions[i].name[12] - '1'));
-            }
-            problem.setConfig(config);
+                    p->addActionLocation(
+                        actions[i].name,
+                        std::make_pair(actions[i].name[9] - '1', actions[i].name[12] - '1'));
+                }
+            });
 
             Solver solver;
             std::shared_ptr<Solution> solution = solver.solve(problem);
 
             // Save problem
-            solver.writeSolution("outputs/p6", solution);
+            solver.writeSolution("tests/data/p6", solution);
+        }
+
+        /**
+         * 2 ground robots start at the start and there are 2 boxes. There is an obstacle in the middle
+         *
+         * \note Tests the MP is running
+         */
+        TEST(Problem, p7)
+        {
+            Problem problem;
+            problem.init("tests/data/p7/domain.pddl", "tests/data/p7/problem.pddl", "tests/data/p7/parameters.json");
+
+            problem.configureActions([](const std::vector<SASAction>& actions, Problem* p)
+                                     {
+                                       // All Actions have the same requirements
+                                       for(unsigned int i = 0; i < actions.size(); ++i)
+                                       {
+                                           p->actionToRequirements[actions[i].name] = i;
+                                           p->actionRequirements.push_back({0.2, 0, 0});
+                                           p->actionNonCumRequirements.push_back({0, 0, 0});
+
+                                           p->addActionLocation(
+                                               actions[i].name,
+                                               std::make_pair(actions[i].name[9] - '1', actions[i].name[12] - '1'));
+                                       }
+                                     });
+
+            Solver solver;
+            std::shared_ptr<Solution> solution = solver.solve(problem);
+
+            // Save problem
+            solver.writeSolution("tests/data/p7", solution);
+        }
+
+        /**
+         * 1 ground robot and 1 aerial robot start at the start and there are 2 boxes. There is a ground obstacle in the middle
+         *
+         * \note Tests that separate MPs are running
+         */
+        TEST(Problem, p8)
+        {
+            Problem problem;
+            problem.init("tests/data/p8/domain.pddl", "tests/data/p8/problem.pddl", "tests/data/p8/parameters.json");
+
+            problem.configureActions([](const std::vector<SASAction>& actions, Problem* p)
+                                     {
+                                       // All Actions have the same requirements
+                                       for(unsigned int i = 0; i < actions.size(); ++i)
+                                       {
+                                           p->actionToRequirements[actions[i].name] = i;
+                                           p->actionRequirements.push_back({0.2, 0, 0});
+                                           p->actionNonCumRequirements.push_back({0, 0, 0});
+
+                                           p->addActionLocation(
+                                               actions[i].name,
+                                               std::make_pair(actions[i].name[9] - '1', actions[i].name[12] - '1'));
+                                       }
+                                     });
+
+            Solver solver;
+            std::shared_ptr<Solution> solution = solver.solve(problem);
+
+            // Save problem
+            solver.writeSolution("tests/data/p8", solution);
+        }
+
+        /**
+         * 2 ground robots and 2 aerial robots start at the start and there are 2 boxes that require 2 robots to carry. No obstacles
+         * There are 2 ground-aerial pairs in terms of speed
+         *
+         * \note Should test that ground robots can only pair with ground robots and aerials with aerials
+         */
+        TEST(Problem, p9)
+        {
+            Problem problem;
+            problem.init("tests/data/p9/domain.pddl", "tests/data/p9/problem.pddl", "tests/data/p9/parameters.json");
+
+            problem.configureActions([](const std::vector<SASAction>& actions, Problem* p)
+                                     {
+                                       // All Actions have the same requirements
+                                       for(unsigned int i = 0; i < actions.size(); ++i)
+                                       {
+                                           p->actionToRequirements[actions[i].name] = i;
+                                           p->actionRequirements.push_back({0.4, 0, 0});
+                                           p->actionNonCumRequirements.push_back({0, 0, 0});
+
+                                           p->addActionLocation(
+                                               actions[i].name,
+                                               std::make_pair(actions[i].name[9] - '1', actions[i].name[12] - '1'));
+                                       }
+                                     });
+
+            Solver solver;
+            std::shared_ptr<Solution> solution = solver.solve(problem);
+
+            // Save problem
+            solver.writeSolution("tests/data/p9", solution);
         }
     }  // namespace test
 }  // namespace grstaps

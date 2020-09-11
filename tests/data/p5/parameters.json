@@ -24,5 +24,6 @@
   "mp_boundary_min" : 0,
   "mp_boundary_max" : 2,
   "mp_query_time": 0.001,
-  "mp_connection_range": 0.1
+  "mp_connection_range": 0.1,
+  "obstacles": [[], []]
 }

@@ -39,16 +39,12 @@ namespace grstaps
      * Wrapper for Open Motion Planning Library
      *
      * \note Currently using Lazy PRM*
-     *
-     * \todo: split up ground/flight? (Internal motion planners with boolean flight flags?)
      */
     class MotionPlanner : public Noncopyable
     {
        public:
-        /**
-         * \returns Singleton to the motion planner
-         */
-        static MotionPlanner& instance();
+        //! Constructor
+        MotionPlanner();
 
         /**
          * Sets the obstacles in the map
@@ -88,12 +84,6 @@ namespace grstaps
 
         std::vector<Location> m_locations;
        private:
-        /**
-         * Constructor
-         */
-        MotionPlanner();
-
-
         bool waypointQuery(unsigned int from, unsigned int to, ompl::base::ProblemDefinitionPtr problem_def);
 
         bool m_map_set;                     //!< Whether the map has been set for the motion planner
