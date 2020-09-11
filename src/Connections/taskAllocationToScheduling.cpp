@@ -284,8 +284,8 @@ namespace grstaps
                                 (*m_action_locations)[actionOrder[i]].second);
                     }
                     else{
-                        Location& first = (*m_motion_planner)[0]->m_locations[(*m_action_locations)[actionOrder[i]].first];
-                        Location& second= (*m_motion_planner)[0]->m_locations[(*m_action_locations)[actionOrder[i]].second];
+                        Location& first = (*m_motion_planners)[0]->m_locations[(*m_action_locations)[actionOrder[i]].first];
+                        Location& second= (*m_motion_planners)[0]->m_locations[(*m_action_locations)[actionOrder[i]].second];
 
                         float x_dist = first.x() - second.x();
                         float y_dist = first.y() - second.y();
