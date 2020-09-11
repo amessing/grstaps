@@ -31,11 +31,10 @@ namespace grstaps
     namespace ob = ompl::base;
     namespace og = ompl::geometric;
 
-    MotionPlanner& MotionPlanner::instance()
-    {
-        static MotionPlanner rv;
-        return rv;
-    }
+    MotionPlanner::MotionPlanner()
+        : m_map_set(false)
+        , m_query_time(1.0)
+    {}
 
     void MotionPlanner::setMap(const std::vector<b2PolygonShape>& obstacles, float boundary_min, float boundary_max)
     {
@@ -130,11 +129,6 @@ namespace grstaps
         m_memory[id] = val;
         return val;
     }
-
-    MotionPlanner::MotionPlanner()
-        : m_map_set(false)
-        , m_query_time(1.0)
-    {}
 
     bool MotionPlanner::waypointQuery(unsigned int from, unsigned int to, ompl::base::ProblemDefinitionPtr problem_def)
     {

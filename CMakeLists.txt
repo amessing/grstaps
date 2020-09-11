@@ -14,9 +14,8 @@ endif(NOT CMAKE_BUILD_TYPE)
 if(NOT DEFINED _opts)
     string(
         APPEND _opts
-            "$<$<CONFIG:DEBUG>:-Og>"
+            #"$<$<CONFIG:DEBUG>:-Og>"
             "$<$<CONFIG:RELEASE>:-O3>"
-            "$<$<CXX_COMPILER_ID:Clang>:-stdlib=libc++>"
     )
 endif(NOT DEFINED _opts)
 

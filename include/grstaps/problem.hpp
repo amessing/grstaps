@@ -45,7 +45,9 @@ namespace grstaps
         using NonCumVector       = std::vector<float>;
         using RequirementsVector = std::vector<float>;
 
-        Problem() = default;
+        Problem();
+        void init(char* domain, char* problem, const char* parameters);
+        void configureActions(std::function<void(const std::vector<SASAction>&, Problem*)> configure_function);
         void setLocations(const std::vector<Location>& locations);
         void setActionLocationMap(
             const std::map<std::string, std::pair<unsigned int, unsigned int>>& action_location_map);
@@ -73,8 +75,8 @@ namespace grstaps
 
         std::vector<RequirementsVector> actionRequirements;
         std::vector<NonCumVector> actionNonCumRequirements;
-        int speedIndex = -1;
-        int mpIndex = -1;
+        int speedIndex;
+        int mpIndex;
 
        protected:
         std::vector<Location> m_locations;  //!< coordinates and name of location
@@ -83,7 +85,7 @@ namespace grstaps
         std::vector<TraitVector> m_robot_traits;         //!< List of vectors of robot traits
         std::vector<unsigned int> m_starting_locations;  //!< List of the starting location of the robots
         SASTask* m_task;                                 // A SAS Task for the Task planner
-        std::vector<std::vector<b2PolygonShape>> m_obstacles = {{}};         //!< Obstacles in the map
+        std::vector<std::vector<b2PolygonShape>> m_obstacles;         //!< Obstacles in the map
         nlohmann::json m_config;
     };
 }  // namespace grstaps

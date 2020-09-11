@@ -106,7 +106,7 @@ namespace grstaps
 
             std::vector<Location> locations = {from, to};
 
-            auto& mp = MotionPlanner::instance();
+            MotionPlanner mp;
             mp.setMap(obstacles, 0.0, 2.0);
             mp.setLocations(locations);
             mp.setQueryTime(runtime);
@@ -131,7 +131,7 @@ namespace grstaps
 
             std::vector<Location> locations = {from, to};
 
-            auto& mp = MotionPlanner::instance();
+            MotionPlanner mp;
             mp.setMap(obstacles, 0.0, 2.0);
             mp.setLocations(locations);
             mp.setQueryTime(runtime);
@@ -168,7 +168,7 @@ namespace grstaps
 
             std::vector<Location> locations = {from, to};
 
-            auto& mp = MotionPlanner::instance();
+            MotionPlanner mp;
             mp.setMap(obstacles, 0.0, 2.0);
             mp.setLocations(locations);
             mp.setQueryTime(runtime);

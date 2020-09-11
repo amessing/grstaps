@@ -30,7 +30,7 @@ using std::vector;
 using start_end          = std::pair<float, float>;
 using waypoints          = std::vector<std::pair<float, float>>;
 using single_plan        = std::pair<start_end, waypoints>;
-using agent_motion_plans = vector<std::pair<start_end, waypoints>>;
+using agent_motion_plans = std::vector<std::pair<start_end, waypoints>>;
 
 namespace grstaps
 {
@@ -46,8 +46,8 @@ namespace grstaps
          * \param the motion planner pointer to use for planning
          *
          */
-        taskAllocationToScheduling( boost::shared_ptr<vector<MotionPlanner*>> mPlanner  = nullptr,
-                                   const std::vector<unsigned int>* = nullptr);
+        taskAllocationToScheduling(boost::shared_ptr<std::vector<boost::shared_ptr<MotionPlanner>>> motion_planners  = nullptr,
+                                   const std::vector<unsigned int>* staring_locations= nullptr);
 
         /**
          * Get the schedule for a task allocation that does not use species
@@ -116,7 +116,7 @@ namespace grstaps
         std::vector<float> maxTraitTeam;
         std::vector<int> concurrent;
 
-        boost::shared_ptr<vector<MotionPlanner*>> m_motion_planner;
+        boost::shared_ptr<std::vector<boost::shared_ptr<MotionPlanner>>> m_motion_planners;
         const std::vector<unsigned int>* m_starting_locations;
         boost::shared_ptr<const std::vector<std::pair<unsigned int, unsigned int>>> m_action_locations;
 
