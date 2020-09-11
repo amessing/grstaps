@@ -59,9 +59,11 @@ namespace grstaps
         motion_planner.setLocations(problem.locations());
         motion_planner.setQueryTime(query_time);
         motion_planner.setConnectionRange(connection_range);
+        boost::shared_ptr<vector<MotionPlanner*>> agentMotionPlanners(new vector<MotionPlanner*>());
+        agentMotionPlanners->push_back(&motion_planner);
 
         // Task Allocation
-        taskAllocationToScheduling taToSched = taskAllocationToScheduling(&motion_planner, &problem.startingLocations());
+        taskAllocationToScheduling taToSched = taskAllocationToScheduling(agentMotionPlanners, &problem.startingLocations());
         bool usingSpecies = false;
 
         // Also can any of them be const? That will help with multithreading in the future (fewer mutexes)
@@ -140,7 +142,8 @@ namespace grstaps
                                   durations,
                                   orderingCon,
                                   numSpec,
-                                  problem.speedIndex);
+                                  problem.speedIndex,
+                                  problem.mpIndex);
 
                 auto node1 = boost::make_shared<Node<TaskAllocation>>(ta.getID(), ta);
                 node1->setData(ta);

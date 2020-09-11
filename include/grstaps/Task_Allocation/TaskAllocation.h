@@ -69,6 +69,7 @@ namespace grstaps
                        boost::shared_ptr<vector<float>>              = nullptr,
                        boost::shared_ptr<vector<vector<int>>>        = nullptr,
                        const boost::shared_ptr<vector<int>>          = nullptr,
+                       int                                           = -1,
                        int                                           = -1);
 
         /**
@@ -85,7 +86,8 @@ namespace grstaps
                        boost::shared_ptr<vector<float>>              = nullptr,
                        boost::shared_ptr<vector<vector<int>>>        = nullptr,
                        boost::shared_ptr<vector<int>>                = nullptr,
-                       int speedInd                                  = -1);
+                       int speedInd                                  = -1,
+                       int mpInd                                     = -1);
 
         /**
          * Copy constructor
@@ -350,17 +352,17 @@ namespace grstaps
         boost::shared_ptr<vector<float>> actionDurations;
         int speedIndex;
         float maxSpeed;
-
-       private:
+        int mp_Index;
         vector<vector<float>>* speciesTraitDistribution;
 
-        boost::shared_ptr<vector<int>> numSpecies{};
+       private:
 
+        boost::shared_ptr<vector<int>> numSpecies{};
         boost::shared_ptr<vector<vector<float>>> actionNoncumulativeTraitValue{};
         boost::shared_ptr<vector<vector<int>>> orderingConstraints{};
-
         float scheduleTime;
         float goalDistance;
+
 
         bool isGoal;
         bool usingSpecies;

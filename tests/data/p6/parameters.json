@@ -1,13 +1,14 @@
 {
   "robot_traits" : [
-    [0.25, 1],
-    [0.25, 1],
-    [0.25, 1]
+    [0.25, 1, 0],
+    [0.25, 1, 0],
+    [0.25, 1, 0]
   ],
   "starting_locations": [
     1, 1, 1
   ],
   "speed_index": 1,
+  "mp_index": 2,
   "locations": [
     {
       "type": "source",

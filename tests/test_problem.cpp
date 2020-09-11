@@ -58,13 +58,14 @@ namespace grstaps
 
             problem.setRobotTraitVector(config["robot_traits"]);
             problem.speedIndex = config["speed_index"];
+            problem.mpIndex = config["mp_index"];
 
             // All Actions have the same requirements
             for(unsigned int i = 0; i < task->actions.size(); ++i)
             {
                 problem.actionToRequirements[task->actions[i].name] = i;
-                problem.actionRequirements.push_back({0.25, 0});
-                problem.actionNonCumRequirements.push_back({0, 0});
+                problem.actionRequirements.push_back({0.25, 0, 0});
+                problem.actionNonCumRequirements.push_back({0, 0, 0});
 
                 problem.addActionLocation(
                     task->actions[i].name,
@@ -104,13 +105,14 @@ namespace grstaps
 
             problem.setRobotTraitVector(config["robot_traits"]);
             problem.speedIndex = config["speed_index"];
+            problem.mpIndex = config["mp_index"];
 
             // All Actions have the same requirements
             for(unsigned int i = 0; i < task->actions.size(); ++i)
             {
                 problem.actionToRequirements[task->actions[i].name] = i;
-                problem.actionRequirements.push_back({0.25,0});
-                problem.actionNonCumRequirements.push_back({0,0});
+                problem.actionRequirements.push_back({0.25,0, 0});
+                problem.actionNonCumRequirements.push_back({0,0, 0});
 
                 problem.addActionLocation(
                     task->actions[i].name,
@@ -151,13 +153,14 @@ namespace grstaps
 
             problem.setRobotTraitVector(config["robot_traits"]);
             problem.speedIndex = config["speed_index"];
+            problem.mpIndex = config["mp_index"];
 
             // All Actions have the same requirements
             for(unsigned int i = 0; i < task->actions.size(); ++i)
             {
                 problem.actionToRequirements[task->actions[i].name] = i;
-                problem.actionRequirements.push_back({0.25,0});
-                problem.actionNonCumRequirements.push_back({0,0});
+                problem.actionRequirements.push_back({0.25,0, 0});
+                problem.actionNonCumRequirements.push_back({0,0, 0});
 
                 problem.addActionLocation(
                     task->actions[i].name,
@@ -196,13 +199,14 @@ namespace grstaps
 
             problem.setRobotTraitVector(config["robot_traits"]);
             problem.speedIndex = config["speed_index"];
+            problem.mpIndex = config["mp_index"];
 
             // All Actions have the same requirements
             for(unsigned int i = 0; i < task->actions.size(); ++i)
             {
                 problem.actionToRequirements[task->actions[i].name] = i;
-                problem.actionRequirements.push_back({0.25,0});
-                problem.actionNonCumRequirements.push_back({0,0});
+                problem.actionRequirements.push_back({0.25,0, 0});
+                problem.actionNonCumRequirements.push_back({0,0,0});
 
                 problem.addActionLocation(
                     task->actions[i].name,
@@ -242,13 +246,14 @@ namespace grstaps
 
             problem.setRobotTraitVector(config["robot_traits"]);
             problem.speedIndex = config["speed_index"];
+            problem.mpIndex = config["mp_index"];
 
             // All Actions have the same requirements
             for(unsigned int i = 0; i < task->actions.size(); ++i)
             {
                 problem.actionToRequirements[task->actions[i].name] = i;
-                problem.actionRequirements.push_back({0.25, 0});
-                problem.actionNonCumRequirements.push_back({0,0});
+                problem.actionRequirements.push_back({0.25, 0, 0});
+                problem.actionNonCumRequirements.push_back({0,0,0});
 
                 problem.addActionLocation(
                     task->actions[i].name,
@@ -288,13 +293,14 @@ namespace grstaps
 
             problem.setRobotTraitVector(config["robot_traits"]);
             problem.speedIndex = config["speed_index"];
+            problem.mpIndex = config["mp_index"];
 
             // All Actions have the same requirements
             for(unsigned int i = 0; i < task->actions.size(); ++i)
             {
                 problem.actionToRequirements[task->actions[i].name] = i;
-                problem.actionRequirements.push_back({0.4,0});
-                problem.actionNonCumRequirements.push_back({0,0});
+                problem.actionRequirements.push_back({0.4,0,0});
+                problem.actionNonCumRequirements.push_back({0,0,0});
 
                 problem.addActionLocation(
                     task->actions[i].name,

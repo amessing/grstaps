@@ -46,7 +46,7 @@ namespace grstaps
          * \param the motion planner pointer to use for planning
          *
          */
-        taskAllocationToScheduling(MotionPlanner* mPlanner                      = nullptr,
+        taskAllocationToScheduling( boost::shared_ptr<vector<MotionPlanner*>> mPlanner  = nullptr,
                                    const std::vector<unsigned int>* = nullptr);
 
         /**
@@ -116,7 +116,7 @@ namespace grstaps
         std::vector<float> maxTraitTeam;
         std::vector<int> concurrent;
 
-        MotionPlanner* m_motion_planner;
+        boost::shared_ptr<vector<MotionPlanner*>> m_motion_planner;
         const std::vector<unsigned int>* m_starting_locations;
         boost::shared_ptr<const std::vector<std::pair<unsigned int, unsigned int>>> m_action_locations;
 

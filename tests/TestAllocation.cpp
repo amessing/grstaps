@@ -106,6 +106,8 @@ namespace grstaps
             taskAllocationToScheduling taToSched = taskAllocationToScheduling();
             bool usingSpecies = false;
 
+            boost::shared_ptr<vector<int>> robot_dynamics(new vector<int>(speciesDistribution.size(),0));
+
             TaskAllocation ta(usingSpecies,
                               goalDistribution,
                               (&speciesDistribution),
@@ -114,6 +116,7 @@ namespace grstaps
                               durations,
                               orderingCon,
                               numSpec);
+
             auto node1 = boost::shared_ptr<Node<TaskAllocation>>(new Node<TaskAllocation>(std::string(ta.getID()), ta));
 
             node1->setData(ta);
