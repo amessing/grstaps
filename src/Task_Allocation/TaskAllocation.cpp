@@ -38,6 +38,7 @@ namespace grstaps
                                    int speedInd,
                                    int mpIndex)
     {
+        action_dynamics               = vector<int>(goalDistribution->size(),-1);
         mp_Index                      = mpIndex;
         speedIndex                    = speedInd;
         usingSpecies                  = useSpec;
@@ -92,6 +93,7 @@ namespace grstaps
                                    int speedInd,
                                    int mpInd)
     {
+        action_dynamics               = vector<int>(goalDistribution->size(),-1);
         mp_Index                      = mpInd;
         usingSpecies                  = useSpec;
         taToScheduling                = taToSched;
@@ -158,6 +160,7 @@ namespace grstaps
         speedIndex                  = copyAllocation.speedIndex;
         maxSpeed                    = copyAllocation.maxSpeed;
         mp_Index                    = copyAllocation.mp_Index;
+        action_dynamics             = copyAllocation.action_dynamics;
     }
 
     bool TaskAllocation::checkGoalAllocation() const
@@ -275,6 +278,7 @@ namespace grstaps
             updateAllocationTraitDistributionAgent(agentIndex, taskIndex);
             added  = true;
             isGoal = checkGoalAllocation();
+            action_dynamics[taskIndex] = (*speciesTraitDistribution)[agentIndex][mp_Index];
         }
         scheduleTime = -1;
         return added;
@@ -495,8 +499,7 @@ namespace grstaps
         allocation.insert(allocation.end(), emptyVect.begin(), emptyVect.end());
 
         goalDistance += goalDistAdd;
-        if(isGoal)
-        {
+        if(isGoal){
             isGoal = checkGoalAllocation();
         }
         scheduleTime = -1;
