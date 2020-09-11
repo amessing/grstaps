@@ -49,7 +49,8 @@ namespace grstaps
                 int index             = i * numSpecies + j;
                 std::string newNodeID = editID(allocation, nodeID, index);
 
-                if(!graph.nodeExist(newNodeID) && (int(newNodeID[(i * numSpecies) + j] - '0') <= (numSpec)[j]))
+                //
+                if(!graph.nodeExist(newNodeID) && (int(newNodeID[(i * numSpecies) + j] - '0') <= (numSpec)[j]) && (expandNode->getData().action_dynamics[i] == -1 || ((*expandNode->getData().speciesTraitDistribution)[j][expandNode->getData().mp_Index] == expandNode->getData().action_dynamics[i])))
                 {
                     TaskAllocation newNodeData(data);
                     newNodeData.addAgent(j, i);

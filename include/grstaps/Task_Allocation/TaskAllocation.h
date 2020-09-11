@@ -354,6 +354,7 @@ namespace grstaps
         float maxSpeed;
         int mp_Index;
         vector<vector<float>>* speciesTraitDistribution;
+        vector<int> action_dynamics;
 
        private:
 
