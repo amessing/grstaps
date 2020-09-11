@@ -60,7 +60,7 @@ namespace grstaps
         m_task = task;
     }
 
-    void Problem::setObstacles(const std::vector<b2PolygonShape>& obstacles)
+    void Problem::setObstacles(const std::vector<std::vector<b2PolygonShape>>& obstacles)
     {
         m_obstacles = obstacles;
     }
@@ -109,7 +109,7 @@ namespace grstaps
         return m_task;
     }
 
-    const std::vector<b2PolygonShape>& Problem::obstacles() const
+    const std::vector<std::vector<b2PolygonShape>> Problem::obstacles() const
     {
         return m_obstacles;
     }
