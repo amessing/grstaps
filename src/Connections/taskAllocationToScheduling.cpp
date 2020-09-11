@@ -283,10 +283,13 @@ namespace grstaps
                                 (*m_action_locations)[actionOrder[i]].first,
                                 (*m_action_locations)[actionOrder[i]].second);
                     }
-                    else
-                    {
-                        float x_dist =  (*m_motion_planners)[0]->m_locations[(*m_action_locations)[actionOrder[i]].first].x() - (*m_motion_planners)[0]->m_locations[(*m_action_locations)[actionOrder[i]].second].x();
-                        float y_dist =  (*m_motion_planners)[0]->m_locations[(*m_action_locations)[actionOrder[i]].first].y() - (*m_motion_planners)[0]->m_locations[(*m_action_locations)[actionOrder[i]].second].y();
+                    else{
+                        Location& first = (*m_motion_planner)[0]->m_locations[(*m_action_locations)[actionOrder[i]].first];
+                        Location& second= (*m_motion_planner)[0]->m_locations[(*m_action_locations)[actionOrder[i]].second];
+
+                        float x_dist = first.x() - second.x();
+                        float y_dist = first.y() - second.y();
+
                         action_travel_length = {true, sqrt( pow(x_dist,2) + pow(y_dist,2))};
                     }
 
