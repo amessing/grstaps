@@ -86,6 +86,7 @@ namespace grstaps
 
         std::tuple<bool, float, std::vector<std::pair<float, float>>> getWaypoints(unsigned int from, unsigned int to);
 
+        std::vector<Location> m_locations;
        private:
         /**
          * Constructor
@@ -101,7 +102,6 @@ namespace grstaps
         ompl::base::StateSpacePtr m_space;  //!< Outline of the space
         ompl::base::SpaceInformationPtr
             m_space_information;  //!< Information about the space (includes validity checker)
-        std::vector<Location> m_locations;
         std::mutex m_mutex;
 
         std::map<std::pair<unsigned int, unsigned int>, std::tuple<bool, float, std::vector<std::pair<float, float>>>> m_memory;

@@ -35,8 +35,10 @@ namespace grstaps
                                    boost::shared_ptr<vector<float>> actionDur,
                                    boost::shared_ptr<vector<vector<int>>> orderingCon,
                                    const boost::shared_ptr<vector<int>> numSpec,
-                                   int speedInd)
+                                   int speedInd,
+                                   int mpIndex)
     {
+        mp_Index                      = mpIndex;
         speedIndex                    = speedInd;
         usingSpecies                  = useSpec;
         taToScheduling                = taToSched;
@@ -87,8 +89,10 @@ namespace grstaps
                                    boost::shared_ptr<vector<float>> actionDur,
                                    boost::shared_ptr<vector<vector<int>>> orderingCon,
                                    boost::shared_ptr<vector<int>> numSpec,
-                                   int speedInd)
+                                   int speedInd,
+                                   int mpInd)
     {
+        mp_Index                      = mpInd;
         usingSpecies                  = useSpec;
         taToScheduling                = taToSched;
         actionDurations               = std::move(actionDur);
@@ -153,6 +157,7 @@ namespace grstaps
         startingGoalDistance        = copyAllocation.startingGoalDistance;
         speedIndex                  = copyAllocation.speedIndex;
         maxSpeed                    = copyAllocation.maxSpeed;
+        mp_Index                    = copyAllocation.mp_Index;
     }
 
     bool TaskAllocation::checkGoalAllocation() const
