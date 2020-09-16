@@ -7,7 +7,7 @@ namespace grstaps
 {
     Scheduler tabu::solve(int numCandidate, Scheduler& initialSched)
     {
-        optimal           = initialSched.getMakeSpan();
+        optimal           = ( initialSched.worstSchedule - initialSched.getMakeSpan()) * 0.3 + initialSched.getMakeSpan();
         bestSolutionScore = std::numeric_limits<double>::max();
         for(int loopCount = 0; loopCount < numCandidate; loopCount++)
         {

@@ -71,6 +71,7 @@ namespace grstaps
         // Task Allocation
         taskAllocationToScheduling taToSched(motion_planners, &problem.startingLocations());
         bool usingSpecies = false;
+        int nodes_expanded = 0;
 
         // Also can any of them be const? That will help with multithreading in the future (fewer mutexes)
         boost::shared_ptr<Heuristic> heur = boost::make_shared<TAGoalDist>();
@@ -157,8 +158,9 @@ namespace grstaps
                 allocationGraph.addNode(node1);
 
                 AStarSearch<TaskAllocation> graphAllocateAndSchedule(allocationGraph, node1);
-
                 graphAllocateAndSchedule.search(isGoal, expander, package);
+                nodes_expanded += graphAllocateAndSchedule.nodesExpanded;
+
                 if(package->foundGoal)
                 {
                     successors[i]->h = package->finalNode->getData().taToScheduling.sched.getMakeSpan();
@@ -182,7 +184,7 @@ namespace grstaps
                     auto potential_ta = std::get<1>(potential_successors[i]);
                     auto m_solution =
                         std::make_shared<Solution>(std::shared_ptr<Plan>(potential_plan),
-                                                   std::make_shared<TaskAllocation>(potential_ta));
+                                                   std::make_shared<TaskAllocation>(potential_ta), nodes_expanded);
                     return m_solution;
                 }
             }

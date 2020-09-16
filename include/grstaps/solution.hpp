@@ -40,7 +40,7 @@ namespace grstaps
          *
          * \param plan A partial-order plan
          */
-        Solution(std::shared_ptr<Plan> plan, std::shared_ptr<TaskAllocation> allocation);
+        Solution(std::shared_ptr<Plan> plan, std::shared_ptr<TaskAllocation> allocation, int num_ta_nodes);
 
         /**
          * Writes the solution to file
@@ -62,6 +62,7 @@ namespace grstaps
        private:
         std::shared_ptr<Plan> m_plan;  //!< A partial-order plan
         std::shared_ptr<grstaps::TaskAllocation> m_allocation;
+        int numTaExpanded;
 
         void planSubcomponents(Plan* base, std::vector<const Plan*>& plan_subcomponents);
     };

@@ -19,6 +19,7 @@
 // external
 #include <fmt/format.h>
 #include <gtest/gtest.h>
+#include <chrono>
 
 #include <nlohmann/json.hpp>
 
@@ -46,7 +47,7 @@ namespace grstaps
               for(unsigned int i = 0; i < actions.size(); ++i)
               {
                   p->actionToRequirements[actions[i].name] = i;
-                  p->actionRequirements.push_back({0.25, 0, 0});
+                  p->actionRequirements.push_back({2.5, 0, 0});
                   p->actionNonCumRequirements.push_back({0, 0, 0});
 
                   p->addActionLocation(
@@ -57,8 +58,11 @@ namespace grstaps
 
 
             Solver solver;
+            auto start = std::chrono::high_resolution_clock::now();
             std::shared_ptr<Solution> solution = solver.solve(problem);
-
+            auto stop     = std::chrono::high_resolution_clock::now();
+            auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
+            std::cout << "Time=" << duration.count() << std::endl;
             // Save problem
             solver.writeSolution("tests/data/p1", solution);
         }
