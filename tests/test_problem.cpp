@@ -323,5 +323,49 @@ namespace grstaps
             // Save problem
             solver.writeSolution("tests/data/p9", solution);
         }
+
+        /**
+         * 2 ground robots and 2 aerial robots that start at various starting locations, there are 4 boxes needing moving.
+         * Ground robots can pick up a box by themselves, but aerials need 2 robots. Aerials are faster though. Obstacle
+         * in the middle for both but smaller for aerials.
+         *
+         * \note Should test that ground robots can only pair with ground robots and aerials with aerials
+         */
+        TEST(Problem, p10)
+        {
+            Problem problem;
+            problem.init("tests/data/p10/domain.pddl", "tests/data/p10/problem.pddl", "tests/data/p10/parameters.json");
+
+            std::map<std::string, unsigned int> location_name_to_index{
+                {"gs", 0},
+                {"as", 1},
+                {"bs", 2},
+                {"bt", 3}
+            };
+
+            problem.configureActions([location_name_to_index](const std::vector<SASAction>& actions, Problem* p)
+                                     {
+                                       // All Actions have the same requirements
+                                       for(unsigned int i = 0; i < actions.size(); ++i)
+                                       {
+                                           p->actionToRequirements[actions[i].name] = i;
+                                           p->actionRequirements.push_back({0.4, 0, 0});
+                                           p->actionNonCumRequirements.push_back({0, 0, 0});
+
+                                           const unsigned int action_start = location_name_to_index.at(actions[i].name.substr(8, 2));
+                                           const unsigned int action_end = location_name_to_index.at(actions[i].name.substr(11, 2));
+
+                                           p->addActionLocation(
+                                               actions[i].name,
+                                               std::make_pair(action_start, action_end));
+                                       }
+                                     });
+
+            Solver solver;
+            std::shared_ptr<Solution> solution = solver.solve(problem);
+
+            // Save problem
+            solver.writeSolution("tests/data/p10", solution);
+        }
     }  // namespace test
 }  // namespace grstaps
