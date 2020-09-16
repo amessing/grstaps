@@ -19,10 +19,11 @@
 
 namespace grstaps
 {
-    Solution::Solution(std::shared_ptr<Plan> plan, std::shared_ptr<TaskAllocation> allocation)
+    Solution::Solution(std::shared_ptr<Plan> plan, std::shared_ptr<TaskAllocation> allocation, int num_ta_nodes)
     {
         m_plan       = plan;
         m_allocation = allocation;
+        numTaExpanded = num_ta_nodes;
     }
 
     void Solution::write(const std::string& filepath)
@@ -65,6 +66,8 @@ namespace grstaps
             j["ordering_constraints"] = ordering_constraints;
 
             j["allocation"] = m_allocation->getID();
+
+            j["Task_Alloc_Nodes_Expanded"] = numTaExpanded;
 
             j["makespan"] = m_allocation->taToScheduling.sched.getMakeSpan();
 

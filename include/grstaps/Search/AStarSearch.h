@@ -87,6 +87,8 @@ namespace grstaps
          */
         bool updateCurrent();
 
+        int nodesExpanded;
+
        private:
         nodePtr<Data> currentNode;
         boost::heap::binomial_heap<nodePtr<Data>, boost::heap::compare<NodeCompareF<Data>>> frontier;
@@ -99,6 +101,7 @@ namespace grstaps
     {
         currentNode = initPtr;  // variable the holds the current explored node
         frontier.push(initPtr);
+        nodesExpanded = 0;
     }
 
     template <class Data>
@@ -207,6 +210,7 @@ namespace grstaps
             currentNode = frontier.top();
             closedList.push(currentNode);
             frontier.pop();
+            nodesExpanded += 1;
         }
         return searchFailed;
     }
