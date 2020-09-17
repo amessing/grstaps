@@ -116,4 +116,4 @@ if(BUILD_TESTS)
     target_compile_options(${PROJECT_NAME}_test PRIVATE ${_opts})
 endif(BUILD_TESTS)
 
-set(CMAKE_CXX_FLAGS "-fprofile-arcs -ftest-coverage ")
+#set(CMAKE_CXX_FLAGS "-fprofile-arcs -ftest-coverage ")
