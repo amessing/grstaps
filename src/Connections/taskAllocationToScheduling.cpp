@@ -327,6 +327,7 @@ namespace grstaps
         }
         else
         {
+            sched.actionStartTimes = vector<float>(sched.stn.size(),0);
             std::vector<unsigned int> currentLocations = *m_starting_locations;
             for(int i = 0; i < actionOrder.size(); ++i)
             {
@@ -346,6 +347,9 @@ namespace grstaps
                                 if(TaskAlloc->speedIndex != -1)
                                 {
                                     travel_time /= (*traits)[j][TaskAlloc->speedIndex];
+                                }
+                                if( (sched.stn[actionOrder[i]][0] + travel_time) > sched.actionStartTimes[actionOrder[i]]){
+                                    sched.actionStartTimes[actionOrder[i]] = sched.stn[actionOrder[i]][0] + travel_time;
                                 }
 
                                 currentLocations[j] = (*m_action_locations)[actionOrder[i]].second;
@@ -385,16 +389,21 @@ namespace grstaps
                                         }
                                     }
                                 }
+
                                 start_end time   = {sched.stn[i][1] - adj_travel_time - (*TaskAlloc->actionDurations)[i], sched.stn[i][1]};
                                 if(time.first < 0.00001){
                                     time.first = 0;
                                 }
+
+                                /*
                                 if(i == sched.actionStartTimes.size()){
                                     sched.actionStartTimes.push_back(sched.stn[i][1] - adj_travel_time - (*TaskAlloc->actionDurations)[i]);
                                     if(sched.stn[i][1] - adj_travel_time - (*TaskAlloc->actionDurations)[i] < 0.00001){
                                         sched.actionStartTimes[ sched.actionStartTimes.size()-1] = 0;
                                     }
                                 }
+                                */
+
                                 single_plan step = std::make_pair(time, std::get<2>(waypoints));
                                 motionPlans[j].push_back(step);
                             }
