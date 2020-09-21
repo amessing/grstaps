@@ -588,6 +588,9 @@ namespace grstaps
                              std::vector<std::vector<int>>& orderingConstraints,
                              std::vector<std::vector<int>>& disConstraints)
     {
+        Timer schedTime;
+        schedTime.start();
+
         initSTN(durations);
         makeSpan          = -1;
         beforeConstraints = std::vector<std::vector<int>>(durations.size(), std::vector<int>(0));
@@ -608,6 +611,9 @@ namespace grstaps
         {
             setDisjuctive();
         }
+        schedTime.recordSplit("SCHED");
+        schedTime.stop();
+
         return scheduleValid;
     }
 

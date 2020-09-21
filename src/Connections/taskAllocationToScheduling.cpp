@@ -210,8 +210,13 @@ namespace grstaps
 
     float taskAllocationToScheduling::addMotionPlanningNonSpeciesSchedule(TaskAllocation* TaskAlloc)
     {
+        Timer mpTime;
+        mpTime.start();
+
         if(m_motion_planners == nullptr)
         {
+            mpTime.recordSplit("MP");
+            mpTime.stop();
             return sched.getMakeSpan();
         }
         else
@@ -312,6 +317,8 @@ namespace grstaps
 
                 sched.increaseActionTime(actionOrder[i], maxTravelTime + (action_move_time / slowestAgent));
             }
+            mpTime.recordSplit("MP");
+            mpTime.stop();
             return sched.getMakeSpan();
         }
     }
