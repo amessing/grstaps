@@ -19,11 +19,12 @@
 
 namespace grstaps
 {
-    Solution::Solution(std::shared_ptr<Plan> plan, std::shared_ptr<TaskAllocation> allocation, int num_ta_nodes)
+    Solution::Solution(std::shared_ptr<Plan> plan, std::shared_ptr<TaskAllocation> allocation, int num_ta_nodes, int num_ta_nodes_searched)
     {
         m_plan       = plan;
         m_allocation = allocation;
         numTaExpanded = num_ta_nodes;
+        numTaSearched = num_ta_nodes_searched;
     }
 
     void Solution::write(const std::string& filepath)
@@ -69,6 +70,8 @@ namespace grstaps
 
             j["Task_Alloc_Nodes_Expanded"] = numTaExpanded;
 
+            j["Task_Alloc_Nodes_Searched"] = numTaSearched;
+
             j["makespan"] = m_allocation->taToScheduling.sched.getMakeSpan();
 
             j["motion_plans"] = nlohmann::json();
@@ -97,9 +100,22 @@ namespace grstaps
             }
         }
 
+        Timer splitRetrieval;
+        splitRetrieval.calcSplits();
+        //splitRetrieval.printSplits();
+
+        j["Task_Alloc_Time"] = splitRetrieval.taTime;
+        j["Planning_Time"] = splitRetrieval.planTime;
+        j["Scheduling_Time"] = splitRetrieval.schedTime;
+        j["Motion_Planning_Time"] = splitRetrieval.mpTime;
+
         std::ofstream output;
         output.open(filepath.c_str());
         output << j.dump(4);
+
+
+
+
     }
 
     const Plan& Solution::plan() const

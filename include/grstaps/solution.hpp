@@ -22,6 +22,7 @@
 #include <memory>
 
 #include <grstaps/Task_Allocation/TaskAllocation.h>
+#include <grstaps/Timer.h>
 
 // Task Allocation
 namespace grstaps
@@ -40,7 +41,7 @@ namespace grstaps
          *
          * \param plan A partial-order plan
          */
-        Solution(std::shared_ptr<Plan> plan, std::shared_ptr<TaskAllocation> allocation, int num_ta_nodes);
+        Solution(std::shared_ptr<Plan> plan, std::shared_ptr<TaskAllocation> allocation, int num_ta_nodes, int num_ta_nodes_searched);
 
         /**
          * Writes the solution to file
@@ -63,6 +64,7 @@ namespace grstaps
         std::shared_ptr<Plan> m_plan;  //!< A partial-order plan
         std::shared_ptr<grstaps::TaskAllocation> m_allocation;
         int numTaExpanded;
+        int numTaSearched;
 
         void planSubcomponents(Plan* base, std::vector<const Plan*>& plan_subcomponents);
     };

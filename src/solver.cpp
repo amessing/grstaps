@@ -38,6 +38,7 @@
 #include "grstaps/task_planning/plan.hpp"
 #include "grstaps/task_planning/task_planner.hpp"
 
+
 namespace grstaps
 {
     std::shared_ptr<Solution> Solver::solve(Problem& problem)
@@ -72,6 +73,7 @@ namespace grstaps
         taskAllocationToScheduling taToSched(motion_planners, &problem.startingLocations());
         bool usingSpecies = false;
         int nodes_expanded = 0;
+        int nodes_searched = 0;
 
         // Also can any of them be const? That will help with multithreading in the future (fewer mutexes)
         boost::shared_ptr<Heuristic> heur = boost::make_shared<TAGoalDist>();
@@ -83,6 +85,9 @@ namespace grstaps
 
         auto numSpec     = boost::make_shared<std::vector<int>>(problem.robotTraits().size(), 1);
         auto robotTraits = &problem.robotTraits();
+
+        Timer planTime;
+        planTime.start();
 
         while(!task_planner.emptySearchSpace())
         {
@@ -141,6 +146,9 @@ namespace grstaps
                     orderingCon->push_back({oc.first, oc.second});
                 }
 
+                Timer taTime;
+                taTime.start();
+
                 TaskAllocation ta(usingSpecies,
                                   goalDistribution,
                                   robotTraits,
@@ -152,14 +160,19 @@ namespace grstaps
                                   problem.speedIndex,
                                   problem.mpIndex);
 
+
                 auto node1 = boost::make_shared<Node<TaskAllocation>>(ta.getID(), ta);
                 node1->setData(ta);
                 Graph<TaskAllocation> allocationGraph;
                 allocationGraph.addNode(node1);
 
+
                 AStarSearch<TaskAllocation> graphAllocateAndSchedule(allocationGraph, node1);
                 graphAllocateAndSchedule.search(isGoal, expander, package);
                 nodes_expanded += graphAllocateAndSchedule.nodesExpanded;
+                nodes_searched += graphAllocateAndSchedule.nodesSearched;
+                taTime.recordSplit("TA");
+                taTime.stop();
 
                 if(package->foundGoal)
                 {
@@ -184,7 +197,10 @@ namespace grstaps
                     auto potential_ta = std::get<1>(potential_successors[i]);
                     auto m_solution =
                         std::make_shared<Solution>(std::shared_ptr<Plan>(potential_plan),
-                                                   std::make_shared<TaskAllocation>(potential_ta), nodes_expanded);
+                                                   std::make_shared<TaskAllocation>(potential_ta), nodes_expanded, nodes_searched);
+
+                    planTime.recordSplit("PLAN");
+                    planTime.stop();
                     return m_solution;
                 }
             }
@@ -197,6 +213,8 @@ namespace grstaps
 
             task_planner.update(base, valid_successors);
         }
+
+
 
         delete package;
         return nullptr;

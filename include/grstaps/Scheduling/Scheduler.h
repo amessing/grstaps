@@ -27,6 +27,7 @@
 
 #include <../lib/unordered_map/robin_hood.h>
 #include <boost/heap/binomial_heap.hpp>
+#include <grstaps/Timer.h>
 
 namespace grstaps
 {

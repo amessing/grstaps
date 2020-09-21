@@ -88,6 +88,7 @@ namespace grstaps
         bool updateCurrent();
 
         int nodesExpanded;
+        int nodesSearched;
 
        private:
         nodePtr<Data> currentNode;
@@ -102,6 +103,7 @@ namespace grstaps
         currentNode = initPtr;  // variable the holds the current explored node
         frontier.push(initPtr);
         nodesExpanded = 0;
+        nodesSearched = 0;
     }
 
     template <class Data>
@@ -181,6 +183,7 @@ namespace grstaps
         {
             (*expander)(this->graph, this->currentNode);
             float currentCost = this->currentNode->getPathCost();
+            nodesExpanded += this->currentNode->leavingEdges.size();
             for(auto itr = this->currentNode->leavingEdges.begin(); itr != this->currentNode->leavingEdges.end(); ++itr)
             {
                 auto node = this->graph.findNode(itr->second->getTailNode());
@@ -210,7 +213,7 @@ namespace grstaps
             currentNode = frontier.top();
             closedList.push(currentNode);
             frontier.pop();
-            nodesExpanded += 1;
+            nodesSearched += 1;
         }
         return searchFailed;
     }
