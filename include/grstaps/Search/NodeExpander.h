@@ -46,7 +46,7 @@ namespace grstaps
          * \param cost object
          *
          */
-        NodeExpander(boost::shared_ptr<Heuristic>, boost::shared_ptr<Cost>);
+        NodeExpander(boost::shared_ptr<const Heuristic>, boost::shared_ptr<const Cost>);
 
         /**
          * Constructor
@@ -59,10 +59,10 @@ namespace grstaps
 
         // This operator overloading enables calling
         // operator function () on objects of increment
-        virtual bool operator()(Graph<Data>&, nodePtr<Data>) = 0;
+        virtual bool operator()(Graph<Data>&, nodePtr<Data>) const = 0;
 
-        boost::shared_ptr<Heuristic> heuristicFunc;  //!< heuristic object
-        boost::shared_ptr<Cost> costFunc;            //!< cost object
+        boost::shared_ptr<const Heuristic> heuristicFunc;  //!< heuristic object
+        boost::shared_ptr<const Cost> costFunc;            //!< cost object
     };
 
 }  // namespace grstaps

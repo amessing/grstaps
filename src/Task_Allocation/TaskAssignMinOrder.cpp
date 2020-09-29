@@ -23,7 +23,7 @@ namespace grstaps
 {
     float TaskAssignMinOrder::operator()(const Graph<TaskAllocation> &graph,
                                          const TaskAllocation &parentNode,
-                                         TaskAllocation &newNode)
+                                         TaskAllocation &newNode) const
     {
         return newNode.getGoalDistance();
     }

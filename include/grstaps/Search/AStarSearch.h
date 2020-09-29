@@ -77,8 +77,8 @@ namespace grstaps
          *
          * \returns a search results object that contains all needed return information from the search
          */
-        virtual void search(boost::shared_ptr<GoalLocator<TaskAllocation>> goal,
-                            boost::shared_ptr<NodeExpander<TaskAllocation>>,
+        virtual void search(boost::shared_ptr<const GoalLocator<TaskAllocation>> goal,
+                            boost::shared_ptr<const NodeExpander<TaskAllocation>>,
                             SearchResultPackager<Data> *) override;
 
         /**
@@ -86,6 +86,9 @@ namespace grstaps
          *
          */
         bool updateCurrent();
+
+        //! \returns Whether the frontier is empty
+        bool empty() const;
 
         int nodesExpanded;
         int nodesSearched;
@@ -174,15 +177,21 @@ namespace grstaps
     */
 
     template <class Data>
-    void AStarSearch<Data>::search(boost::shared_ptr<GoalLocator<TaskAllocation>> goal,
-                                   boost::shared_ptr<NodeExpander<TaskAllocation>> expander,
+    void AStarSearch<Data>::search(boost::shared_ptr<const GoalLocator<TaskAllocation>> goal,
+                                   boost::shared_ptr<const NodeExpander<TaskAllocation>> expander,
                                    SearchResultPackager<Data> *results)
     {
         bool searchFailed = updateCurrent();
-        while(!searchFailed && !(*goal)(this->graph, currentNode))
+        while(!searchFailed)
         {
+            if((*goal)(this->graph, currentNode))
+            {
+                results->addResults(this->graph, currentNode, searchFailed);
+                return;
+            }
+
             (*expander)(this->graph, this->currentNode);
-            float currentCost = this->currentNode->getPathCost();
+            //float currentCost = this->currentNode->getPathCost();
             nodesExpanded += this->currentNode->leavingEdges.size();
             for(auto itr = this->currentNode->leavingEdges.begin(); itr != this->currentNode->leavingEdges.end(); ++itr)
             {
@@ -216,6 +225,12 @@ namespace grstaps
             nodesSearched += 1;
         }
         return searchFailed;
+    }
+
+    template <typename Data>
+    bool AStarSearch<Data>::empty() const
+    {
+        return frontier.empty();
     }
 
 }  // namespace grstaps

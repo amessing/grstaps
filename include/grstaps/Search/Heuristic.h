@@ -37,7 +37,7 @@ namespace grstaps
          * \param the new node to find cost of
          *
          */
-        virtual float operator()(const Graph<TaskAllocation> &graph, const TaskAllocation &parentNode, TaskAllocation &newNode) = 0;
+        virtual float operator()(const Graph<TaskAllocation> &graph, const TaskAllocation &parentNode, TaskAllocation &newNode) const = 0;
     };
 }  // namespace grstaps
 #endif  // GSTAPS_HEURISTIC_H

@@ -60,8 +60,8 @@ namespace grstaps
          *
          * \returns a search results object that contains all needed return information from the search
          */
-        virtual void search(boost::shared_ptr<GoalLocator<TaskAllocation>>,
-                            boost::shared_ptr<NodeExpander<TaskAllocation>>,
+        virtual void search(boost::shared_ptr<const GoalLocator<TaskAllocation>>,
+                            boost::shared_ptr<const NodeExpander<TaskAllocation>>,
                             SearchResultPackager<Data> *) = 0;
 
        protected:

@@ -58,10 +58,51 @@ namespace grstaps
          */
         std::shared_ptr<Solution> solve(Problem& problem);
 
+        /**
+         * Runs the system in a sequential fashion
+         *
+         * \param problem The problem to solve
+         *
+         * \returns The solution if one can be found
+         */
+        std::shared_ptr<Solution> solveSequentially(Problem& problem);
+
         void writeSolution(const std::string& folder, std::shared_ptr<Solution> solution);
 
        private:
-        void planSubcomponents(Plan* base, std::vector<const Plan*>& plan_subcomponents);
+        /**
+         * \brief Split up a plan and its ancestry into \p plan_subcomponents
+         *
+         * @param base
+         * @param plan_subcomponents
+         */
+        void planSubcomponents(const Plan* base, std::vector<const Plan*>& plan_subcomponents);
+
+        /**!
+         *
+         * @param config
+         * @param motion_planners
+         */
+        boost::shared_ptr<std::vector<boost::shared_ptr<MotionPlanner>>> setupMotionPlanners(const Problem& problem);
+
+        /**!
+         * \brief Fills all the vectors needed by task allocation and scheduling
+         *
+         * @param plan
+         * @param ordering_constraints
+         * @param durations
+         * @param noncum_trait_cutoff
+         * @param goal_distribution
+         * @param action_locations
+         */
+        void setupTaskAllocationParameters(const Plan* plan,
+                                           const Problem& problem,
+                                           boost::shared_ptr<std::vector<std::vector<int>>> ordering_constraints,
+                                           boost::shared_ptr<std::vector<float>> durations,
+                                           boost::shared_ptr<std::vector<std::vector<float>>> noncum_trait_cutoff,
+                                           boost::shared_ptr<std::vector<std::vector<float>>> goal_distribution,
+                                           boost::shared_ptr<std::vector<std::pair<unsigned int, unsigned int>>> action_locations);
+
         std::string planToPDDL();
         void writeTrace(std::ofstream& f, Plan* p);
         int total_ta_node_expanded;

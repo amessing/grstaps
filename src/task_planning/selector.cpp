@@ -3,20 +3,20 @@
 namespace grstaps
 {
     /*******************************************/
-/* SearchQueue                             */
-/*******************************************/
+    /* SearchQueue                             */
+    /*******************************************/
 
     SearchQueue::SearchQueue(int index)
     {
         this->index = index;
         pq.reserve(INITIAL_PQ_CAPACITY);
-        pq.push_back(nullptr);    // Position 0 empty
+        pq.push_back(nullptr);  // Position 0 empty
         plan_position.reserve(INITIAL_PQ_CAPACITY);
-        best_h = FLOAT_INFINITY;
+        best_h     = FLOAT_INFINITY;
         improved_h = true;
     }
 
-// Adds a new plan to the list of open nodes
+    // Adds a new plan to the list of open nodes
     void SearchQueue::add(Plan* p)
     {
         unsigned int gap = pq.size();
@@ -24,22 +24,22 @@ namespace grstaps
         pq.push_back(nullptr);
         while(gap > 1 && p->compare(pq[gap >> 1], index) < 0)
         {
-            parent = gap >> 1;
+            parent                        = gap >> 1;
             plan_position[pq[parent]->id] = gap;
-            pq[gap] = pq[parent];
-            gap = parent;
+            pq[gap]                       = pq[parent];
+            gap                           = parent;
         }
-        pq[gap] = p;
+        pq[gap]              = p;
         plan_position[p->id] = gap;
     }
 
-// Removes and returns the best plan in the queue of open nodes
+    // Removes and returns the best plan in the queue of open nodes
     Plan* SearchQueue::poll()
     {
         Plan* best = pq[1];
         if(pq.size() > 2)
         {
-            pq[1] = pq.back();
+            pq[1]                    = pq.back();
             plan_position[pq[1]->id] = 1;
             pq.pop_back();
             heapify(1);
@@ -51,10 +51,10 @@ namespace grstaps
         return best;
     }
 
-// Repairs the order in the priority queue
+    // Repairs the order in the priority queue
     void SearchQueue::heapify(unsigned int gap)
     {
-        Plan* aux = pq[gap];
+        Plan* aux          = pq[gap];
         unsigned int child = gap << 1;
         while(child < pq.size())
         {
@@ -65,37 +65,39 @@ namespace grstaps
             if(pq[child]->compare(aux, index) < 0)
             {
                 plan_position[pq[child]->id] = gap;
-                pq[gap] = pq[child];
-                gap = child;
-                child = gap << 1;
+                pq[gap]                      = pq[child];
+                gap                          = child;
+                child                        = gap << 1;
             }
             else
-            { break; }
+            {
+                break;
+            }
         }
-        pq[gap] = aux;
+        pq[gap]                = aux;
         plan_position[aux->id] = gap;
     }
 
     void SearchQueue::remove(Plan* p)
     {
         uint32_t k = plan_position[p->id], parent;
-        Plan* ult = pq.back();
+        Plan* ult  = pq.back();
         pq.pop_back();
         if(ult->compare(p, index) < 0)
         {
             while(k > 1 && ult->compare(pq[k >> 1], index) < 0)
             {
-                parent = k >> 1;
+                parent                        = k >> 1;
                 plan_position[pq[parent]->id] = k;
-                pq[k] = pq[parent];
-                k = parent;
+                pq[k]                         = pq[parent];
+                k                             = parent;
             }
-            pq[k] = ult;
+            pq[k]                  = ult;
             plan_position[ult->id] = k;
         }
         else
         {
-            pq[k] = ult;
+            pq[k]                  = ult;
             plan_position[ult->id] = k;
             heapify(k);
         }
@@ -105,19 +107,18 @@ namespace grstaps
     {
         plan_position.clear();
         pq.clear();
-        pq.push_back(nullptr);    // Position 0 empty
+        pq.push_back(nullptr);  // Position 0 empty
     }
 
-
-/*******************************************/
-/* Selector                               */
-/*******************************************/
+    /*******************************************/
+    /* Selector                               */
+    /*******************************************/
 
     Selector::Selector()
     {
-        current_queue = 0;
-        overall_best_plan = nullptr;
-        overallBest = FLOAT_INFINITY;
+        current_queue                = 0;
+        overall_best_plan            = nullptr;
+        overallBest                  = FLOAT_INFINITY;
         iterations_without_improving = 0;
     }
 
@@ -129,11 +130,11 @@ namespace grstaps
     bool Selector::add(Plan* p)
     {
         SearchQueue* q = queues[current_queue];
-        float ph = p->getH(q->getIndex());
+        float ph       = p->getH(q->getIndex());
         if(ph < q->best_h)
         {
             q->improved_h = true;
-            q->best_h = ph;
+            q->best_h     = ph;
         }
         for(unsigned int i = 0; i < queues.size(); i++)
         {
@@ -142,9 +143,9 @@ namespace grstaps
         if(p->h < overallBest)
         {
             iterations_without_improving = 0;
-            overallBest = p->h;
-            overall_best_plan = p;
-            //cout << "[" << q->getIndex() << "]" << overallBest << endl;
+            overallBest                  = p->h;
+            overall_best_plan            = p;
+            // cout << "[" << q->getIndex() << "]" << overallBest << endl;
             return true;
         }
         return false;
@@ -160,14 +161,16 @@ namespace grstaps
         }
     }
 
-// Removes and returns the best plan in the queue of open nodes
+    // Removes and returns the best plan in the queue of open nodes
     Plan* Selector::poll()
     {
         SearchQueue* q = queues[current_queue];
         if(!q->improved_h)
         {
             if(++current_queue >= (int)queues.size())
-            { current_queue = 0; }
+            {
+                current_queue = 0;
+            }
             q = queues[current_queue];
         }
         Plan* next = q->poll();
@@ -191,16 +194,16 @@ namespace grstaps
         }
     }
 
-/*******************************************/
-/* Plateau Selector                        */
-/*******************************************/
+    /*******************************************/
+    /* Plateau Selector                        */
+    /*******************************************/
 
     PlateauSelector::PlateauSelector(int qtype)
     {
         q = new SearchQueue(qtype);
     }
 
-// Removes and returns the best plan in the queue of open nodes
+    // Removes and returns the best plan in the queue of open nodes
     Plan* PlateauSelector::poll()
     {
         return q->poll();
@@ -208,7 +211,7 @@ namespace grstaps
 
     Plan* PlateauSelector::randomPoll()
     {
-        int n = 1 + (rand() % (q->size()));
+        int n      = 1 + (rand() % (q->size()));
         Plan* next = q->getPlanAt(n);
         q->remove(next);
         return next;
@@ -228,9 +231,9 @@ namespace grstaps
         }
     }
 
-/*******************************************/
-/* Quality Selector                        */
-/*******************************************/
+    /*******************************************/
+    /* Quality Selector                        */
+    /*******************************************/
 
     void QualitySelector::initialize(float bestQualityFound, uint16_t numAct, Successors* suc)
     {
@@ -241,7 +244,7 @@ namespace grstaps
     void QualitySelector::setBestPlanQuality(float bestQualityFound, uint16_t numAct)
     {
         best_quality = bestQualityFound;
-        num_actions = numAct;
+        num_actions  = numAct;
     }
 
     Plan* QualitySelector::poll()
@@ -250,7 +253,9 @@ namespace grstaps
         while(!improves(next))
         {
             if(q_ff->size() == 0)
-            { return nullptr; }
+            {
+                return nullptr;
+            }
             next = q_ff->poll();
         }
         return next;
@@ -263,5 +268,4 @@ namespace grstaps
             q_ff->add(p);
         }
     }
-}
-
+}  // namespace grstaps

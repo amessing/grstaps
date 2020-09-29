@@ -41,7 +41,9 @@ namespace grstaps
          *
          * \param plan A partial-order plan
          */
-        Solution(std::shared_ptr<Plan> plan, std::shared_ptr<TaskAllocation> allocation, int num_ta_nodes, int num_ta_nodes_searched);
+        Solution(std::shared_ptr<Plan> plan,
+                 std::shared_ptr<TaskAllocation> allocation,
+                 const nlohmann::json& metrics);
 
         /**
          * Writes the solution to file
@@ -60,11 +62,15 @@ namespace grstaps
          */
         const TaskAllocation& allocation() const;
 
+        /**
+         * \returns The metrics
+         */
+        const nlohmann::json& metrics() const;
+
        private:
         std::shared_ptr<Plan> m_plan;  //!< A partial-order plan
         std::shared_ptr<grstaps::TaskAllocation> m_allocation;
-        int numTaExpanded;
-        int numTaSearched;
+        nlohmann::json m_metrics;
 
         void planSubcomponents(Plan* base, std::vector<const Plan*>& plan_subcomponents);
     };

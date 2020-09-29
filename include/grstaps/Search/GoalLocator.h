@@ -40,7 +40,7 @@ namespace grstaps
        public:
         // This operator overloading enables calling
         // operator function () on objects of increment
-        virtual bool operator()(const Graph<Data>&, nodePtr<Data>) = 0;
+        virtual bool operator()(const Graph<Data>&, nodePtr<Data>) const = 0;
     };
 
 }  // namespace grstaps
