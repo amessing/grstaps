@@ -8,24 +8,25 @@
 #include <set>
 
 // external
-#include <nlohmann/json.hpp>
 #include <fmt/format.h>
+
+#include <nlohmann/json.hpp>
 
 // local
 #include "grstaps/Connections/taskAllocationToScheduling.h"
 #include "grstaps/Task_Allocation/TaskAllocation.h"
-#include "grstaps/task_planning/plan.hpp"
 #include "grstaps/motion_planning/motion_planner.hpp"
+#include "grstaps/task_planning/plan.hpp"
 
 namespace grstaps
 {
-    Solution::Solution(std::shared_ptr<Plan> plan, std::shared_ptr<TaskAllocation> allocation, int num_ta_nodes, int num_ta_nodes_searched)
-    {
-        m_plan       = plan;
-        m_allocation = allocation;
-        numTaExpanded = num_ta_nodes;
-        numTaSearched = num_ta_nodes_searched;
-    }
+    Solution::Solution(std::shared_ptr<Plan> plan,
+                       std::shared_ptr<TaskAllocation> allocation,
+                       const nlohmann::json& metrics)
+        : m_plan(plan)
+        , m_allocation(allocation)
+        , m_metrics(metrics)
+    {}
 
     void Solution::write(const std::string& filepath)
     {
@@ -37,9 +38,8 @@ namespace grstaps
         std::set<std::pair<uint16_t, uint16_t>> ordering_constraints;
 
         // Ignore #initial and <goal>
-        j["schedule"] = nlohmann::json();
-        const auto motion_plans =
-            m_allocation->taToScheduling.saveMotionPlanningNonSpeciesSchedule(m_allocation.get());
+        j["schedule"]           = nlohmann::json();
+        const auto motion_plans = m_allocation->taToScheduling.saveMotionPlanningNonSpeciesSchedule(m_allocation.get());
         if(motion_plans.first)
         {
             for(unsigned int i = 1; i < plan_subcomponents.size() - 1; ++i)
@@ -68,9 +68,7 @@ namespace grstaps
 
             j["allocation"] = m_allocation->getID();
 
-            j["Task_Alloc_Nodes_Expanded"] = numTaExpanded;
-
-            j["Task_Alloc_Nodes_Searched"] = numTaSearched;
+            j["metrics"] = m_metrics;
 
             j["makespan"] = m_allocation->taToScheduling.sched.getMakeSpan();
 
@@ -100,22 +98,9 @@ namespace grstaps
             }
         }
 
-        Timer splitRetrieval;
-        splitRetrieval.calcSplits();
-        //splitRetrieval.printSplits();
-
-        j["Task_Alloc_Time"] = splitRetrieval.taTime;
-        j["Planning_Time"] = splitRetrieval.planTime;
-        j["Scheduling_Time"] = splitRetrieval.schedTime;
-        j["Motion_Planning_Time"] = splitRetrieval.mpTime;
-
         std::ofstream output;
         output.open(filepath.c_str());
         output << j.dump(4);
-
-
-
-
     }
 
     const Plan& Solution::plan() const
@@ -126,6 +111,11 @@ namespace grstaps
     const TaskAllocation& Solution::allocation() const
     {
         return *m_allocation;
+    }
+
+    const nlohmann::json& Solution::metrics() const
+    {
+        return m_metrics;
     }
 
     void Solution::planSubcomponents(Plan* base, std::vector<const Plan*>& plan_subcomponents)

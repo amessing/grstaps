@@ -27,9 +27,9 @@
 
 namespace grstaps
 {
-    float allocationWeight = 0.5;
-
-    float AllocationDistance::operator()(const Graph<TaskAllocation> &graph, const TaskAllocation &parentNode, TaskAllocation &newNode)
+    float AllocationDistance::operator()(const Graph<TaskAllocation> &graph,
+                                         const TaskAllocation &parentNode,
+                                         TaskAllocation &newNode) const
     {
         return (newNode.getGoalDistance()) / (*newNode.startingGoalDistance);
     }

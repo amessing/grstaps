@@ -23,7 +23,7 @@
 
 namespace grstaps
 {
-    float TAScheduleTime::operator()(const Graph<TaskAllocation> &graph, const TaskAllocation &parentNode, TaskAllocation &newNode)
+    float TAScheduleTime::operator()(const Graph<TaskAllocation> &graph, const TaskAllocation &parentNode, TaskAllocation &newNode) const
     {
         auto score = newNode.getScheduleTime();
         if(score > 0)

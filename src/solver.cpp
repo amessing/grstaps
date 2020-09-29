@@ -25,6 +25,7 @@
 #include "grstaps/Scheduling/TAScheduleTime.h"
 #include "grstaps/Search/AStarSearch.h"
 #include "grstaps/Search/UniformCostSearch.h"
+#include "grstaps/Task_Allocation/AllocationDistance.h"
 #include "grstaps/Task_Allocation/AllocationExpander.h"
 #include "grstaps/Task_Allocation/AllocationIsGoal.h"
 #include "grstaps/Task_Allocation/AllocationResultsPackager.h"
@@ -48,39 +49,27 @@ namespace grstaps
 
         // Task planner
         TaskPlanner task_planner(problem.task());
+        unsigned int tplan_nodes_expanded = 0;
+        unsigned int tplan_nodes_visited  = 0;
+        unsigned int tplan_nodes_pruned   = 0;
         Plan* base;
 
         // Motion Planning
-        const std::vector<std::vector<b2PolygonShape>>& obstacles =  problem.obstacles();
-        auto motion_planners = boost::make_shared<std::vector<boost::shared_ptr<MotionPlanner>>>();
-        motion_planners->reserve(obstacles.size());
-        const float boundary_min      = config["mp_boundary_min"];
-        const float boundary_max      = config["mp_boundary_max"];
-        const float query_time        = config["mp_query_time"];
-        const float connection_range  = config["mp_connection_range"];
-        for(int i = 0; i < obstacles.size(); ++i)
-        {
-            auto motion_planner = boost::make_shared<MotionPlanner>();
-            motion_planner->setMap(obstacles[i], boundary_min, boundary_max);
-            motion_planner->setLocations(problem.locations());
-            motion_planner->setQueryTime(query_time);
-            motion_planner->setConnectionRange(connection_range);
-            motion_planners->push_back(motion_planner);
-        }
+        auto motion_planners = setupMotionPlanners(problem);
 
 
         // Task Allocation
         taskAllocationToScheduling taToSched(motion_planners, &problem.startingLocations());
         bool usingSpecies = false;
-        int nodes_expanded = 0;
-        int nodes_searched = 0;
+        unsigned int talloc_nodes_expanded = 0;
+        unsigned int talloc_nodes_visited  = 0;
 
         // Also can any of them be const? That will help with multithreading in the future (fewer mutexes)
-        boost::shared_ptr<Heuristic> heur = boost::make_shared<TAGoalDist>();
-        boost::shared_ptr<Cost> cos       = boost::make_shared<TAScheduleTime>();
+        auto heuristic = boost::make_shared<const TAGoalDist>();
+        auto path_cost = boost::make_shared<const TAScheduleTime>();
 
-        boost::shared_ptr<GoalLocator<TaskAllocation>> isGoal    = boost::make_shared<AllocationIsGoal>();
-        boost::shared_ptr<NodeExpander<TaskAllocation>> expander = boost::make_shared<AllocationExpander>(heur, cos);
+        auto isGoal    = boost::make_shared<const AllocationIsGoal>();
+        auto expander = boost::make_shared<const AllocationExpander>(heuristic, path_cost);
         SearchResultPackager<TaskAllocation>* package            = new AllocationResultsPackager();
 
         auto numSpec     = boost::make_shared<std::vector<int>>(problem.robotTraits().size(), 1);
@@ -92,6 +81,7 @@ namespace grstaps
         while(!task_planner.emptySearchSpace())
         {
             base = task_planner.poll();
+            ++tplan_nodes_expanded;
             Logger::debug("Expanding plan: {}", base->id);
             std::vector<Plan*> successors = task_planner.getNextSuccessors(base);
             unsigned int num_children     = successors.size();
@@ -105,46 +95,18 @@ namespace grstaps
                 auto durations         = boost::make_shared<std::vector<float>>();
                 auto noncumTraitCutoff = boost::make_shared<std::vector<std::vector<float>>>();
                 auto goalDistribution  = boost::make_shared<std::vector<std::vector<float>>>();
-                boost::shared_ptr<std::vector<std::pair<unsigned int, unsigned int>>>  actionLocations = boost::make_shared<std::vector<std::pair<unsigned int, unsigned int>>>();
+                auto  actionLocations = boost::make_shared<std::vector<std::pair<unsigned int, unsigned int>>>();
 
                 Plan* plan = successors[i];
+                setupTaskAllocationParameters(plan,
+                                              problem,
+                                              orderingCon,
+                                              durations,
+                                              noncumTraitCutoff,
+                                              goalDistribution,
+                                              actionLocations);
 
-                // Fill in vectors for TA and Scheduling
-                std::vector<const Plan*> plan_subcomponents;
-                planSubcomponents(plan, plan_subcomponents);
-                std::set<std::pair<uint16_t, uint16_t>> order_constraints;
-                for(unsigned int j = 0; j < plan_subcomponents.size(); ++j)
-                {
-                    const Plan* subcomponent = plan_subcomponents[j];
-                    // Ignore the fictitious action
-                    // TODO: ignore TILs?
-                    if(subcomponent->action->name != "<goal>" && subcomponent->action->name != "#initial")
-                    {
-                        for(unsigned int k = 0; k < subcomponent->orderings.size(); ++k)
-                        {
-                            // uint16_t
-                            TTimePoint fp = firstPoint(subcomponent->orderings[k]);
-                            TTimePoint sp = secondPoint(subcomponent->orderings[k]);
-                            // Time points are based on start and end snap actions
-                            // Also remove the initial action
-                            order_constraints.insert({fp / 2 - 1, sp / 2 - 1});
-                        }
-
-                        durations->push_back(subcomponent->action->duration[0].exp.value);
-
-                        noncumTraitCutoff->push_back(
-                            problem.actionNonCumRequirements[problem.actionToRequirements[subcomponent->action->name]]);
-                        goalDistribution->push_back(
-                            problem.actionRequirements[problem.actionToRequirements[subcomponent->action->name]]);
-                        actionLocations->push_back(problem.actionLocation(subcomponent->action->name));
-                    }
-                }
                 taToSched.setActionLocations(actionLocations);
-
-                for(auto oc: order_constraints)
-                {
-                    orderingCon->push_back({oc.first, oc.second});
-                }
 
                 Timer taTime;
                 taTime.start();
@@ -161,22 +123,21 @@ namespace grstaps
                                   problem.mpIndex);
 
 
-                auto node1 = boost::make_shared<Node<TaskAllocation>>(ta.getID(), ta);
-                node1->setData(ta);
+                auto root = boost::make_shared<Node<TaskAllocation>>(ta.getID(), ta);
+                root->setData(ta);
                 Graph<TaskAllocation> allocationGraph;
-                allocationGraph.addNode(node1);
+                allocationGraph.addNode(root);
 
-
-                AStarSearch<TaskAllocation> graphAllocateAndSchedule(allocationGraph, node1);
+                AStarSearch<TaskAllocation> graphAllocateAndSchedule(allocationGraph, root);
                 graphAllocateAndSchedule.search(isGoal, expander, package);
-                nodes_expanded += graphAllocateAndSchedule.nodesExpanded;
-                nodes_searched += graphAllocateAndSchedule.nodesSearched;
+                talloc_nodes_expanded += graphAllocateAndSchedule.nodesExpanded;
+                talloc_nodes_visited += graphAllocateAndSchedule.nodesSearched;
                 taTime.recordSplit("TA");
                 taTime.stop();
 
                 if(package->foundGoal)
                 {
-                    successors[i]->h = package->finalNode->getData().taToScheduling.sched.getMakeSpan();
+                    successors[i]->gc = package->finalNode->getData().taToScheduling.sched.getMakeSpan();
                     potential_successors.push_back({successors[i], package->finalNode->getData()});
                 }
             }
@@ -193,14 +154,27 @@ namespace grstaps
                 auto* potential_plan = std::get<0>(potential_successors[i]);
                 if(potential_plan->isSolution())
                 {
-                    delete package;
-                    auto potential_ta = std::get<1>(potential_successors[i]);
-                    auto m_solution =
-                        std::make_shared<Solution>(std::shared_ptr<Plan>(potential_plan),
-                                                   std::make_shared<TaskAllocation>(potential_ta), nodes_expanded, nodes_searched);
-
                     planTime.recordSplit("PLAN");
                     planTime.stop();
+                    delete package;
+                    auto potential_ta = std::get<1>(potential_successors[i]);
+
+                    nlohmann::json metrics = {
+                        {"makespan", potential_ta.getScheduleTime()},
+                        {"num_actions", (*potential_ta.actionDurations).size()},
+                        {"num_tp_nodes_expanded", tplan_nodes_expanded},
+                        {"num_tp_nodes_visited", tplan_nodes_visited},
+                        {"num_tp_nodes_pruned", tplan_nodes_pruned},
+                        {"num_ta_nodes_expanded", talloc_nodes_expanded},
+                        {"num_ta_nodes_visited", talloc_nodes_visited},
+                        {"timers", planTime}
+                    };
+
+                    auto m_solution =
+                        std::make_shared<Solution>(std::shared_ptr<Plan>(potential_plan),
+                                                   std::make_shared<TaskAllocation>(potential_ta),
+                                                       metrics);
+
                     return m_solution;
                 }
             }
@@ -211,10 +185,145 @@ namespace grstaps
                 valid_successors.push_back(std::move(std::get<0>(*it)));
             }
 
+            tplan_nodes_pruned += potential_successors.size() - valid_successors.size();
+            tplan_nodes_visited += valid_successors.size();
             task_planner.update(base, valid_successors);
         }
+        planTime.recordSplit("PLAN");
+        planTime.stop();
+
+        delete package;
+        return nullptr;
+    }
+
+    std::shared_ptr<Solution> Solver::solveSequentially(Problem& problem)
+    {
+        // Initialize everything
+        const nlohmann::json& config = problem.config();
+
+        // Task planner
+        TaskPlanner task_planner(problem.task());
+        unsigned int tplan_nodes_expanded = 0;
+        unsigned int tplan_nodes_visited  = 0;
+        Plan* base;
+
+        // Motion Planning
+        auto motion_planners = setupMotionPlanners(problem);
 
 
+        // Task Allocation
+        taskAllocationToScheduling taToSched(motion_planners, &problem.startingLocations());
+        bool usingSpecies = false;
+        unsigned int talloc_nodes_expanded = 0;
+        unsigned int talloc_nodes_visited  = 0;
+
+        // Also can any of them be const? That will help with multithreading in the future (fewer mutexes)
+        auto heur = boost::make_shared<const AllocationDistance>();
+        auto cos       = boost::make_shared<const TAScheduleTime>();
+
+        auto isGoal    = boost::make_shared<const AllocationIsGoal>();
+        auto expander = boost::make_shared<const AllocationExpander>(heur, cos);
+        SearchResultPackager<TaskAllocation>* package            = new AllocationResultsPackager();
+
+        auto numSpec     = boost::make_shared<std::vector<int>>(problem.robotTraits().size(), 1);
+        auto robotTraits = &problem.robotTraits();
+
+        Timer planTime;
+        planTime.start();
+
+        while(!task_planner.emptySearchSpace())
+        {
+            base = task_planner.poll();
+            ++tplan_nodes_expanded;
+            Logger::debug("Expanding plan: {}", base->id);
+            std::vector<Plan*> successors = task_planner.getNextSuccessors(base);
+            for(Plan* plan : successors)
+            {
+                if(plan->isSolution())
+                {
+                    auto orderingCon       = boost::make_shared<std::vector<std::vector<int>>>();
+                    auto durations         = boost::make_shared<std::vector<float>>();
+                    auto noncumTraitCutoff = boost::make_shared<std::vector<std::vector<float>>>();
+                    auto goalDistribution  = boost::make_shared<std::vector<std::vector<float>>>();
+                    auto  actionLocations = boost::make_shared<std::vector<std::pair<unsigned int, unsigned int>>>();
+
+                    setupTaskAllocationParameters(plan,
+                                                  problem,
+                                                  orderingCon,
+                                                  durations,
+                                                  noncumTraitCutoff,
+                                                  goalDistribution,
+                                                  actionLocations);
+
+                    taToSched.setActionLocations(actionLocations);
+                    Timer taTime;
+                    taTime.start();
+
+                    TaskAllocation ta(usingSpecies,
+                                      goalDistribution,
+                                      robotTraits,
+                                      noncumTraitCutoff,
+                                      taToSched,
+                                      durations,
+                                      orderingCon,
+                                      numSpec,
+                                      problem.speedIndex,
+                                      problem.mpIndex);
+
+
+                    auto root = boost::make_shared<Node<TaskAllocation>>(ta.getID(), ta);
+                    root->setData(ta);
+                    Graph<TaskAllocation> allocationGraph;
+                    allocationGraph.addNode(root);
+
+                    AStarSearch<TaskAllocation> graphAllocateAndSchedule(allocationGraph, root);
+
+                    while(!graphAllocateAndSchedule.empty())
+                    {
+                        graphAllocateAndSchedule.search(isGoal, expander, package);
+                        talloc_nodes_expanded += graphAllocateAndSchedule.nodesExpanded;
+                        talloc_nodes_visited += graphAllocateAndSchedule.nodesSearched;
+                        taTime.recordSplit("TA");
+                        taTime.stop();
+
+                        if(package->foundGoal)
+                        {
+                            // if a schedule cannot be found then continue allocating
+                            if(package->finalNode->getData().getScheduleTime() < 0.0)
+                            {
+                                continue;
+                            }
+
+                            planTime.recordSplit("PLAN");
+                            planTime.stop();
+                            delete package;
+
+                            // todo: finish adding metrics
+                            nlohmann::json metrics = {
+                                {"makespan", package->finalNode->getData().getScheduleTime()},
+                                {"num_actions", (*package->finalNode->getData().actionDurations).size()},
+                                {"num_tp_nodes_expanded", tplan_nodes_expanded},
+                                {"num_tp_nodes_visited", tplan_nodes_visited},
+                                {"num_ta_nodes_expanded", talloc_nodes_expanded},
+                                {"num_ta_nodes_visited", talloc_nodes_visited},
+                                {"timers", planTime}
+                            };
+                            auto m_solution = std::make_shared<Solution>(
+                                std::shared_ptr<Plan>(plan),
+                                std::make_shared<TaskAllocation>(package->finalNode->getData()),
+                                metrics);
+                            return m_solution;
+                        }
+                    }
+                }
+            }
+
+            // if no solution is found update the task planner and continue search
+            tplan_nodes_visited += successors.size();
+            task_planner.update(base, successors);
+        }
+        planTime.recordSplit("PLAN");
+        planTime.stop();
 
         delete package;
         return nullptr;
@@ -231,7 +340,7 @@ namespace grstaps
         solution->write(filepath);
     }
 
-    void Solver::planSubcomponents(Plan* base, std::vector<const Plan*>& plan_subcomponents)
+    void Solver::planSubcomponents(const Plan* base, std::vector<const Plan*>& plan_subcomponents)
     {
         if(base == nullptr)
         {
@@ -241,6 +350,75 @@ namespace grstaps
         {
             planSubcomponents(base->parentPlan, plan_subcomponents);
             plan_subcomponents.push_back(base);
+        }
+    }
+    boost::shared_ptr<std::vector<boost::shared_ptr<MotionPlanner>>> Solver::setupMotionPlanners(const Problem& problem)
+    {
+        const std::vector<std::vector<b2PolygonShape>>& obstacles =  problem.obstacles();
+        const nlohmann::json& config = problem.config();
+
+        auto motion_planners = boost::make_shared<std::vector<boost::shared_ptr<MotionPlanner>>>();
+        motion_planners->reserve(obstacles.size());
+
+        const float boundary_min      = config["mp_boundary_min"];
+        const float boundary_max      = config["mp_boundary_max"];
+        const float query_time        = config["mp_query_time"];
+        const float connection_range  = config["mp_connection_range"];
+
+        for(int i = 0; i < obstacles.size(); ++i)
+        {
+            auto motion_planner = boost::make_shared<MotionPlanner>();
+            motion_planner->setMap(obstacles[i], boundary_min, boundary_max);
+            motion_planner->setLocations(problem.locations());
+            motion_planner->setQueryTime(query_time);
+            motion_planner->setConnectionRange(connection_range);
+            motion_planners->push_back(motion_planner);
+        }
+        return motion_planners;
+    }
+    void Solver::setupTaskAllocationParameters(
+        const Plan* plan,
+        const Problem& problem,
+        boost::shared_ptr<std::vector<std::vector<int>>> ordering_constraints,
+        boost::shared_ptr<std::vector<float>> durations,
+        boost::shared_ptr<std::vector<std::vector<float>>> noncum_trait_cutoff,
+        boost::shared_ptr<std::vector<std::vector<float>>> goal_distribution,
+        boost::shared_ptr<std::vector<std::pair<unsigned int, unsigned int>>> action_locations)
+    {
+        // Fill in vectors for TA and Scheduling
+        std::vector<const Plan*> plan_subcomponents;
+        planSubcomponents(plan, plan_subcomponents);
+        std::set<std::pair<uint16_t, uint16_t>> order_constraints;
+        for(unsigned int j = 0; j < plan_subcomponents.size(); ++j)
+        {
+            const Plan* subcomponent = plan_subcomponents[j];
+            // Ignore the fictitious action
+            // TODO: ignore TILs?
+            if(subcomponent->action->name != "<goal>" && subcomponent->action->name != "#initial")
+            {
+                for(unsigned int k = 0; k < subcomponent->orderings.size(); ++k)
+                {
+                    // uint16_t
+                    TTimePoint fp = firstPoint(subcomponent->orderings[k]);
+                    TTimePoint sp = secondPoint(subcomponent->orderings[k]);
+                    // Time points are based on start and end snap actions
+                    // Also remove the initial action
+                    order_constraints.insert({fp / 2 - 1, sp / 2 - 1});
+                }
+
+                durations->push_back(subcomponent->action->duration[0].exp.value);
+
+                noncum_trait_cutoff->push_back(
+                    problem.actionNonCumRequirements[problem.actionToRequirements.at(subcomponent->action->name)]);
+                goal_distribution->push_back(
+                    problem.actionRequirements[problem.actionToRequirements.at(subcomponent->action->name)]);
+                action_locations->push_back(problem.actionLocation(subcomponent->action->name));
+            }
+        }
+
+        for(auto oc: order_constraints)
+        {
+            ordering_constraints->push_back({oc.first, oc.second});
         }
     }
 }  // namespace grstaps

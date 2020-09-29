@@ -60,7 +60,7 @@ target_compile_options(_${PROJECT_NAME} PRIVATE ${_opts})
 # Create executable
 if(BUILD_EXE)
     message("Building executable...")
-    add_executable(${PROJECT_NAME} src/main.cpp src/Task_Allocation/AllocationDistance.cpp src/Task_Allocation/AllocationDistance.h)
+    add_executable(${PROJECT_NAME} src/main.cpp)
     set_target_properties(${PROJECT_NAME} PROPERTIES CXX_STANDARD 17 CXX_STANDARD_REQUIRED YES)
     target_link_libraries(${PROJECT_NAME} PRIVATE
             box2d nlohmann_json spdlog stdc++fs

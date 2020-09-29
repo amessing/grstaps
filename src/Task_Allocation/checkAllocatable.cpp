@@ -4,47 +4,50 @@
 
 #include "grstaps/Task_Allocation/checkAllocatable.h"
 
-bool isAllocatable(const vector<vector<float>>& goalDistribution,
-                   const vector<vector<float>>& speciesDistribution,
-                   const vector<vector<float>>& nonCumTraitCutoff,
-                   boost::shared_ptr<vector<int>> numSpec)
+namespace grstaps
 {
-    vector<float> traitMax;
-    for(int j = 0; j < speciesDistribution[0].size(); ++j)
+    bool isAllocatable(const std::vector<std::vector<float>>& goalDistribution,
+                       const std::vector<std::vector<float>>& speciesDistribution,
+                       const std::vector<std::vector<float>>& nonCumTraitCutoff,
+                       boost::shared_ptr<std::vector<int>> numSpec)
     {
-        traitMax.push_back(0.0);
-        for(int i = 0; i < speciesDistribution.size(); ++i)
+        std::vector<float> traitMax;
+        for(int j = 0; j < speciesDistribution[0].size(); ++j)
         {
-            traitMax[j] += speciesDistribution[i][j] * (*numSpec)[i];
-        }
-    }
-    for(int k = 0; k < goalDistribution.size(); ++k)
-    {
-        for(int i = 0; i < speciesDistribution[0].size(); ++i)
-        {
-            if(nonCumTraitCutoff[k][i] == 0)
+            traitMax.push_back(0.0);
+            for(int i = 0; i < speciesDistribution.size(); ++i)
             {
-                if(goalDistribution[k][i] > traitMax[i])
-                {
-                    return false;
-                }
+                traitMax[j] += speciesDistribution[i][j] * (*numSpec)[i];
             }
-            else
+        }
+        for(int k = 0; k < goalDistribution.size(); ++k)
+        {
+            for(int i = 0; i < speciesDistribution[0].size(); ++i)
             {
-                int count = 0;
-                for(int t = 0; t < speciesDistribution.size(); ++t)
+                if(nonCumTraitCutoff[k][i] == 0)
                 {
-                    if(speciesDistribution[t][i] >= nonCumTraitCutoff[k][i])
+                    if(goalDistribution[k][i] > traitMax[i])
                     {
-                        count += (*numSpec)[i];
+                        return false;
                     }
                 }
-                if(count < goalDistribution[k][i])
+                else
                 {
-                    return false;
+                    int count = 0;
+                    for(int t = 0; t < speciesDistribution.size(); ++t)
+                    {
+                        if(speciesDistribution[t][i] >= nonCumTraitCutoff[k][i])
+                        {
+                            count += (*numSpec)[i];
+                        }
+                    }
+                    if(count < goalDistribution[k][i])
+                    {
+                        return false;
+                    }
                 }
             }
         }
+        return true;
     }
-    return true;
 }

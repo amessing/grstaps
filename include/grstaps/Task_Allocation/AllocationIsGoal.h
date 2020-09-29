@@ -32,7 +32,7 @@ namespace grstaps
     /**
      * Functor for finding a goal in a search problem
      *
-     * \note need to implement a verision of this for our search problems
+     * \note need to implement a version of this for our search problems
      *
      */
     class AllocationIsGoal : public GoalLocator<TaskAllocation>
@@ -41,14 +41,14 @@ namespace grstaps
         /**
          * constructor
          *
-         * \note need to implement a verision of this for our search problems
+         * \note need to implement a version of this for our search problems
          *
          */
         AllocationIsGoal() = default;
 
         // This operator overloading enables calling
         // operator function () on objects of increment
-        virtual bool operator()(const Graph<TaskAllocation>&, nodePtr<TaskAllocation>) override;
+        virtual bool operator()(const Graph<TaskAllocation>&, nodePtr<TaskAllocation>) const override;
     };
 
 }  // namespace grstaps

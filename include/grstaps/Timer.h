@@ -1,58 +1,53 @@
-/*
- * Timer.h
- *
- *  Created on: Jan 2, 2012
- *      Author: William Boyd
- *				MIT, Course 22
- *              wboyd@mit.edu
- */
+#ifndef __GRSTAPS_TIMER_H__
+#define __GRSTAPS_TIMER_H__
 
-#ifndef TIMER_H_
-#define TIMER_H_
-
-#include <time.h>
-#include <sys/time.h>
-#include <iostream>
-#include <stdio.h>
-#include <sstream>
-#include <iomanip>
-#include <utility>
+// Global
+#include <chrono>
 #include <vector>
-#include <string.h>
 
-#ifdef __MACH__		/* For OSX */
-#define timespec timeval
-#endif
+// External
+#include <nlohmann/json.hpp>
 
+namespace grstaps
+{
+    class Timer
+    {
+       public:
+        //! \brief Constructor
+        Timer();
 
-class Timer {
-   protected:
-    timespec start_time, end_time;
-    double elapsed_time;
-    bool running;
-    static std::vector< std::pair<double, const char*> > _timer_splits;
+        //! \brief Start the timer
+        void start();
 
-   public:
-    Timer();
-    virtual ~Timer();
-    void start();
-    void stop();
-    void restart();
-    void reset();
-    void recordSplit(const char* msg);
-    double getTime();
-    double diff(timespec start, timespec end);
-    void printSplits();
-    void calcSplits();
+        //! \brief Stop the timer
+        void stop();
+
+        //! \brief Restart the timer
+        void restart();
 
 
-    float schedTime;
-    float taTime;
-    float planTime;
-    float mpTime;
-    float taToSchedTime;
-
-};
+        void reset();
 
 
-#endif /* TIMER_H_ */
+        void recordSplit(const char* msg);
+        double getTime();
+        double diff(timespec start, timespec end);
+        static void printSplits();
+        static void calcSplits();
+
+        static float s_schedule_time;
+        static float s_talloc_time;
+        static float s_tplan_time;
+        static float s_mp_time;
+
+       private:
+        std::chrono::time_point<std::chrono::system_clock> m_start_time;
+        std::chrono::time_point<std::chrono::system_clock> m_end_time;
+        bool m_running;
+        static std::vector<std::pair<double, const char*> > s_timer_splits;
+    };
+
+    void to_json(nlohmann::json& j, const Timer& t);
+}
+
+#endif // __GRSTAPS_TIMER_H__

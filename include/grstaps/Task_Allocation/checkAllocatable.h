@@ -19,14 +19,17 @@
 #ifndef GRSTAPS_CHECK_ALLOCATABLE_H
 #define GRSTAPS_CHECK_ALLOCATABLE_H
 
+// Global
 #include <vector>
 
+// External
 #include <boost/shared_ptr.hpp>
-using std::vector;
 
-bool isAllocatable(const std::vector<std::vector<float>>& goalDistribution,
-                   const std::vector<std::vector<float>>& speciesDistribution,
-                   const std::vector<std::vector<float>>& nonCumTraitCutoff,
-                   boost::shared_ptr<vector<int>> numSpec);
-
+namespace grstaps
+{
+    bool isAllocatable(const std::vector<std::vector<float>>& goalDistribution,
+                       const std::vector<std::vector<float>>& speciesDistribution,
+                       const std::vector<std::vector<float>>& nonCumTraitCutoff,
+                       boost::shared_ptr<std::vector<int>> numSpec);
+}
 #endif  // GRSTAPS_CHECK_ALLOCATABLE_H

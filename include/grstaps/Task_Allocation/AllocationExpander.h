@@ -48,7 +48,7 @@ namespace grstaps
          * \param the cost object
          *
          */
-        AllocationExpander(boost::shared_ptr<Heuristic>, boost::shared_ptr<Cost>);
+        AllocationExpander(boost::shared_ptr<const Heuristic>, boost::shared_ptr<const Cost>);
 
         /**
          * Expands a  graph by adding a nodes children
@@ -58,7 +58,7 @@ namespace grstaps
          * \param the node whos children you wish to add
          *
          */
-        bool operator()(Graph<TaskAllocation>& graph, nodePtr<TaskAllocation> expandNode) override;
+        bool operator()(Graph<TaskAllocation>& graph, nodePtr<TaskAllocation> expandNode) const override;
 
         /**
          * Gets the id of the new node by editing the parent node
@@ -67,7 +67,7 @@ namespace grstaps
          * \param int representing the task species combo that you are adding too
          *
          */
-        std::string editID(const vector<short>&, const std::string&, int);
+        std::string editID(const vector<short>&, const std::string&, int) const;
     };
 
 }  // namespace grstaps

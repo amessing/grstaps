@@ -26,12 +26,12 @@ namespace grstaps
     template <typename Data>
     using nodePtr = typename boost::shared_ptr<Node<Data>>;
 
-    AllocationExpander::AllocationExpander(boost::shared_ptr<Heuristic> heur, boost::shared_ptr<Cost> cos)
+    AllocationExpander::AllocationExpander(boost::shared_ptr<const Heuristic> heur, boost::shared_ptr<const Cost> cos)
         : NodeExpander(heur, cos)
     {}
 
     // check to prevent duplicate
-    bool AllocationExpander::operator()(Graph<TaskAllocation>& graph, nodePtr<TaskAllocation> expandNode)
+    bool AllocationExpander::operator()(Graph<TaskAllocation>& graph, nodePtr<TaskAllocation> expandNode) const
     {
         TaskAllocation data       = expandNode->getData();
         vector<short> allocation  = data.getAllocation();
@@ -72,7 +72,7 @@ namespace grstaps
         return true;
     }
 
-    std::string AllocationExpander::editID(const vector<short>& allocation, const std::string& parentNodeID, int indexExp)
+    std::string AllocationExpander::editID(const vector<short>& allocation, const std::string& parentNodeID, int indexExp) const
     {
         int idSize       = parentNodeID.length() / (allocation.size());
         string newNodeID = parentNodeID;

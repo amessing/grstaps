@@ -19,7 +19,6 @@
 #ifndef GRSTAPS_ALLOCATIONDISTANCE_H
 #define GRSTAPS_ALLOCATIONDISTANCE_H
 
-
 #include "grstaps/Graph/Graph.h"
 #include "grstaps/Graph/Node.h"
 #include "grstaps/Scheduling/TAScheduleTime.h"
@@ -40,7 +39,9 @@ namespace grstaps
          * \param the new node to find cost of
          *
          */
-        float operator()(const Graph<TaskAllocation> &graph, const TaskAllocation &parentNode, TaskAllocation &newNode) override;
+        float operator()(const Graph<TaskAllocation> &graph,
+                         const TaskAllocation &parentNode,
+                         TaskAllocation &newNode) const override;
     };
 }  // namespace grstaps
 #endif  // GRSTAPS_ALLOCATIONDISTANCE_H

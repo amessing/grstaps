@@ -34,12 +34,12 @@ namespace grstaps {
          *
          * Returns the schedule time of an allocation
          *
-         * \param the graph that the node is fronm
+         * \param the graph that the node is from
          * \param id of the parent node
          * \param the new node to find cost of
          *
         */
-        float operator()(const Graph<TaskAllocation> &graph, const TaskAllocation &parentNode, TaskAllocation &newNode) override;
+        float operator()(const Graph<TaskAllocation> &graph, const TaskAllocation &parentNode, TaskAllocation &newNode) const override;
     };
 } //grstaps
 

@@ -285,8 +285,8 @@ namespace grstaps
 
        private:
         string nodeID;      //!< Whether the map has been set for the motion planner
-        float pathCost{};   //!< Float containing the nodes heuristic cost g()
-        float heuristic{};  //!< Float containing the nodes heuristic cost h()
+        float pathCost;   //!< Float containing the nodes heuristic cost g()
+        float heuristic;  //!< Float containing the nodes heuristic cost h()
         Data nodeData;      //!< Pointer to the nodes data
     };
 

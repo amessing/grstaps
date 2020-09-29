@@ -29,7 +29,7 @@ namespace grstaps
 {
     float allocationWeight = 0.5;
 
-    float TAGoalDist::operator()(const Graph<TaskAllocation> &graph, const TaskAllocation &parentNode, TaskAllocation &newNode)
+    float TAGoalDist::operator()(const Graph<TaskAllocation> &graph, const TaskAllocation &parentNode, TaskAllocation &newNode) const
     {
         TAScheduleTime schedule;
         double makespan = schedule(graph, parentNode, newNode);
