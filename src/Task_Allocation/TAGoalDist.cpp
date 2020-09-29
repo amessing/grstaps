@@ -27,9 +27,9 @@
 
 namespace grstaps
 {
-    float allocationWeight = 1.0;
+    float allocationWeight = 0.5;
 
-    float TAGoalDist::operator()(Graph<TaskAllocation> &graph, TaskAllocation &parentNode, TaskAllocation &newNode)
+    float TAGoalDist::operator()(const Graph<TaskAllocation> &graph, const TaskAllocation &parentNode, TaskAllocation &newNode)
     {
         TAScheduleTime schedule;
         double makespan = schedule(graph, parentNode, newNode);
@@ -37,8 +37,8 @@ namespace grstaps
         {
             return makespan;
         }
-        return ((makespan - newNode.taToScheduling->sched.bestSchedule) /
-                (newNode.taToScheduling->sched.worstSchedule - newNode.taToScheduling->sched.bestSchedule)) +
+        return ((makespan - newNode.taToScheduling.sched.bestSchedule) /
+                (newNode.taToScheduling.sched.worstSchedule - newNode.taToScheduling.sched.bestSchedule)) +
                ((newNode.getGoalDistance() / (*newNode.startingGoalDistance)) * allocationWeight);
     }
 

@@ -51,22 +51,28 @@ namespace grstaps
             myfile << "Node= " << this->finalNode->getNodeID() << std::endl;
             myfile << "Makespan = " << (finalNode->getData().getScheduleTime()) << std::endl;
 
-            for(int i = 0; i < finalNode->getData().taToScheduling->sched.stn.size(); ++i)
+            for(int i = 0; i < finalNode->getData().taToScheduling.sched.stn.size(); ++i)
             {
-                myfile << "Action " << i << " start: " << finalNode->getData().taToScheduling->sched.stn[i][0]
-                       << " end: " << finalNode->getData().taToScheduling->sched.stn[i][1] << std::endl;
+                myfile << "Action " << i << " start: " << finalNode->getData().taToScheduling.sched.stn[i][0]
+                       << " end: " << finalNode->getData().taToScheduling.sched.stn[i][1] << std::endl;
             }
 
-            auto motionPlans = finalNode->getData().taToScheduling->saveMotionPlanningNonSpeciesSchedule(&finalNode->getData()).second;
+            auto motionPlans =
+                finalNode->getData().taToScheduling.saveMotionPlanningNonSpeciesSchedule(&finalNode->getData()).second;
             myfile << endl << "Motion Plans" << endl;
             for(int i = 0; i < motionPlans.size(); ++i)
             {
                 myfile << "Agent " << i << "-";
                 for(int j = 0; j < motionPlans[i].size(); ++j)
                 {
-                    myfile << "Motion Plan " << i << endl << "Start: " << motionPlans[i][j].first.first << "End: " <<  motionPlans[i][j].first.second << endl << "Waypoints" << endl;
-                    for(int k = 0; k < motionPlans[i][j].second.size(); ++k){
-                        myfile << "X: " << motionPlans[i][j].second[k].first << "Y: " << motionPlans[i][j].second[k].second;
+                    myfile << "Motion Plan " << i << endl
+                           << "Start: " << motionPlans[i][j].first.first << "End: " << motionPlans[i][j].first.second
+                           << endl
+                           << "Waypoints" << endl;
+                    for(int k = 0; k < motionPlans[i][j].second.size(); ++k)
+                    {
+                        myfile << "X: " << motionPlans[i][j].second[k].first
+                               << "Y: " << motionPlans[i][j].second[k].second;
                     }
                 }
                 myfile << endl;

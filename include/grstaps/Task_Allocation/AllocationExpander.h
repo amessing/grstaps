@@ -20,17 +20,16 @@
 #define GRSTAPS_ALLOCEXPANDER
 
 // local
-#include <grstaps/Graph/Node.h>
-#include <grstaps/Graph/Graph.h>
-#include <grstaps/Search/NodeExpander.h>
-#include <grstaps/Task_Allocation/TaskAllocation.h>
-#include <grstaps/Search/Heuristic.h>
-#include <grstaps/Search/Cost.h>
+#    include <grstaps/Graph/Graph.h>
+#    include <grstaps/Graph/Node.h>
+#    include <grstaps/Search/Cost.h>
+#    include <grstaps/Search/Heuristic.h>
+#    include <grstaps/Search/NodeExpander.h>
+#    include <grstaps/Task_Allocation/TaskAllocation.h>
 
-
-namespace grstaps {
-
-    template<typename Data>
+namespace grstaps
+{
+    template <typename Data>
     using nodePtr = typename boost::shared_ptr<Node<Data>>;
 
     /**
@@ -39,45 +38,37 @@ namespace grstaps {
      *
      *
      */
-    class AllocationExpander: public NodeExpander<TaskAllocation>{
-    public:
-
+    class AllocationExpander : public NodeExpander<TaskAllocation>
+    {
+       public:
         /**
-        * Constructor
-        *
-        * \param the heuistic object
-        * \param the cost object
-        *
-        */
+         * Constructor
+         *
+         * \param the heuistic object
+         * \param the cost object
+         *
+         */
         AllocationExpander(boost::shared_ptr<Heuristic>, boost::shared_ptr<Cost>);
 
+        /**
+         * Expands a  graph by adding a nodes children
+         *
+         * \param the graph
+         * \param the node parent
+         * \param the node whos children you wish to add
+         *
+         */
+        bool operator()(Graph<TaskAllocation>& graph, nodePtr<TaskAllocation> expandNode) override;
 
         /**
-        * Expands a  graph by adding a nodes children
-        *
-        * \param the graph
-        * \param the node parent
-        * \param the node whos children you wish to add
-        *
-        */
-        bool operator()(Graph<TaskAllocation>& graph, nodePtr<TaskAllocation>& expandNode);
-
-        /**
-        * Gets the id of the new node by editing the parent node
-        *
-        * \param parent node id
-        * \param int representing the task species combo that you are adding too
-        *
-        */
-        std::string editID(vector<short>& ,std::string, int);
-
+         * Gets the id of the new node by editing the parent node
+         *
+         * \param parent node id
+         * \param int representing the task species combo that you are adding too
+         *
+         */
+        std::string editID(const vector<short>&, const std::string&, int);
     };
 
-
-
-} // namespace grstaps
-#endif //GRSTAPS_ALLOCEXPANDER
-
-//#ifndef GRSTAPS_ALLOCEXPANDERCPP
-//#include "../src/Task_Allocation/AllocationExpander.cpp"
-//#endif
+}  // namespace grstaps
+#endif  // GRSTAPS_ALLOCEXPANDER

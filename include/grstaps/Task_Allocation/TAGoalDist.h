@@ -19,18 +19,17 @@
 #ifndef GSTAPS_TA_GOAL_DIST
 #define GSTAPS_TA_GOAL_DIST
 
-
-#include "grstaps/Search/Heuristic.h"
-#include "grstaps/Graph/Node.h"
 #include "grstaps/Graph/Graph.h"
-#include "grstaps/Task_Allocation/TaskAllocation.h"
+#include "grstaps/Graph/Node.h"
 #include "grstaps/Scheduling/TAScheduleTime.h"
+#include "grstaps/Search/Heuristic.h"
+#include "grstaps/Task_Allocation/TaskAllocation.h"
 
-
-
-namespace grstaps {
-    class TAGoalDist: public Heuristic {
-    public:
+namespace grstaps
+{
+    class TAGoalDist : public Heuristic
+    {
+       public:
         /**
          *
          * Returns the heuristic of a node
@@ -39,10 +38,8 @@ namespace grstaps {
          * \param id of the parent node
          * \param the new node to find cost of
          *
-        */
-        float operator()(Graph<TaskAllocation> &graph, TaskAllocation &parentNode, TaskAllocation &newNode);
+         */
+        float operator()(const Graph<TaskAllocation> &graph, const TaskAllocation &parentNode, TaskAllocation &newNode) override;
     };
-} //grstaps
-
-//#include "../src/Task_Allocation/TAGoalDist.cpp"
-#endif //GSTAPS_TA_GOAL_DIST
+}  // namespace grstaps
+#endif  // GSTAPS_TA_GOAL_DIST

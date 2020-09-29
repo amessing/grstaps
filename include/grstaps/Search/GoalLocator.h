@@ -19,34 +19,29 @@
 #ifndef GRSTAPS_GOALLOCATOR
 #define GRSTAPS_GOALLOCATOR
 
-
-#include "grstaps/Graph/Node.h"
 #include "grstaps/Graph/Edge.h"
 #include "grstaps/Graph/Graph.h"
+#include "grstaps/Graph/Node.h"
 
-
-namespace grstaps {
-
-    template<typename Data>
+namespace grstaps
+{
+    template <typename Data>
     using nodePtr = typename boost::shared_ptr<Node<Data>>;
 
     /**
      * Functor for finding a goal in a search problem
      *
-     * \note need to implement a verision of this for our search problems
+     * \note need to implement a version of this for our search problems
      *
      */
-    template<class Data>
-    class GoalLocator {
-        public:
-            // This operator overloading enables calling
-            // operator function () on objects of increment
-            virtual bool operator()(Graph<Data>&, nodePtr<Data>&);
+    template <class Data>
+    class GoalLocator
+    {
+       public:
+        // This operator overloading enables calling
+        // operator function () on objects of increment
+        virtual bool operator()(const Graph<Data>&, nodePtr<Data>) = 0;
     };
 
-} // namespace grstaps
-#endif //GRSTAPS_GOALLOCATOR
-
-#ifndef GRSTAPS_GOALLOCATORCPP
-#include "../src/Search/GoalLocator.cpp"
-#endif
+}  // namespace grstaps
+#endif  // GRSTAPS_GOALLOCATOR

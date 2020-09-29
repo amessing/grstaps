@@ -19,28 +19,24 @@
 #ifndef GRSTAPS_ALLOCATIONRESULTS
 #define GRSTAPS_ALLOCATIONRESULTS
 
-#include "grstaps/Graph/Node.h"
 #include "grstaps/Graph/Graph.h"
+#include "grstaps/Graph/Node.h"
 #include "grstaps/Search/SearchResultPackager.h"
 #include "grstaps/Task_Allocation/TaskAllocation.h"
 
-namespace grstaps {
+namespace grstaps
+{
     /**
      * Functor comparing nodes
      *
      * \note used for the heap
      *
      */
-    class AllocationResultsPackager: public SearchResultPackager<TaskAllocation>{
-    public:
+    class AllocationResultsPackager : public SearchResultPackager<TaskAllocation>
+    {
+       public:
         void printResults();
-
         void fileResults(string);
-
-    private:
-
     };
-
-} // namespace grstaps
-//#include "../src/Task_Allocation/AllocationResultsPackager.cpp"
-#endif //GRSTAPS_ALLOCATIONRESULTS
+}  // namespace grstaps
+#endif  // GRSTAPS_ALLOCATIONRESULTS

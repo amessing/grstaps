@@ -39,7 +39,7 @@ namespace grstaps {
          * \param the new node to find cost of
          *
         */
-        float operator()(Graph<TaskAllocation> &graph, TaskAllocation &parentNode, TaskAllocation &newNode);
+        float operator()(const Graph<TaskAllocation> &graph, const TaskAllocation &parentNode, TaskAllocation &newNode) override;
     };
 } //grstaps
 

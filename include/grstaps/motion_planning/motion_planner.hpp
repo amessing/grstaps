@@ -20,6 +20,7 @@
 #define GRSTAPS_MOTION_PLANNER_HPP
 
 // global
+#include <map>
 #include <mutex>
 #include <utility>
 
@@ -30,29 +31,20 @@
 #include <ompl/base/StateSpace.h>
 
 // local
-//#include "grstaps/noncopyable.hpp"
-//#include "grstaps/knowledge.hpp"
 #include "grstaps/location.hpp"
 
 namespace grstaps
 {
-    // Forward Declarations
-    // class Location;
-
     /**
      * Wrapper for Open Motion Planning Library
      *
      * \note Currently using Lazy PRM*
-     *
-     * \todo: split up ground/flight? (Internal motion planners with boolean flight flags?)
      */
     class MotionPlanner : public Noncopyable
     {
        public:
-        /**
-         * \returns Singleton to the motion planner
-         */
-        static MotionPlanner& instance();
+        //! Constructor
+        MotionPlanner();
 
         /**
          * Sets the obstacles in the map
@@ -81,30 +73,18 @@ namespace grstaps
         void setLocations(const std::vector<Location>& locations);
 
         /**
-         * \param from The idenifier for the location that a robot is travelling from
+         * \param from The identifier for the location that a robot is travelling from
          * \param to The identifier for the location that a robot is travelling to
          *
          * \returns Whether a motion plan can be created and the length of the motion plan
          */
         std::pair<bool, float> query(unsigned int from, unsigned int to);
 
-        /**
-         * \param from The location that a robot is travelling from
-         * \param to The location that a robot is travelling to
-         *
-         * \returns Whether a motion plan can be created and the length of the motion plan
-         */
-        std::pair<bool, float> query(const Location& from, const Location& to);
+        std::tuple<bool, float, std::vector<std::pair<float, float>>> getWaypoints(unsigned int from, unsigned int to);
 
-        std::vector<std::pair<float, float>> getWaypoints(unsigned int from, unsigned int to);
-
+        std::vector<Location> m_locations;
        private:
-        /**
-         * Constructor
-         */
-        MotionPlanner();
-
-        void waypointQuery(unsigned int from, unsigned int to, ompl::base::ProblemDefinitionPtr problem_def);
+        bool waypointQuery(unsigned int from, unsigned int to, ompl::base::ProblemDefinitionPtr problem_def);
 
         bool m_map_set;                     //!< Whether the map has been set for the motion planner
         float m_query_time;                 //!< How long a query can run for
@@ -112,8 +92,9 @@ namespace grstaps
         ompl::base::StateSpacePtr m_space;  //!< Outline of the space
         ompl::base::SpaceInformationPtr
             m_space_information;  //!< Information about the space (includes validity checker)
-        std::vector<Location> m_locations;
         std::mutex m_mutex;
+
+        std::map<std::pair<unsigned int, unsigned int>, std::tuple<bool, float, std::vector<std::pair<float, float>>>> m_memory;
     };
 }  // namespace grstaps
 
