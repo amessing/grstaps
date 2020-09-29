@@ -21,42 +21,44 @@
 
 #include "grstaps/Task_Allocation/AllocationExpander.h"
 
-
 namespace grstaps
 {
+    template <typename Data>
+    using nodePtr = typename boost::shared_ptr<Node<Data>>;
 
+    AllocationExpander::AllocationExpander(boost::shared_ptr<Heuristic> heur, boost::shared_ptr<Cost> cos)
+        : NodeExpander(heur, cos)
+    {}
 
-    template <typename Data> using nodePtr = typename boost::shared_ptr<Node<Data>>;
-
-    AllocationExpander::AllocationExpander(boost::shared_ptr<Heuristic> heur, boost::shared_ptr<Cost> cos): NodeExpander(heur, cos){}
-
-    //check to prevent duplicate
-    bool AllocationExpander::operator()(Graph<TaskAllocation>& graph, nodePtr<TaskAllocation>& expandNode)
+    // check to prevent duplicate
+    bool AllocationExpander::operator()(Graph<TaskAllocation>& graph, nodePtr<TaskAllocation> expandNode)
     {
-        TaskAllocation data = expandNode->getData();
-        vector<short> allocation = data.getAllocation();
-        std::string nodeID = expandNode->getNodeID();
-        float currentCost = expandNode->getPathCost();
-        int numSpecies = data.getNumSpecies()->size();
+        TaskAllocation data       = expandNode->getData();
+        vector<short> allocation  = data.getAllocation();
+        std::string nodeID        = expandNode->getNodeID();
+        float currentCost         = expandNode->getPathCost();
+        int numSpecies            = data.getNumSpecies()->size();
         float parentsGoalDistance = data.getGoalDistance();
 
-        int numTask = allocation.size() / numSpecies;
+        int numTask         = allocation.size() / numSpecies;
         vector<int> numSpec = *data.getNumSpecies();
         for(int i = 0; i < numTask; ++i)
         {
             for(int j = 0; j < numSpecies; ++j)
             {
-                int index = i * numSpecies + j;
+                int index             = i * numSpecies + j;
                 std::string newNodeID = editID(allocation, nodeID, index);
 
-                if(!graph.nodeExist(newNodeID) && (int(newNodeID[(i * numSpecies) + j] - '0') <= (numSpec)[j]))
+                //
+                if(!graph.nodeExist(newNodeID) && (int(newNodeID[(i * numSpecies) + j] - '0') <= (numSpec)[j]) && (expandNode->getData().action_dynamics[i] == -1 || ((*expandNode->getData().speciesTraitDistribution)[j][expandNode->getData().mp_Index] == expandNode->getData().action_dynamics[i])))
                 {
                     TaskAllocation newNodeData(data);
                     newNodeData.addAgent(j, i);
                     if(newNodeData.getGoalDistance() < parentsGoalDistance)
                     {
                         float heur = (*this->heuristicFunc)(graph, data, newNodeData);
-                        float cost = (*this->costFunc)(graph, data, newNodeData);
+                        //float cost = (*this->costFunc)(graph, data, newNodeData);
+
                         auto newNode = nodePtr<TaskAllocation>(new Node<TaskAllocation>(newNodeID, newNodeData));
                         newNode->setHeuristic(heur);
                         newNode->setPathCost(heur);
@@ -65,19 +67,17 @@ namespace grstaps
                     }
                 }
             }
-
         }
 
         return true;
-
     }
 
-    std::string AllocationExpander::editID(vector<short>& allocation, std::string parentNodeID, int indexExp)
+    std::string AllocationExpander::editID(const vector<short>& allocation, const std::string& parentNodeID, int indexExp)
     {
-        int idSize = parentNodeID.length() / (allocation.size());
+        int idSize       = parentNodeID.length() / (allocation.size());
         string newNodeID = parentNodeID;
-        int index = idSize * indexExp + idSize - 1;
-        int add = 1;
+        int index        = idSize * indexExp + idSize - 1;
+        int add          = 1;
         for(int i = 0; i < idSize; i++)
         {
             int newDigit = int(newNodeID[index]) - 48 + add;
@@ -95,6 +95,6 @@ namespace grstaps
         return newNodeID;
     }
 
-}//grstaps
+}  // namespace grstaps
 
 #endif

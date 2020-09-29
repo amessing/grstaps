@@ -45,14 +45,16 @@ namespace grstaps
         using NonCumVector       = std::vector<float>;
         using RequirementsVector = std::vector<float>;
 
-        Problem() = default;
+        Problem();
+        void init(char* domain, char* problem, const char* parameters);
+        void configureActions(std::function<void(const std::vector<SASAction>&, Problem*)> configure_function);
         void setLocations(const std::vector<Location>& locations);
         void setActionLocationMap(
             const std::map<std::string, std::pair<unsigned int, unsigned int>>& action_location_map);
         void addActionLocation(const std::string& action, const std::pair<unsigned int, unsigned int>& location);
-        void setRobotTraitVector(std::vector<TraitVector>& robot_traits);
+        void setRobotTraitVector(const std::vector<TraitVector>& robot_traits);
         void setTask(SASTask* task);
-        void setObstacles(const std::vector<b2PolygonShape>& obstacles);
+        void setObstacles(const std::vector<std::vector<b2PolygonShape>>& obstacles);
         void setConfig(const nlohmann::json& config);
         void setActionRequirements(const std::vector<std::vector<float>>& actionReq);
         void setActionNonCumRequirements(const std::vector<std::vector<float>>& actionNonCumReq);
@@ -64,7 +66,7 @@ namespace grstaps
         std::vector<TraitVector>& robotTraits();
         const TraitVector& robotTrait(uint i) const;
         const SASTask* task() const;
-        const std::vector<b2PolygonShape>& obstacles() const;
+        const std::vector<std::vector<b2PolygonShape>> obstacles() const;
         const std::vector<unsigned int>& startingLocations() const;
         const nlohmann::json& config() const;
         SASTask* task();
@@ -73,7 +75,8 @@ namespace grstaps
 
         std::vector<RequirementsVector> actionRequirements;
         std::vector<NonCumVector> actionNonCumRequirements;
-        int speedIndex = -1;
+        int speedIndex;
+        int mpIndex;
 
        protected:
         std::vector<Location> m_locations;  //!< coordinates and name of location
@@ -82,7 +85,7 @@ namespace grstaps
         std::vector<TraitVector> m_robot_traits;         //!< List of vectors of robot traits
         std::vector<unsigned int> m_starting_locations;  //!< List of the starting location of the robots
         SASTask* m_task;                                 // A SAS Task for the Task planner
-        std::vector<b2PolygonShape> m_obstacles;         //!< Obstacles in the map
+        std::vector<std::vector<b2PolygonShape>> m_obstacles;         //!< Obstacles in the map
         nlohmann::json m_config;
     };
 }  // namespace grstaps

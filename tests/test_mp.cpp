@@ -106,7 +106,7 @@ namespace grstaps
 
             std::vector<Location> locations = {from, to};
 
-            auto& mp = MotionPlanner::instance();
+            MotionPlanner mp;
             mp.setMap(obstacles, 0.0, 2.0);
             mp.setLocations(locations);
             mp.setQueryTime(runtime);
@@ -131,7 +131,7 @@ namespace grstaps
 
             std::vector<Location> locations = {from, to};
 
-            auto& mp = MotionPlanner::instance();
+            MotionPlanner mp;
             mp.setMap(obstacles, 0.0, 2.0);
             mp.setLocations(locations);
             mp.setQueryTime(runtime);
@@ -140,9 +140,9 @@ namespace grstaps
             if(result.first)
             {
                 std::cout << result.second << std::endl;
-                std::vector<std::pair<float, float>> waypoints = mp.getWaypoints(0, 1);
-                std::cout << waypoints.size() << std::endl;
-                for(const std::pair<float, float>& waypoint: waypoints)
+                std::tuple<bool, float, std::vector<std::pair<float, float>>> waypoints = mp.getWaypoints(0, 1);
+                std::cout << std::get<2>(waypoints).size() << std::endl;
+                for(const std::pair<float, float>& waypoint: std::get<2>(waypoints))
                 {
                     std::cout << '\t' << waypoint.first << ", " << waypoint.second << std::endl;
                 }
@@ -168,7 +168,7 @@ namespace grstaps
 
             std::vector<Location> locations = {from, to};
 
-            auto& mp = MotionPlanner::instance();
+            MotionPlanner mp;
             mp.setMap(obstacles, 0.0, 2.0);
             mp.setLocations(locations);
             mp.setQueryTime(runtime);
@@ -177,9 +177,9 @@ namespace grstaps
             if(result.first)
             {
                 std::cout << result.second << std::endl;
-                std::vector<std::pair<float, float>> waypoints = mp.getWaypoints(0, 1);
-                std::cout << waypoints.size() << std::endl;
-                for(const std::pair<float, float>& waypoint: waypoints)
+                std::tuple<bool, float, std::vector<std::pair<float, float>>> waypoints = mp.getWaypoints(0, 1);
+                std::cout << get<2>(waypoints).size() << std::endl;
+                for(const std::pair<float, float>& waypoint: get<2>(waypoints))
                 {
                     std::cout << '\t' << waypoint.first << ", " << waypoint.second << std::endl;
                 }

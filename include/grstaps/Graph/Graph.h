@@ -20,30 +20,29 @@
 #define GRAPH_H
 
 #include <vector>
-#include "Node.h"
+
 #include "Edge.h"
+#include "Node.h"
 #include <../lib/unordered_map/robin_hood.h>
-//#include "tbb/concurrent_unordered_map.h"B
 
 using std::string;
 using std::vector;
-//using std::unordered_map;
-//using robin_hood::unordered_map;
 
-namespace grstaps {
-
+namespace grstaps
+{
     /**
      * Graph class
      *
-     * \note The Graph class defines a graph data structure. It consists of both nodes (or vertices) and edges (links) between the nodes.
-     * \note Internally there is a list of nodes, and list of edges, each stored in a  Unordered_map with shared_ptr's to each element.
+     * \note The Graph class defines a graph data structure. It consists of both nodes (or vertices) and edges (links)
+     * between the nodes. \note Internally there is a list of nodes, and list of edges, each stored in a  Unordered_map
+     * with shared_ptr's to each element.
      *
      *
      */
-    template<class Data>
-    class Graph {
-    public:
-
+    template <class Data>
+    class Graph
+    {
+       public:
         /**
          *
          * Finds a node that is in the graph and returns a pointer to it returns null pointer if not in graph
@@ -51,29 +50,29 @@ namespace grstaps {
          *
          * \param string id of the node you wish to get
          *
-        */
-        nodePtr<Data> findNode(const string&) const;
+         */
+        nodePtr<Data> findNode(const string &) const;
 
         /**
          *
          * Prints out the whole graph
          * it will iterator over all nodes, and print each one's edges
          *
-        */
+         */
         void print() const;
 
         /**
          *
          * Prints out all nodes
          *
-        */
+         */
         int printNodeList() const;
 
         /**
          *
          * Clears the search state of all of the nodes
          *
-        */
+         */
         void clearSearchState();
 
         /**
@@ -83,9 +82,8 @@ namespace grstaps {
          * \param shared pointer to the node you wish to add
          * \param id of the new node
          *
-        */
-        void addNode(nodePtr<Data>& nodeToAdd, string &id, bool quick =true);
-
+         */
+        void addNode(nodePtr<Data> nodeToAdd, const string &id, bool quick = true);
 
         /**
          *
@@ -93,8 +91,8 @@ namespace grstaps {
          *
          * \param shared pointer to the node you wish to add
          *
-        */
-        void addNode(nodePtr<Data>&, bool quick =true);
+         */
+        void addNode(nodePtr<Data>, bool quick = true);
 
         /**
          *
@@ -103,8 +101,8 @@ namespace grstaps {
          * \param the id of the new node
          * \param the data that will be inside of the new node
          *
-        */
-        void addNode(const string &, Data, bool quick =true);
+         */
+        void addNode(const string &, Data, bool quick = true);
 
         /**
          *
@@ -115,8 +113,8 @@ namespace grstaps {
          * \param the cost of the node
          * \param the heuristic cost of the node
          *
-        */
-        void addNode(const string& , Data, float, float, int quick=true);
+         */
+        void addNode(const string &, Data, float, float, int quick = true);
 
         /**
          *
@@ -124,8 +122,8 @@ namespace grstaps {
          *
          * \param shared pointer to the edge to add
          *
-        */
-        void addEdge(edgePtr<Data> edgeToAdd, bool quick=true);
+         */
+        void addEdge(edgePtr<Data> edgeToAdd, bool quick = true);
 
         /**
          *
@@ -133,8 +131,8 @@ namespace grstaps {
          *
          * \param shared pointer to the edge to add
          *
-        */
-        void addEdge(const string &, const string &, float, bool quick=true);
+         */
+        void addEdge(const string &, const string &, float, bool quick = true);
 
         /**
          *
@@ -142,9 +140,8 @@ namespace grstaps {
          *
          * \param shared pointer to the edge to add
          *
-        */
-        void addEdge(const string &, const string &, float, nodePtr<Data>&, nodePtr<Data>&, bool quick=true);
-
+         */
+        void addEdge(const string &, const string &, float, nodePtr<Data>, nodePtr<Data>, bool quick = true);
 
         /**
          *
@@ -152,8 +149,8 @@ namespace grstaps {
          *
          * \paran the id of the node you wish to remove
          *
-        */
-        bool removeNode(string);
+         */
+        bool removeNode(const string&);
 
         /**
          *
@@ -161,9 +158,8 @@ namespace grstaps {
          *
          * \paran the id of the edge you wish to remove
          *
-        */
-        bool removeEdge(string);
-
+         */
+        bool removeEdge(const string&);
 
         /**
          *
@@ -171,8 +167,8 @@ namespace grstaps {
          *
          * \paran the id of the node you wish to check
          *
-        */
-        bool nodeExist(string);
+         */
+        bool nodeExist(const string&);
 
         /**
          *
@@ -180,16 +176,16 @@ namespace grstaps {
          *
          * \paran the id of the edge you wish to check
          *
-        */
-        bool edgeExist(string);
-        //tbb::concurrent_unordered_map<typename Key, typename T, typename Hasher, typename Key_equality, typename Allocator>(const Allocator &a) {}
-        robin_hood::unordered_map<string, edgePtr < Data> > edgeList; //!< Unordered_map to the graphs edges
-        robin_hood::unordered_map<string, nodePtr < Data> > nodeList;  //!< Unordered_map to the graphs nodes
-    private:
-
+         */
+        bool edgeExist(const string&);
+        // tbb::concurrent_unordered_map<typename Key, typename T, typename Hasher, typename Key_equality, typename
+        // Allocator>(const Allocator &a) {}
+        robin_hood::unordered_map<string, edgePtr<Data> > edgeList;  //!< Unordered_map to the graphs edges
+        robin_hood::unordered_map<string, nodePtr<Data> > nodeList;  //!< Unordered_map to the graphs nodes
+       private:
     };
 
-} //namespace grstaps
+}  // namespace grstaps
 
 #endif /* GRAPH_H */
 

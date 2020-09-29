@@ -6,9 +6,9 @@
 #include <../lib/unordered_map/robin_hood.h>
 #include <grstaps/Scheduling/Scheduler.h>
 
-#define TABU_LENGTH 50
-#define NUM_INTERATION 250
-#define TIME_TRY 200
+#define TABU_LENGTH 2000
+#define NUM_INTERATION 1
+#define TIME_TRY 1
 #define QUALITY_THRESHOLD 1.5
 
 namespace grstaps
@@ -21,7 +21,7 @@ namespace grstaps
         void getBestNearbySolution(int);
 
        private:
-        double bestSolverScore{};
+        double bestSolverScore;
         robin_hood::unordered_map<std::string, int> tabu_list;
         robin_hood::unordered_map<std::string, float> foundMakespans;
         Scheduler bestSolution;

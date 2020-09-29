@@ -20,26 +20,26 @@
 
 #include <iostream>
 #include <stack>
+
+#include "grstaps/Scheduling/TAScheduleTime.h"
 #include "grstaps/Search/SearchBase.h"
 #include "grstaps/Task_Allocation/TAGoalDist.h"
-#include "grstaps/Scheduling/TAScheduleTime.h"
 
-namespace grstaps {
-
-    template<class Data>
-    SearchBase<Data>::SearchBase(Graph<Data>& g, nodePtr<Data>& initPtr) : graph(g), initialNodePtr(initPtr){
+namespace grstaps
+{
+    template <class Data>
+    SearchBase<Data>::SearchBase(Graph<Data>& g, nodePtr<Data>& initPtr)
+        : graph(g)
+        , initialNodePtr(initPtr)
+    {
         initialNodePtr->setPathCost(0.0f);
-
     }
 
-    template<class Data>
-    SearchBase<Data>::SearchBase(){
-        graph = Graph<Data>();
+    template <class Data>
+    SearchBase<Data>::SearchBase()
+    {
+        graph          = Graph<Data>();
         initialNodePtr = nullptr;
-
     }
-
-
-}//namespace grstaps
-
+}  // namespace grstaps
 #endif

@@ -102,10 +102,11 @@ namespace grstaps
             boost::shared_ptr<vector<vector<int>>> orderingCon =
                 boost::shared_ptr<vector<vector<int>>>(new vector<vector<int>>{{0, 2}});
 
-            boost::shared_ptr<vector<float>> durations =
-                boost::shared_ptr<vector<float>>(new vector<float>(vector<float>{1, 1, 1}));
-            boost::shared_ptr<taskAllocationToScheduling> taToSched = boost::make_shared<taskAllocationToScheduling>();
-            bool usingSpecies                                       = false;
+            boost::shared_ptr<vector<float>> durations = boost::shared_ptr<vector<float>>(new vector<float>(vector<float>{1, 1, 1}));
+            taskAllocationToScheduling taToSched = taskAllocationToScheduling();
+            bool usingSpecies = false;
+
+            boost::shared_ptr<vector<int>> robot_dynamics(new vector<int>(speciesDistribution.size(),0));
 
             TaskAllocation ta(usingSpecies,
                               goalDistribution,
@@ -115,6 +116,7 @@ namespace grstaps
                               durations,
                               orderingCon,
                               numSpec);
+
             auto node1 = boost::shared_ptr<Node<TaskAllocation>>(new Node<TaskAllocation>(std::string(ta.getID()), ta));
 
             node1->setData(ta);

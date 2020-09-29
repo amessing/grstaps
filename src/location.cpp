@@ -53,4 +53,19 @@ namespace grstaps
         return std::make_pair(m_x, m_y);
     }
 
+    void to_json(nlohmann::json& j, const Location& l)
+    {
+        j = {
+            {"type", l.m_type},
+            {"x", l.m_x},
+            {"y", l.m_y}
+        };
+    }
+    void from_json(const nlohmann::json& j, Location& l)
+    {
+        l.m_type = j["type"];
+        l.m_x = j["x"];
+        l.m_y = j["y"];
+    }
+
 }  // namespace grstaps

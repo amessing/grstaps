@@ -25,11 +25,12 @@
 #include <grstaps/Scheduling/Scheduler.h>
 
 using std::string;
+using std::get;
 using std::vector;
-using start_end = std::pair<float, float>;
-using waypoints = std::vector<std::pair<float, float>>;
-using single_plan = std::pair<start_end, waypoints>;
-using agent_motion_plans = vector<std::pair<start_end, waypoints>>;
+using start_end          = std::pair<float, float>;
+using waypoints          = std::vector<std::pair<float, float>>;
+using single_plan        = std::pair<start_end, waypoints>;
+using agent_motion_plans = std::vector<std::pair<start_end, waypoints>>;
 
 namespace grstaps
 {
@@ -45,8 +46,8 @@ namespace grstaps
          * \param the motion planner pointer to use for planning
          *
          */
-        taskAllocationToScheduling(MotionPlanner* mPlanner                      = nullptr,
-                                   const std::vector<unsigned int>& startingLoc = std::vector<unsigned int>());
+        taskAllocationToScheduling(boost::shared_ptr<std::vector<boost::shared_ptr<MotionPlanner>>> motion_planners  = nullptr,
+                                   const std::vector<unsigned int>* staring_locations= nullptr);
 
         /**
          * Get the schedule for a task allocation that does not use species
@@ -100,23 +101,25 @@ namespace grstaps
          * \return the vector of locations agents will visit in order
          *
          */
-        std::pair<bool,vector<agent_motion_plans>> saveMotionPlanningNonSpeciesSchedule(TaskAllocation* TaskAlloc);
+        std::pair<bool, vector<agent_motion_plans>> saveMotionPlanningNonSpeciesSchedule(TaskAllocation* TaskAlloc);
 
         /**
          * Sets a list of the indices of the start and end locations for the actions
          */
-        void setActionLocations(const std::vector<std::pair<unsigned int, unsigned int>>& action_locations);
+        void setActionLocations(boost::shared_ptr<const std::vector<std::pair<unsigned int, unsigned int>>> action_locations);
 
         Scheduler sched;
 
        private:
-        std::vector<int> concurrent;
         std::vector<std::vector<float>> stn;
-        MotionPlanner* m_motion_planner;
-        std::vector<unsigned int> m_starting_locations;
-        std::vector<std::pair<unsigned int, unsigned int>> m_action_locations;
         std::vector<int> actionOrder;
         std::vector<float> maxTraitTeam;
+        std::vector<int> concurrent;
+
+        boost::shared_ptr<std::vector<boost::shared_ptr<MotionPlanner>>> m_motion_planners;
+        const std::vector<unsigned int>* m_starting_locations;
+        boost::shared_ptr<const std::vector<std::pair<unsigned int, unsigned int>>> m_action_locations;
+
     };
 }  // namespace grstaps
 

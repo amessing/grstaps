@@ -17,8 +17,46 @@
  */
 #include "grstaps/problem.hpp"
 
+// Local
+#include "grstaps/json_conversions.hpp"
+#include "grstaps/task_planning/planner_parameters.hpp"
+#include "grstaps/task_planning/setup.hpp"
+
+
 namespace grstaps
 {
+    Problem::Problem()
+        : speedIndex(-1)
+        , mpIndex(-1)
+    {}
+
+    void Problem::init(char* domain_file, char* problem_file, const char* parameters_file) {
+        PlannerParameters parameters;
+        parameters.domainFileName  = domain_file;
+        parameters.problemFileName = problem_file;
+        m_task = Setup::doPreprocess(&parameters);
+
+        std::ifstream ifs(parameters_file);
+        nlohmann::json config;
+        ifs >> config;
+
+        m_locations = config["locations"].get<std::vector<Location>>();
+        m_starting_locations = config["starting_locations"].get<std::vector<unsigned int>>();
+        m_obstacles = config["obstacles"].get<std::vector<std::vector<b2PolygonShape>>>();
+
+
+        m_robot_traits = config["robot_traits"].get<std::vector<TraitVector>>();
+        speedIndex = config["speed_index"];
+        mpIndex = config["mp_index"];
+
+        m_config = config;
+    }
+
+    void Problem::configureActions(std::function<void(const std::vector<SASAction>&, Problem*)> configure_function)
+    {
+        configure_function(m_task->actions, this);
+    }
+
     void Problem::setLocations(const std::vector<Location>& locations)
     {
         m_locations = locations;
@@ -50,7 +88,7 @@ namespace grstaps
         m_starting_locations = starting_locations;
     }
 
-    void Problem::setRobotTraitVector(std::vector<Problem::TraitVector>& robot_traits)
+    void Problem::setRobotTraitVector(const std::vector<Problem::TraitVector>& robot_traits)
     {
         m_robot_traits = robot_traits;
     }
@@ -60,7 +98,7 @@ namespace grstaps
         m_task = task;
     }
 
-    void Problem::setObstacles(const std::vector<b2PolygonShape>& obstacles)
+    void Problem::setObstacles(const std::vector<std::vector<b2PolygonShape>>& obstacles)
     {
         m_obstacles = obstacles;
     }
@@ -109,7 +147,7 @@ namespace grstaps
         return m_task;
     }
 
-    const std::vector<b2PolygonShape>& Problem::obstacles() const
+    const std::vector<std::vector<b2PolygonShape>> Problem::obstacles() const
     {
         return m_obstacles;
     }
@@ -123,5 +161,4 @@ namespace grstaps
     {
         return m_config;
     }
-
 }  // namespace grstaps

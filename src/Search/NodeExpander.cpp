@@ -21,28 +21,22 @@
 
 #include "grstaps/Search/NodeExpander.h"
 
+#include "grstaps/Scheduling/TAScheduleTime.h"
+#include "grstaps/Task_Allocation/TAGoalDist.h"
 
+namespace grstaps
+{
+    template <class Data>
+    NodeExpander<Data>::NodeExpander()
+        : heuristicFunc(new TAGoalDist)
+        , costFunc(new TAScheduleTime)
+    {}
 
-namespace grstaps {
+    template <class Data>
+    NodeExpander<Data>::NodeExpander(boost::shared_ptr<Heuristic> heur, boost::shared_ptr<Cost> cost)
+        : heuristicFunc(heur)
+        , costFunc(cost)
+    {}
+}  // namespace grstaps
 
-    template<class Data>
-    NodeExpander<Data>::NodeExpander(){
-        heuristicFunc = boost::shared_ptr<TAGoalDist>(new TAGoalDist());
-        costFunc = boost::shared_ptr<TAScheduleTime>(new TAScheduleTime);
-    }
-
-
-    template<class Data>
-    NodeExpander<Data>::NodeExpander( boost::shared_ptr<Heuristic> heur,  boost::shared_ptr<Cost> cost): heuristicFunc(heur), costFunc(cost){
-
-    }
-
-    template<class Data>
-    bool NodeExpander<Data>::operator()(Graph<Data>& graph, nodePtr<Data>& node){
-        return true;
-    }
-
-}
-
-#endif //GRSTAPS_NODEEXPANDERCPP
-
+#endif  // GRSTAPS_NODEEXPANDERCPP

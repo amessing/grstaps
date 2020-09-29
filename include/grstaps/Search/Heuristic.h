@@ -19,24 +19,25 @@
 #ifndef GSTAPS_HEURISTIC_H
 #define GSTAPS_HEURISTIC_H
 
-#include "grstaps/Graph/Node.h"
 #include "grstaps/Graph/Graph.h"
+#include "grstaps/Graph/Node.h"
 #include "grstaps/Task_Allocation/TaskAllocation.h"
 
-namespace grstaps {
-    class Heuristic {
-        public:
-            /**
-             *
-             * Returns the heuristic of a node
-             *
-             * \param the graph that the node is fronm
-             * \param id of the parent node
-             * \param the new node to find cost of
-             *
-            */
-            virtual float operator()(Graph<TaskAllocation> &graph, TaskAllocation &parentNode, TaskAllocation &newNode)=0;
+namespace grstaps
+{
+    class Heuristic
+    {
+       public:
+        /**
+         *
+         * Returns the heuristic of a node
+         *
+         * \param the graph that the node is fronm
+         * \param id of the parent node
+         * \param the new node to find cost of
+         *
+         */
+        virtual float operator()(const Graph<TaskAllocation> &graph, const TaskAllocation &parentNode, TaskAllocation &newNode) = 0;
     };
-} //grstaps
-#include "../src/Search/Heuristic.cpp"
-#endif //GSTAPS_HEURISTIC_H
+}  // namespace grstaps
+#endif  // GSTAPS_HEURISTIC_H

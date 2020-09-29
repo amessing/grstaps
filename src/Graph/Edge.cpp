@@ -19,63 +19,70 @@
 #ifndef GRSTAPS_EDGECPP
 #define GRSTAPS_EDGECPP
 
-
 #include "grstaps/Graph/Edge.h"
 
-using std::string;
-using std::vector;
-using std::unordered_map;
-using std::stringstream ;
 using std::cout;
 using std::endl;
+using std::string;
+using std::stringstream;
+using std::unordered_map;
+using std::vector;
 
-namespace grstaps {
+namespace grstaps
+{
+    template <typename Data>
+    Edge<Data>::Edge(const string &tail, const string &head, float cost)
+        : tailNode(tail)
+        , headNode(head)
+        , edgeCost(cost)
+    {}
 
-
-    template<typename Data>
-    Edge<Data>::Edge(const string &tail, const string &head, float cost) : tailNode(tail), headNode(head), edgeCost(cost){
-
-    }
-
-    template<typename Data>
-    Edge<Data>::~Edge() {
+    template <typename Data>
+    Edge<Data>::~Edge()
+    {
         // This is only for debug purposes
-        //cout << "Destroy edge from " << ptrTailNode->getNodeID() << " to " << ptrHeadNode->getNodeID() << endl;
-        //system("PAUSE");
+        // cout << "Destroy edge from " << ptrTailNode->getNodeID() << " to " << ptrHeadNode->getNodeID() << endl;
+        // system("PAUSE");
     }
 
-    template<typename Data>
-    string Edge<Data>::getEdgeID() const {
+    template <typename Data>
+    string Edge<Data>::getEdgeID() const
+    {
         return headNode + "-" + tailNode;
     }
 
-    template<typename Data>
-    string Edge<Data>::getHeadNode() const {
+    template <typename Data>
+    string Edge<Data>::getHeadNode() const
+    {
         return headNode;
     }
 
-    template<typename Data>
-    string Edge<Data>::getTailNode() const {
+    template <typename Data>
+    string Edge<Data>::getTailNode() const
+    {
         return tailNode;
     }
 
-    template<typename Data>
-    string Edge<Data>::toString() const {
+    template <typename Data>
+    string Edge<Data>::toString() const
+    {
         std::stringstream a;
         a << headNode + "-" + tailNode << ": " << headNode << " -> " << tailNode;
         a << " : cost=" << getEdgeCost();
         return a.str();
     }
 
-    template<typename Data>
-    void Edge<Data>::setEdgeCost(const float c) {
+    template <typename Data>
+    void Edge<Data>::setEdgeCost(const float c)
+    {
         edgeCost = 1.0f;
     }
 
-    template<typename Data>
-    float Edge<Data>::getEdgeCost() const {
+    template <typename Data>
+    float Edge<Data>::getEdgeCost() const
+    {
         return edgeCost;
     }
-}
+}  // namespace grstaps
 
 #endif

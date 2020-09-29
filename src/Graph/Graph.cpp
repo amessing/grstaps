@@ -22,28 +22,31 @@
 #include <exception>
 #include <fstream>
 #include <iomanip>
-#include "grstaps/Graph/Graph.h"
 
+#include "grstaps/Graph/Graph.h"
 
 using namespace boost;
 
-namespace grstaps {
-
-    template<class Data>
-    nodePtr<Data> Graph<Data>::findNode(const string &id) const {
+namespace grstaps
+{
+    template <class Data>
+    nodePtr<Data> Graph<Data>::findNode(const string &id) const
+    {
         auto foundNode = nodeList.find(id);
-        if (foundNode != nodeList.end()) {
+        if(foundNode != nodeList.end())
+        {
             return foundNode->second;
         }
         return nodePtr<Data>(NULL);
     }
 
-    template<class Data>
-    void Graph<Data>::print() const {
-
+    template <class Data>
+    void Graph<Data>::print() const
+    {
         std::cout << "\n\nGraph\n-----\n";
 
-        for (auto it = nodeList.begin(); it != nodeList.end(); ++it) {
+        for(auto it = nodeList.begin(); it != nodeList.end(); ++it)
+        {
             std::cout << "Node : " << it->second->getNodeID() << std::endl;
             std::cout << "   Parents:" << std::endl;
             it->second->printParents();
@@ -55,173 +58,213 @@ namespace grstaps {
         std::cout << std::endl;
     }
 
-    template<class Data>
-    int Graph<Data>::printNodeList() const {
+    template <class Data>
+    int Graph<Data>::printNodeList() const
+    {
         int count = 0;
         std::cout << "Nodes : \n";
-        for (auto it = nodeList.begin(); it != nodeList.end(); ++it, ++count) {
+        for(auto it = nodeList.begin(); it != nodeList.end(); ++it, ++count)
+        {
             std::cout << std::setw(2) << count << " : " << it->second->getNodeID() << std::endl;
         }
         return --count;
     }
 
-    template<class Data>
-    void Graph<Data>::clearSearchState() {
+    template <class Data>
+    void Graph<Data>::clearSearchState()
+    {
         // iterates over all nodes and clears their search states (parent node, cost, etc.)
         // so the graph can be re-used for a T search
 
-        for (auto it = nodeList.begin(); it != nodeList.end(); ++it) {
+        for(auto it = nodeList.begin(); it != nodeList.end(); ++it)
+        {
             it->second->clearSearchState();
         }
     }
 
-    template<class Data>
-    void Graph<Data>::addNode(nodePtr<Data>& nodeToAdd, bool quick) {
+    template <class Data>
+    void Graph<Data>::addNode(nodePtr<Data> nodeToAdd, bool quick)
+    {
         string id = nodeToAdd->getNodeID();
-        if(!quick) {
+        if(!quick)
+        {
             // before adding the node, try to find it
             nodePtr<Data> nodeExists = findNode(id);
             // if the node already exists, throw an error message
             // if the node does not exist, add it to the list of nodes
-            if (nodeList.size() > 0 && nodeExists != NULL) {
-                string errorString =
-                        "File format error : Duplicate node '" + id + " Node Not Added";
-                std::cout << errorString << std::endl;
-            } else {
-                nodeList[id] = nodeToAdd;
-            }
-        }
-        else{
-            nodeList[id] = nodeToAdd;
-        }
-    }
-
-    template<class Data>
-    void Graph<Data>::addNode(nodePtr<Data>& nodeToAdd, string &id, bool quick) {
-        if(!quick) {
-            // before adding the node, try to find it
-            nodePtr<Data> nodeExists = findNode(id);
-            // if the node already exists, throw an error message
-            // if the node does not exist, add it to the list of nodes
-            if (nodeList.size() > 0 && nodeExists != NULL) {
-                string errorString =
-                        "File format error : Duplicate node '" + id + " Node Not Added";
-                std::cout << errorString << std::endl;
-            } else {
-                nodeList[id] = nodeToAdd;
-            }
-        }
-        else{
-            nodeList[id] = nodeToAdd;
-        }
-    }
-
-    template<class Data>
-    void Graph<Data>::addNode(const string& id, Data data, bool quick) {
-        if (quick) {
-            nodeList[id] = nodePtr<Data>(new Node<Data>(id, data));
-        }
-        else {
-            // before adding the node, try to find it
-            nodePtr<Data> nodeExists = findNode(id);
-            // if the node already exists, throw an error message
-            // if the node does not exist, add it to the list of nodes
-            if (nodeList.size() > 0 && nodeExists != NULL) {
+            if(nodeList.size() > 0 && nodeExists != NULL)
+            {
                 string errorString = "File format error : Duplicate node '" + id + " Node Not Added";
                 std::cout << errorString << std::endl;
-            } else {
+            }
+            else
+            {
+                nodeList[id] = nodeToAdd;
+            }
+        }
+        else
+        {
+            nodeList[id] = nodeToAdd;
+        }
+    }
+
+    template <class Data>
+    void Graph<Data>::addNode(nodePtr<Data> nodeToAdd, const string &id, bool quick)
+    {
+        if(!quick)
+        {
+            // before adding the node, try to find it
+            nodePtr<Data> nodeExists = findNode(id);
+            // if the node already exists, throw an error message
+            // if the node does not exist, add it to the list of nodes
+            if(nodeList.size() > 0 && nodeExists != NULL)
+            {
+                string errorString = "File format error : Duplicate node '" + id + " Node Not Added";
+                std::cout << errorString << std::endl;
+            }
+            else
+            {
+                nodeList[id] = nodeToAdd;
+            }
+        }
+        else
+        {
+            nodeList[id] = nodeToAdd;
+        }
+    }
+
+    template <class Data>
+    void Graph<Data>::addNode(const string &id, Data data, bool quick)
+    {
+        if(quick)
+        {
+            nodeList[id] = nodePtr<Data>(new Node<Data>(id, data));
+        }
+        else
+        {
+            // before adding the node, try to find it
+            nodePtr<Data> nodeExists = findNode(id);
+            // if the node already exists, throw an error message
+            // if the node does not exist, add it to the list of nodes
+            if(nodeList.size() > 0 && nodeExists != NULL)
+            {
+                string errorString = "File format error : Duplicate node '" + id + " Node Not Added";
+                std::cout << errorString << std::endl;
+            }
+            else
+            {
                 nodeList[id] = nodePtr<Data>(new Node<Data>(id, data));
             }
         }
     }
 
-    template<class Data>
-    void Graph<Data>::addNode(const string &id, Data data, float cost, float heur, int quick) {
-        if(quick){
+    template <class Data>
+    void Graph<Data>::addNode(const string &id, Data data, float cost, float heur, int quick)
+    {
+        if(quick)
+        {
             auto newNode = nodePtr<Data>(new Node<Data>(id, data));
             nodeList[id] = newNode;
             newNode->setHeuristic(heur);
             newNode->setPathCost(cost);
         }
-        else {
+        else
+        {
             // before adding the node, try to find it
             nodePtr<Data> nodeExists = findNode(id);
             // if the node already exists, throw an error message
             // if the node does not exist, add it to the list of nodes
-            if (nodeList.size() > 0 && nodeExists != NULL) {
-                string errorString =
-                        "File format error : Duplicate node '" + id + " Node Not Added";
+            if(nodeList.size() > 0 && nodeExists != NULL)
+            {
+                string errorString = "File format error : Duplicate node '" + id + " Node Not Added";
                 std::cout << errorString << std::endl;
-            } else {
+            }
+            else
+            {
                 auto newNode = nodePtr<Data>(new Node<Data>(id, data));
                 nodeList[id] = newNode;
                 newNode->setHeuristic(heur);
                 newNode->setPathCost(cost);
-
             }
         }
     }
 
-    template<class Data>
-    void Graph<Data>::addEdge(const string &tail, const string &head, float cost, bool quick) {
+    template <class Data>
+    void Graph<Data>::addEdge(const string &tail, const string &head, float cost, bool quick)
+    {
         // find the pointers to nodes at head and tail, based on the strings
         // throw errors if either is not found
-        const string edgeSpacer  = "-"; //!< when id'ing the edges the edge id is the *headNodeID*+edgeSpacer+*tailNodeID"
+        const string edgeSpacer =
+            "-";  //!< when id'ing the edges the edge id is the *headNodeID*+edgeSpacer+*tailNodeID"
         nodePtr<Data> nodeTail = findNode(tail);
         nodePtr<Data> nodeHead = findNode(head);
-        string edgeId = head + edgeSpacer + tail;
-        if(!quick) {
-
-            if (nodeTail == NULL) {
+        string edgeId          = head + edgeSpacer + tail;
+        if(!quick)
+        {
+            if(nodeTail == NULL)
+            {
                 string errorString = "File error : Node " + tail + " does not exist.";
                 throw std::runtime_error(errorString.c_str());
             }
 
-            if (nodeHead == NULL) {
+            if(nodeHead == NULL)
+            {
                 string errorString = "File error : Node " + head + " does not exist.";
                 throw std::runtime_error(errorString.c_str());
             }
-            if (edgeExist(edgeId)) {
+            if(edgeExist(edgeId))
+            {
                 string errorString = "File error : Edge already exist.";
                 throw std::runtime_error(errorString.c_str());
             }
         }
         edgePtr<Data> newEdge = edgePtr<Data>(new Edge<Data>(tail, head, cost));
-        edgeList[edgeId] = newEdge;
+        edgeList[edgeId]      = newEdge;
         nodeHead->addChildEdge(newEdge);
         nodeTail->addParentEdge(newEdge);
     }
 
-    template<class Data>
-    void Graph<Data>::addEdge(const string &tail, const string &head, float cost, nodePtr<Data>& nodeHead, nodePtr<Data>& nodeTail,  bool quick) {
+    template <class Data>
+    void Graph<Data>::addEdge(const string &tail,
+                              const string &head,
+                              float cost,
+                              nodePtr<Data> nodeHead,
+                              nodePtr<Data> nodeTail,
+                              bool quick)
+    {
         // find the pointers to nodes at head and tail, based on the strings
         // throw errors if either is not found
-        const string edgeSpacer  = "-"; //!< when id'ing the edges the edge id is the *headNodeID*+edgeSpacer+*tailNodeID"
+        const string edgeSpacer =
+            "-";  //!< when id'ing the edges the edge id is the *headNodeID*+edgeSpacer+*tailNodeID"
         string edgeId = head + edgeSpacer + tail;
-        if(!quick) {
-
-            if (nodeTail == NULL) {
+        if(!quick)
+        {
+            if(nodeTail == NULL)
+            {
                 string errorString = "File error : Node " + tail + " does not exist.";
                 throw std::runtime_error(errorString.c_str());
             }
 
-            if (nodeHead == NULL) {
+            if(nodeHead == NULL)
+            {
                 string errorString = "File error : Node " + head + " does not exist.";
                 throw std::runtime_error(errorString.c_str());
             }
-            if (edgeExist(edgeId)) {
+            if(edgeExist(edgeId))
+            {
                 string errorString = "File error : Edge already exist.";
                 throw std::runtime_error(errorString.c_str());
             }
         }
         edgePtr<Data> newEdge = edgePtr<Data>(new Edge<Data>(tail, head, cost));
-        edgeList[edgeId] = newEdge;
+        edgeList[edgeId]      = newEdge;
         nodeHead->addChildEdge(newEdge, edgeId);
         nodeTail->addParentEdge(newEdge, edgeId);
     }
 
-    template<class Data>
-    void Graph<Data>::addEdge(edgePtr<Data> edgeToAdd, bool quick) {
+    template <class Data>
+    void Graph<Data>::addEdge(edgePtr<Data> edgeToAdd, bool quick)
+    {
         // find the pointers to nodes at head and tail, based on the strings
         // throw errors if either is not found
         const string head = edgeToAdd->getHeadNode();
@@ -229,19 +272,23 @@ namespace grstaps {
 
         nodePtr<Data> nodeTail = findNode(tail);
         nodePtr<Data> nodeHead = findNode(head);
-        if(!quick) {
-            if (nodeTail == NULL) {
+        if(!quick)
+        {
+            if(nodeTail == NULL)
+            {
                 string errorString = "File error : Node " + tail + " does not exist.";
                 throw std::runtime_error(errorString.c_str());
             }
 
-            if (nodeHead == NULL) {
+            if(nodeHead == NULL)
+            {
                 string errorString = "File error : Node " + head + " does not exist.";
                 throw std::runtime_error(errorString.c_str());
             }
 
             edgePtr<Data> edgeExist = edgeList.find(edgeToAdd->getEdgeID());
-            if (edgeExist != NULL) {
+            if(edgeExist != NULL)
+            {
                 string errorString = "File error : Edge already exist.";
                 throw std::runtime_error(errorString.c_str());
             }
@@ -251,13 +298,14 @@ namespace grstaps {
         nodeTail->addParentEdge(edgeToAdd);
     }
 
-    template<class Data>
-    bool Graph<Data>::removeNode(const string id) {
-        auto foundNode = nodeList.find(id);
+    template <class Data>
+    bool Graph<Data>::removeNode(const string& id)
+    {
+        auto foundNode       = nodeList.find(id);
         bool removedFromNode = false;
-        if (foundNode != nodeList.end()) {
-            //remove all edges that used to be attached to that node
-
+        if(foundNode != nodeList.end())
+        {
+            // remove all edges that used to be attached to that node
 
             nodeList.erase(id);
             removedFromNode = true;
@@ -265,12 +313,14 @@ namespace grstaps {
         return removedFromNode;
     }
 
-    template<class Data>
-    bool Graph<Data>::removeEdge(const string id) {
-        auto foundEdge = edgeList.find(id);
+    template <class Data>
+    bool Graph<Data>::removeEdge(const string& id)
+    {
+        auto foundEdge       = edgeList.find(id);
         bool removedFromNode = false;
-        if (foundEdge != edgeList.end()) {
-            //remove all edges that used to be attached to that node
+        if(foundEdge != edgeList.end())
+        {
+            // remove all edges that used to be attached to that node
 
             nodeList.find(foundEdge->second->getHeadNode())->second->removeChildNode(id);
             nodeList.find(foundEdge->second->getTailNode())->second->removeParentNode(id);
@@ -280,21 +330,23 @@ namespace grstaps {
         return removedFromNode;
     }
 
-    template<class Data>
-    bool Graph<Data>::nodeExist(string id){
+    template <class Data>
+    bool Graph<Data>::nodeExist(const string& id)
+    {
         return nodeList.end() != nodeList.find(id);
     }
 
-    template<class Data>
-    bool Graph<Data>::edgeExist(string id){
+    template <class Data>
+    bool Graph<Data>::edgeExist(const string& id)
+    {
         auto edgeExist = edgeList.find(id);
-        if (edgeExist != edgeList.end()) {
+        if(edgeExist != edgeList.end())
+        {
             return true;
         }
         return false;
     }
 
-
-} // namespace grstaps
+}  // namespace grstaps
 
 #endif

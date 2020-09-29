@@ -19,18 +19,14 @@
 #ifndef GRSTAPS_NODEEXPANDER
 #define GRSTAPS_NODEEXPANDER
 
-#include "grstaps/Search/Heuristic.h"
-#include "grstaps/Search/Cost.h"
-#include "grstaps/Task_Allocation/TAGoalDist.h"
-#include "grstaps/Graph/Node.h"
 #include "grstaps/Graph/Graph.h"
-#include "grstaps/Scheduling/TAScheduleTime.h"
+#include "grstaps/Graph/Node.h"
+#include "grstaps/Search/Cost.h"
+#include "grstaps/Search/Heuristic.h"
 
-
-
-namespace grstaps {
-
-    template<typename Data>
+namespace grstaps
+{
+    template <typename Data>
     using nodePtr = typename boost::shared_ptr<Node<Data>>;
 
     /**
@@ -39,38 +35,39 @@ namespace grstaps {
      * \note need to implement a verision of this for our search problems
      *
      */
-    template<typename Data>
-    class NodeExpander {
-        public:
-                /**
-            * Constructor
-            *
-            * \param heuristic objectconst
-            * \param cost object
-            *
-            */
-            NodeExpander(boost::shared_ptr<Heuristic> ,  boost::shared_ptr<Cost>);
+    template <typename Data>
+    class NodeExpander
+    {
+       public:
+        /**
+         * Constructor
+         *
+         * \param heuristic objectconst
+         * \param cost object
+         *
+         */
+        NodeExpander(boost::shared_ptr<Heuristic>, boost::shared_ptr<Cost>);
 
-            /**
-            * Constructor
-            *
-            * \param heuristic object
-            * \param cost object
-            *
-            */
-            NodeExpander();
+        /**
+         * Constructor
+         *
+         * \param heuristic object
+         * \param cost object
+         *
+         */
+        NodeExpander();
 
-            // This operator overloading enables calling
-            // operator function () on objects of increment
-            virtual bool operator()(Graph<Data>&, nodePtr<Data>&);
+        // This operator overloading enables calling
+        // operator function () on objects of increment
+        virtual bool operator()(Graph<Data>&, nodePtr<Data>) = 0;
 
-            boost::shared_ptr<Heuristic> heuristicFunc; //!< heuristic object
-            boost::shared_ptr<Cost> costFunc; //!< cost object
-        };
+        boost::shared_ptr<Heuristic> heuristicFunc;  //!< heuristic object
+        boost::shared_ptr<Cost> costFunc;            //!< cost object
+    };
 
-} // namespace grstaps
+}  // namespace grstaps
 
-#endif //GRSTAPS_NODEEXPANDER
+#endif  // GRSTAPS_NODEEXPANDER
 
 #ifndef GRSTAPS_NODEEXPANDERCPP
 #include "../src/Search/NodeExpander.cpp"

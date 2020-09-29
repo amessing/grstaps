@@ -22,6 +22,9 @@
 #include <string>
 #include <utility>
 
+// external
+#include <nlohmann/json.hpp>
+
 // local
 #include "grstaps/noncopyable.hpp"
 
@@ -33,6 +36,12 @@ namespace grstaps
     class Location
     {
        public:
+        /*
+         * Default constructor
+         *
+         * /note for json
+         */
+        Location() = default;
         /**
          * Constructor
          *
@@ -74,6 +83,12 @@ namespace grstaps
         float m_y;           //!< The y component of this location
 
         static unsigned int s_next_location_id;  //!< The identifier for this next location to be created
+
+        friend void to_json(nlohmann::json& j, const Location& l);
+        friend void from_json(const nlohmann::json& j, Location& l);
     };
+
+    void to_json(nlohmann::json& j, const Location& l);
+    void from_json(const nlohmann::json& j, Location& l);
 }  // namespace grstaps
 #endif  // GRSTAPS_LOCATION_HPP

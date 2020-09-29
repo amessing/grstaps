@@ -19,22 +19,16 @@
 #ifndef GRSTAPS_SEARCHRESULTSPACKAGERCPP
 #define GRSTAPS_SEARCHRESULTSPACKAGERCPP
 
-
 #include "grstaps/Search/SearchResultPackager.h"
 
-
-
-namespace grstaps {
-
-    template<class Data>
-    void SearchResultPackager<Data>::addResults(Graph<Data>& resultGraph, nodePtr<Data> &goalNode,
-                                                     bool searchFailed){
-        graph = &resultGraph;
+namespace grstaps
+{
+    template <class Data>
+    void SearchResultPackager<Data>::addResults(Graph<Data>& resultGraph, nodePtr<Data>& goalNode, bool searchFailed)
+    {
+        graph     = &resultGraph;
         finalNode = goalNode;
         foundGoal = !searchFailed;
-        }
-
-
-}//namespace grstaps
-
+    }
+}  // namespace grstaps
 #endif

@@ -20,9 +20,13 @@
 #define GRSTAPS_CHECK_ALLOCATABLE_H
 
 #include <vector>
+
 #include <boost/shared_ptr.hpp>
 using std::vector;
 
-bool isAllocatable(vector<vector<float>> goalDistribution, vector<vector<float>> speciesDistribution, vector<vector<float>> nonCumTraitCutoff, boost::shared_ptr<vector<int>> numSpec);
+bool isAllocatable(const std::vector<std::vector<float>>& goalDistribution,
+                   const std::vector<std::vector<float>>& speciesDistribution,
+                   const std::vector<std::vector<float>>& nonCumTraitCutoff,
+                   boost::shared_ptr<vector<int>> numSpec);
 
 #endif  // GRSTAPS_CHECK_ALLOCATABLE_H

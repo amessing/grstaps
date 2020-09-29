@@ -22,21 +22,21 @@
 #include "grstaps/Graph/Graph.h"
 #include "grstaps/Task_Allocation/TaskAllocation.h"
 
-namespace grstaps {
-
-    class Cost {
-        public:
-             /**
-             *
-             * Returns the cost of a node
-             *
-             * \param the graph that the node is fronm
-             * \param id of the parent node
-             * \param the new node to find cost of
-             *
-            */
-            virtual float operator()(Graph<TaskAllocation>& graph, TaskAllocation& parentNode, TaskAllocation& newNode)=0;
+namespace grstaps
+{
+    class Cost
+    {
+       public:
+        /**
+         *
+         * Returns the cost of a node
+         *
+         * \param the graph that the node is fronm
+         * \param id of the parent node
+         * \param the new node to find cost of
+         *
+         */
+        virtual float operator()(const Graph<TaskAllocation>& graph, const TaskAllocation& parentNode, TaskAllocation& newNode) = 0;
     };
-} //grstaps
-
-#endif //GSTAPS_COST_H
+}  // namespace grstaps
+#endif  // GSTAPS_COST_H

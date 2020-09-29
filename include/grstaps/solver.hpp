@@ -26,6 +26,7 @@
 
 // external
 #include "nlohmann/json.hpp"
+#include "Timer.h"
 
 namespace grstaps
 {
@@ -63,6 +64,7 @@ namespace grstaps
         void planSubcomponents(Plan* base, std::vector<const Plan*>& plan_subcomponents);
         std::string planToPDDL();
         void writeTrace(std::ofstream& f, Plan* p);
+        int total_ta_node_expanded;
     };
 }  // namespace grstaps
 
