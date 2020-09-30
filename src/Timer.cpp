@@ -5,7 +5,7 @@
 
 namespace grstaps
 {
-    std::vector< std::pair<double, const char*> > Timer::s_timer_splits;
+    std::vector<std::pair<double, Timer::SplitType> > Timer::s_timer_splits;
     float Timer::s_tplan_time    = 0;
     float Timer::s_talloc_time   = 0;
     float Timer::s_schedule_time = 0;
@@ -13,15 +13,14 @@ namespace grstaps
 
     Timer::Timer()
         : m_running(false)
-    {
-    }
+    {}
 
     void Timer::start()
     {
         if(!m_running)
         {
             m_start_time = std::chrono::system_clock::now();
-            m_running = true;
+            m_running    = true;
         }
     }
 
@@ -30,7 +29,7 @@ namespace grstaps
         if(m_running)
         {
             m_end_time = std::chrono::system_clock::now();
-            m_running = false;
+            m_running  = false;
         }
     }
 
@@ -47,9 +46,9 @@ namespace grstaps
         }
     }
 
-    void Timer::recordSplit(const char* msg)
+    void Timer::recordSplit(Timer::SplitType t)
     {
-        s_timer_splits.push_back(std::pair<double, const char*>(getTime(), msg));
+        s_timer_splits.push_back(std::pair<double, SplitType>(getTime(), t));
     }
 
     double Timer::getTime()
@@ -65,64 +64,59 @@ namespace grstaps
         }
     }
 
+    /*
     void Timer::printSplits()
     {
-        const char* curr_msg;
-        double curr_split;
         int msg_length, num_whitespaces;
 
-        for(int i = 0; i < (int)s_timer_splits.size(); i++)
+        for(auto iter : s_timer_splits)
         {
             std::stringstream formatted_msg;
 
-            curr_split = s_timer_splits.at(i).first;
-            curr_msg   = s_timer_splits.at(i).second;
+            double curr_split = iter.first;
+            SplitType type   = iter.second;
             msg_length = strlen(curr_msg);
 
-            /* Num whitespaces for formatting is:
-         * 80 max char - 13 char for logger - 13 for time - msg length */
+            // Num whitespaces for formatting is:
+            // 80 max char - 13 char for logger - 13 for time - msg length
             num_whitespaces = 80 - 13 - 11 - msg_length - 3;
 
             formatted_msg << curr_msg;
 
-            /* Add periods to format message to 80 characters length */
+            // Add periods to format message to 80 characters length
             for(int i = 0; i < num_whitespaces; i++)
                 formatted_msg << ".";
 
             printf("%s%.7f sec \n", formatted_msg.str().c_str(), curr_split);
         }
     }
+    */
 
     void Timer::calcSplits()
     {
-        const char* curr_msg;
-        double curr_split;
-
         s_schedule_time = 0;
         s_talloc_time   = 0;
         s_tplan_time    = 0;
         s_mp_time       = 0;
 
-        for(int i = 0; i < (int)s_timer_splits.size(); i++)
+        for(auto iter : s_timer_splits)
         {
-
-            curr_split = s_timer_splits.at(i).first;
-            curr_msg   = s_timer_splits.at(i).second;
-            if(strcmp(curr_msg, "TA") == 0)
+            double curr_split = iter.first;
+            SplitType type   = iter.second;
+            switch(type)
             {
-                s_talloc_time += curr_split;
-            }
-            else if(strcmp(curr_msg, "SCHED") == 0)
-            {
-                s_schedule_time += curr_split;
-            }
-            else if(strcmp(curr_msg, "PLAN") == 0)
-            {
-                s_tplan_time += curr_split;
-            }
-            else if(strcmp(curr_msg, "MP") == 0)
-            {
-                s_mp_time += curr_split;
+                case SplitType::e_tp:
+                    s_tplan_time += curr_split;
+                    break;
+                case SplitType::e_ta:
+                    s_talloc_time += curr_split;
+                    break;
+                case SplitType::e_s:
+                    s_schedule_time += curr_split;
+                    break;
+                case SplitType::e_mp:
+                    s_mp_time += curr_split;
+                    break;
             }
         }
 
@@ -133,10 +127,10 @@ namespace grstaps
     void to_json(nlohmann::json& j, const Timer& t)
     {
         Timer::calcSplits();
-        j["tp_compute_time"] = t.s_tplan_time;
-        j["ta_compute_time"] = t.s_talloc_time;
-        j["s_compute_time"] = t.s_schedule_time;
-        j["mp_compute_time"] = t.s_mp_time;
+        j["tp_compute_time"]    = t.s_tplan_time;
+        j["ta_compute_time"]    = t.s_talloc_time;
+        j["s_compute_time"]     = t.s_schedule_time;
+        j["mp_compute_time"]    = t.s_mp_time;
         j["total_compute_time"] = t.s_tplan_time + t.s_talloc_time + t.s_schedule_time + t.s_mp_time;
     }
-}
+}  // namespace grstaps

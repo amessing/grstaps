@@ -58,19 +58,6 @@ namespace grstaps
 
     float Scheduler::initSTN(const std::vector<float>& durations)
     {
-        /*
-        stn.clear();
-        worstSchedule = 0;
-        for(float duration : durations){
-            worstSchedule += duration;
-            stn.emplace_back(std::vector<float>{0, duration});
-            if(bestSchedule < duration){
-                bestSchedule = duration;
-            }
-        }
-        return 1;
-        */
-        // stn.clear();
         stn           = std::vector<std::vector<float>>(durations.size(), std::vector<float>(2, 0));
         worstSchedule = 0;
         for(int i = 0; i < durations.size(); ++i)
@@ -611,7 +598,7 @@ namespace grstaps
         {
             setDisjuctive();
         }
-        schedTime.recordSplit("SCHED");
+        schedTime.recordSplit(Timer::SplitType::e_s);
         schedTime.stop();
 
         return scheduleValid;

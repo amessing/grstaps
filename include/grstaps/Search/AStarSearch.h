@@ -192,7 +192,7 @@ namespace grstaps
 
             (*expander)(this->graph, this->currentNode);
             //float currentCost = this->currentNode->getPathCost();
-            nodesExpanded += this->currentNode->leavingEdges.size();
+            nodesSearched += this->currentNode->leavingEdges.size();
             for(auto itr = this->currentNode->leavingEdges.begin(); itr != this->currentNode->leavingEdges.end(); ++itr)
             {
                 auto node = this->graph.findNode(itr->second->getTailNode());
@@ -222,7 +222,7 @@ namespace grstaps
             currentNode = frontier.top();
             closedList.push(currentNode);
             frontier.pop();
-            nodesSearched += 1;
+            nodesExpanded += 1;
         }
         return searchFailed;
     }
