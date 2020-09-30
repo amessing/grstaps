@@ -13,6 +13,14 @@ namespace grstaps
     class Timer
     {
        public:
+        enum class SplitType
+        {
+            e_tp,
+            e_ta,
+            e_s,
+            e_mp
+        };
+
         //! \brief Constructor
         Timer();
 
@@ -25,13 +33,10 @@ namespace grstaps
         //! \brief Restart the timer
         void restart();
 
-
         void reset();
 
-
-        void recordSplit(const char* msg);
+        void recordSplit(SplitType t);
         double getTime();
-        double diff(timespec start, timespec end);
         static void printSplits();
         static void calcSplits();
 
@@ -44,7 +49,7 @@ namespace grstaps
         std::chrono::time_point<std::chrono::system_clock> m_start_time;
         std::chrono::time_point<std::chrono::system_clock> m_end_time;
         bool m_running;
-        static std::vector<std::pair<double, const char*> > s_timer_splits;
+        static std::vector<std::pair<double, SplitType> > s_timer_splits;
     };
 
     void to_json(nlohmann::json& j, const Timer& t);

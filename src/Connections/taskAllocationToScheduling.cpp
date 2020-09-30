@@ -215,7 +215,7 @@ namespace grstaps
 
         if(m_motion_planners == nullptr)
         {
-            mpTime.recordSplit("MP");
+            mpTime.recordSplit(Timer::SplitType::e_mp);
             mpTime.stop();
             return sched.getMakeSpan();
         }
@@ -317,7 +317,7 @@ namespace grstaps
 
                 sched.increaseActionTime(actionOrder[i], maxTravelTime + (action_move_time / slowestAgent));
             }
-            mpTime.recordSplit("MP");
+            mpTime.recordSplit(Timer::SplitType::e_mp);
             mpTime.stop();
             return sched.getMakeSpan();
         }

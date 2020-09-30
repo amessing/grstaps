@@ -132,7 +132,7 @@ namespace grstaps
                 graphAllocateAndSchedule.search(isGoal, expander, package);
                 talloc_nodes_expanded += graphAllocateAndSchedule.nodesExpanded;
                 talloc_nodes_visited += graphAllocateAndSchedule.nodesSearched;
-                taTime.recordSplit("TA");
+                taTime.recordSplit(Timer::SplitType::e_ta);
                 taTime.stop();
 
                 if(package->foundGoal)
@@ -154,7 +154,7 @@ namespace grstaps
                 auto* potential_plan = std::get<0>(potential_successors[i]);
                 if(potential_plan->isSolution())
                 {
-                    planTime.recordSplit("PLAN");
+                    planTime.recordSplit(Timer::SplitType::e_tp);
                     planTime.stop();
                     delete package;
                     auto potential_ta = std::get<1>(potential_successors[i]);
@@ -189,7 +189,7 @@ namespace grstaps
             tplan_nodes_visited += valid_successors.size();
             task_planner.update(base, valid_successors);
         }
-        planTime.recordSplit("PLAN");
+        planTime.recordSplit(Timer::SplitType::e_tp);
         planTime.stop();
 
         delete package;
@@ -283,7 +283,7 @@ namespace grstaps
                         graphAllocateAndSchedule.search(isGoal, expander, package);
                         talloc_nodes_expanded += graphAllocateAndSchedule.nodesExpanded;
                         talloc_nodes_visited += graphAllocateAndSchedule.nodesSearched;
-                        taTime.recordSplit("TA");
+                        taTime.recordSplit(Timer::SplitType::e_ta);
                         taTime.stop();
 
                         if(package->foundGoal)
@@ -294,7 +294,7 @@ namespace grstaps
                                 continue;
                             }
 
-                            planTime.recordSplit("PLAN");
+                            planTime.recordSplit(Timer::SplitType::e_tp);
                             planTime.stop();
                             delete package;
 
@@ -314,6 +314,7 @@ namespace grstaps
                                 metrics);
                             return m_solution;
                         }
+                        taTime.restart();
                     }
                 }
             }
@@ -322,7 +323,7 @@ namespace grstaps
             tplan_nodes_visited += successors.size();
             task_planner.update(base, successors);
         }
-        planTime.recordSplit("PLAN");
+        planTime.recordSplit(Timer::SplitType::e_tp);
         planTime.stop();
 
         delete package;
