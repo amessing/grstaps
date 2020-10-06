@@ -72,7 +72,7 @@ namespace grstaps
          * \return the makespan of the schedle
          *
          */
-        bool schedule(const std::vector<float>& durations, std::vector<std::vector<int>>& orderingConstraints);
+        bool schedule(const std::vector<float>& durations, std::vector<std::vector<int>>& orderingConstraints, float longestMP = 0);
 
         /**
          *
@@ -208,7 +208,7 @@ namespace grstaps
 
         /**
          *
-         * adds an action to the schedule
+         * adds an action to the schedule schedule schedule
          *
          * \param the actions duration
          * \param the ordering constraints of the action
@@ -239,7 +239,7 @@ namespace grstaps
          * \return the makespan of the schedle
          *
          */
-        bool schedule(const std::vector<float>&, std::vector<std::vector<int>>&, std::vector<std::vector<int>>&);
+        bool schedule(const std::vector<float>&, std::vector<std::vector<int>>&, std::vector<std::vector<int>>&, float = 0);
 
         /**
          *
@@ -357,6 +357,7 @@ namespace grstaps
         std::vector<std::vector<float>> copySTN;
         std::vector<int> constraintsToUpdate;
         robin_hood::unordered_map<int, std::vector<float>> editedActionTimes;
+        float longestMotion;
     };
 }  // namespace grstaps
 #endif  // GRSTAPS_SCHEDULER_H

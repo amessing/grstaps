@@ -38,6 +38,7 @@ namespace grstaps
         constraintsToUpdate.reserve(1000);
         bestSchedule  = 0;
         worstSchedule = 0;
+        longestMotion = 0;
     }
 
     Scheduler::Scheduler(const Scheduler& toCopy)
@@ -54,6 +55,67 @@ namespace grstaps
         copySTN               = toCopy.stn;
         bestSchedule          = toCopy.bestSchedule;
         worstSchedule         = toCopy.worstSchedule;
+        longestMotion         = toCopy.longestMotion;
+
+    }
+
+    bool Scheduler::schedule(const std::vector<float>& durations, std::vector<std::vector<int>>& orderingConstraints, float longestMP)
+    {
+
+        initSTN(durations);
+        beforeConstraints = std::vector<std::vector<int>>(durations.size(), std::vector<int>(0));
+        afterConstraints  = std::vector<std::vector<int>>(durations.size(), std::vector<int>(0));
+        for(auto& orderingConstraint: orderingConstraints)
+        {
+            bool added = addOC(orderingConstraint[0], orderingConstraint[1]);
+            if(bestSchedule < stn[orderingConstraint[1]][1])
+            {
+                bestSchedule = stn[orderingConstraint[1]][1];
+            }
+            if(added == 0)
+            {
+                scheduleValid = false;
+                return false;
+            }
+        }
+        scheduleValid = true;
+        longestMotion = longestMP;
+        return true;
+    }
+
+    bool Scheduler::schedule(const std::vector<float>& durations,
+                             std::vector<std::vector<int>>& orderingConstraints,
+                             std::vector<std::vector<int>>& disConstraints,
+                             float longestMP)
+    {
+        Timer schedTime;
+        schedTime.start();
+        longestMotion = longestMP;
+
+        initSTN(durations);
+        makeSpan          = -1;
+        beforeConstraints = std::vector<std::vector<int>>(durations.size(), std::vector<int>(0));
+        afterConstraints  = std::vector<std::vector<int>>(durations.size(), std::vector<int>(0));
+        for(auto& orderingConstraint: orderingConstraints)
+        {
+            bool added = addOC(orderingConstraint[0], orderingConstraint[1]);
+            if(!added)
+            {
+                scheduleValid = false;
+                return false;
+            }
+        }
+        disjuctiveConstraints = disConstraints;
+        disjuctiveOrderings.resize(disjuctiveConstraints.size());
+        std::fill(disjuctiveOrderings.begin(), disjuctiveOrderings.end(), 0);
+        if(disConstraints.size() > 0)
+        {
+            setDisjuctive();
+        }
+        schedTime.recordSplit(Timer::SplitType::e_s);
+        schedTime.stop();
+
+        return scheduleValid;
     }
 
     float Scheduler::initSTN(const std::vector<float>& durations)
@@ -69,6 +131,7 @@ namespace grstaps
                 bestSchedule = durations[i];
             }
         }
+        worstSchedule += longestMotion * stn.size();
         return 1;
     }
 
@@ -545,62 +608,6 @@ namespace grstaps
                 return scheduleValid;
             }
         }
-        return scheduleValid;
-    }
-
-    bool Scheduler::schedule(const std::vector<float>& durations, std::vector<std::vector<int>>& orderingConstraints)
-    {
-
-        initSTN(durations);
-        beforeConstraints = std::vector<std::vector<int>>(durations.size(), std::vector<int>(0));
-        afterConstraints  = std::vector<std::vector<int>>(durations.size(), std::vector<int>(0));
-        for(auto& orderingConstraint: orderingConstraints)
-        {
-            bool added = addOC(orderingConstraint[0], orderingConstraint[1]);
-            if(bestSchedule < stn[orderingConstraint[1]][1])
-            {
-                bestSchedule = stn[orderingConstraint[1]][1];
-            }
-            if(added == 0)
-            {
-                scheduleValid = false;
-                return false;
-            }
-        }
-        scheduleValid = true;
-        return true;
-    }
-
-    bool Scheduler::schedule(const std::vector<float>& durations,
-                             std::vector<std::vector<int>>& orderingConstraints,
-                             std::vector<std::vector<int>>& disConstraints)
-    {
-        Timer schedTime;
-        schedTime.start();
-
-        initSTN(durations);
-        makeSpan          = -1;
-        beforeConstraints = std::vector<std::vector<int>>(durations.size(), std::vector<int>(0));
-        afterConstraints  = std::vector<std::vector<int>>(durations.size(), std::vector<int>(0));
-        for(auto& orderingConstraint: orderingConstraints)
-        {
-            bool added = addOC(orderingConstraint[0], orderingConstraint[1]);
-            if(!added)
-            {
-                scheduleValid = false;
-                return false;
-            }
-        }
-        disjuctiveConstraints = disConstraints;
-        disjuctiveOrderings.resize(disjuctiveConstraints.size());
-        std::fill(disjuctiveOrderings.begin(), disjuctiveOrderings.end(), 0);
-        if(disConstraints.size() > 0)
-        {
-            setDisjuctive();
-        }
-        schedTime.recordSplit(Timer::SplitType::e_s);
-        schedTime.stop();
-
         return scheduleValid;
     }
 
