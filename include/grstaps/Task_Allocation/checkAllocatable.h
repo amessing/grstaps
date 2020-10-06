@@ -27,9 +27,9 @@
 
 namespace grstaps
 {
-    bool isAllocatable(const std::vector<std::vector<float>>& goalDistribution,
-                       const std::vector<std::vector<float>>& speciesDistribution,
-                       const std::vector<std::vector<float>>& nonCumTraitCutoff,
-                       boost::shared_ptr<std::vector<int>> numSpec);
+    bool isAllocatable(const boost::shared_ptr<std::vector<std::vector<float>>> goalDistribution,
+                       std::vector<std::vector<float>>* speciesDistribution,
+                       boost::shared_ptr<std::vector<std::vector<float>>> nonCumTraitCutoff,
+                       const boost::shared_ptr<std::vector<int>> numSpec);
 }
 #endif  // GRSTAPS_CHECK_ALLOCATABLE_H
