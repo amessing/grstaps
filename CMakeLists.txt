@@ -34,6 +34,7 @@ endif (CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
 option(BUILD_DOC "Build Documentation" ${MASTER_PROJECT})
 option(BUILD_TESTS "Build Unit Tests" ${MASTER_PROJECT})
 option(BUILD_EXE "Build Executable" ${MASTER_PROJECT})
+option(BUILD_ICRA "Build Experiments for ICRA 2021" ${MASTER_PROJECT})
 
 # Add external libraries
 add_subdirectory(lib)
@@ -67,6 +68,29 @@ if(BUILD_EXE)
             _${PROJECT_NAME})
     target_compile_options(${PROJECT_NAME} PRIVATE ${_opts})
 endif(BUILD_EXE)
+
+# Create the experiments for ICRA 2021
+if(BUILD_ICRA)
+    message("Building experiments for ICRA 2021...")
+
+    file(GLOB_RECURSE icra_2021_files
+            icra_2021_experiments/**
+            icra_2021_experiments/**/**)
+    list(REMOVE_ITEM icra_2021_files ${CMAKE_CURRENT_SOURCE_DIR}/icra_2021_experiments/main.cpp)
+
+    # Copy test data to outdir/test
+    make_outputs(${CMAKE_CURRENT_SOURCE_DIR} "${icra_2021_files}" ${CMAKE_CURRENT_BINARY_DIR}/experiment_configs configOutputs)
+
+
+    add_executable(icra_2021_experiments icra_2021_experiments/main.cpp
+            icra_2021_experiments/icra_problem.hpp icra_2021_experiments/icra_problem.cpp
+            ${configOutputs})
+    set_target_properties(icra_2021_experiments PROPERTIES CXX_STANDARD 17 CXX_STANDARD_REQUIRED YES)
+    target_link_libraries(icra_2021_experiments PRIVATE
+            box2d fmt nlohmann_json spdlog stdc++fs
+            _${PROJECT_NAME})
+    target_compile_options(icra_2021_experiments PRIVATE ${_opts})
+endif(BUILD_ICRA)
 
 if(BUILD_DOC)
     # Check if Doxygen is installed
