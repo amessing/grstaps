@@ -39,6 +39,16 @@ namespace grstaps
         {
             return makespan;
         }
+        if(m_alpha > (1 - 1e-6))
+        {
+            return ((makespan - newNode.taToScheduling.sched.bestSchedule) /
+                   (newNode.taToScheduling.sched.worstSchedule - newNode.taToScheduling.sched.bestSchedule));
+        }
+        else if(m_alpha < 1e-6)
+        {
+            return newNode.getGoalDistance() / (*newNode.startingGoalDistance);
+        }
+
         const float normalized_schedule_quality = ((makespan - newNode.taToScheduling.sched.bestSchedule) /
                                                    (newNode.taToScheduling.sched.worstSchedule - newNode.taToScheduling.sched.bestSchedule));
         const float percentage_allocated_remaining = newNode.getGoalDistance() / (*newNode.startingGoalDistance);

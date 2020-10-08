@@ -232,6 +232,7 @@ namespace grstaps
             }
             else
             {
+                Logger::debug("solved");
                 round["alpha_0"] = future.get();
             }
 
@@ -244,6 +245,7 @@ namespace grstaps
             }
             else
             {
+                Logger::debug("solved");
                 round["alpha_0.25"] = future.get();
             }
 
@@ -256,6 +258,7 @@ namespace grstaps
             }
             else
             {
+                Logger::debug("solved");
                 round["alpha_0.5"] = future.get();
             }
 
@@ -268,6 +271,7 @@ namespace grstaps
             }
             else
             {
+                Logger::debug("solved");
                 round["alpha_0.75"] = future.get();
             }
 
@@ -280,10 +284,12 @@ namespace grstaps
             }
             else
             {
+                Logger::debug("solved");
                 round["alpha_1.0"] = future.get();
             }
 
             // Sequential
+
             future = std::async(std::launch::async, solveSequentially, problem);
             if(future.wait_for(span) == std::future_status::timeout)
             {
@@ -292,6 +298,7 @@ namespace grstaps
             }
             else
             {
+                Logger::debug("solved");
                 round["sequential"] = future.get();
             }
 
