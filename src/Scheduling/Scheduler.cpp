@@ -88,8 +88,7 @@ namespace grstaps
                              std::vector<std::vector<int>>& disConstraints,
                              float longestMP)
     {
-        Timer schedTime;
-        schedTime.start();
+
         longestMotion = longestMP;
 
         initSTN(durations);
@@ -112,9 +111,6 @@ namespace grstaps
         {
             setDisjuctive();
         }
-        schedTime.recordSplit(Timer::SplitType::e_s);
-        schedTime.stop();
-
         return scheduleValid;
     }
 
