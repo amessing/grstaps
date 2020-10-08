@@ -52,7 +52,8 @@ namespace grstaps
         speedIndex = config["speed_index"];
         mpIndex = config["mp_index"];
         m_config = config;
-
+        mp_max = config["mp_boundary_min"];
+        mp_min = config["mp_boundary_min"];
         setWorstMP();
     }
 
@@ -97,6 +98,7 @@ namespace grstaps
                     slowest = m_robot_traits[i][speedIndex];
                 }
             }
+            longestPath += 4*(mp_max - mp_min);
             longestPath = longestPath/slowest;
         }
     }
