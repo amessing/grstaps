@@ -343,7 +343,7 @@ namespace grstaps
     int run(bool sequential, int problem_nr, float alpha=0.0)
     {
         using IcraProblem = grstaps::icra2021::IcraProblem;
-
+        
         const std::string folder = "problems";
         if(!std::experimental::filesystem::exists(folder))
         {
@@ -438,7 +438,7 @@ int main(int argc, char** argv)
 
     if(seq)
     {
-        grstaps::run(seq, problem_nr);
+        grstaps::run(seq, pnr);
     }
     else
     {
