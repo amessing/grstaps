@@ -14,7 +14,7 @@ ulimit -t 1800
 # 16 GB
 ulimit -v 17179869184
 
-for i in {1..100}
+for i in {1..200}
 do
     echo "Problem ${i}"
     eval "./icra_experiments -p ${i} -a 0.0"
