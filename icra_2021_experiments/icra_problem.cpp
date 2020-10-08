@@ -52,7 +52,7 @@ namespace grstaps
             const float boundary_min = config["mp"]["boundary_min"];
             const float boundary_max = config["mp"]["boundary_max"];
 
-            IcraProblem problem;init
+            IcraProblem problem;
             problem.m_speed_index = 0;
             problem.m_mp_index = 5;
 
