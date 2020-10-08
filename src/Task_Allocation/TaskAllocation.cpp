@@ -78,8 +78,7 @@ namespace grstaps
                 }
             }
         }
-        float startGoalDistance = goalDistance;
-        startingGoalDistance    = &startGoalDistance;
+        startingGoalDistance    = goalDistance;
     }
 
     TaskAllocation::TaskAllocation(bool useSpec,
@@ -133,8 +132,7 @@ namespace grstaps
                 }
             }
         }
-        float startGoalDistance = goalDistance;
-        startingGoalDistance    = &startGoalDistance;
+        startingGoalDistance    = goalDistance;
     }
 
     TaskAllocation::TaskAllocation(const TaskAllocation& copyAllocation)
