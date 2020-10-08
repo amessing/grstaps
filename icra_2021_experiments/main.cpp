@@ -1,6 +1,6 @@
 
 // Global
-#include <filesystem>
+#include <experimental/filesystem>
 #include <fstream>
 #include <functional>
 #include <future>
@@ -202,9 +202,9 @@ namespace grstaps
 
         const unsigned int num_problems = 10;
         const std::string folder        = "icra_2021_experiments/problems";
-        if(!std::filesystem::exists(folder))
+        if(!std::experimental::filesystem::exists(folder))
         {
-            std::filesystem::create_directories(folder);
+            std::experimental::filesystem::create_directories(folder);
         }
 
         // todo: create config for generating a problem
@@ -219,7 +219,7 @@ namespace grstaps
         {
             const std::string file = folder + fmt::format("/problem_{}.json", problem_nr);
             IcraProblem problem;
-            if(!std::filesystem::exists(file))
+            if(!std::experimental::filesystem::exists(file))
             {
                 // Rotate which map to use
                 config["mp"]["obstacles"] = maps[problem_nr % 5];
