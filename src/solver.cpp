@@ -346,7 +346,7 @@ namespace grstaps
         std::string filepath = fmt::format("{}/output.json", folder);
         solution->write(filepath);
     }
-master
+
     void Solver::planSubcomponents(const Plan* base, std::vector<const Plan*>& plan_subcomponents)
     {
         if(base == nullptr)

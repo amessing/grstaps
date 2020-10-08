@@ -26,6 +26,7 @@
 #include <grstaps/Task_Allocation/TaskAllocation.h>
 #include <grstaps/json_conversions.hpp>
 #include <grstaps/logger.hpp>
+#include <grstaps/Task_Allocation/checkAllocatable.h>
 
 // Local
 #include "icra_problem.hpp"
@@ -195,9 +196,14 @@ namespace grstaps
             {
                 // Rotate which map to use
                 config["mp"]["obstacles"] = maps[problem_nr % 5];
-                problem                   = IcraProblem::generate(config);
+                boost::shared_ptr<std::vector<int>> numSpec;
+                do
+                {
+                    problem = IcraProblem::generate(config);
+                    numSpec = boost::make_shared<std::vector<int>>(problem.robotTraits()->size(), 1);
+                } while(!isAllocatable(problem.goalDistribution(), problem.robotTraits().get(), problem.noncumTraitCutoff(), numSpec));
 
-                // Save problem to file for reuboost::shared_ptr<se
+                // Save problem to file for reuse
                 std::ofstream out(file);
                 nlohmann::json p_json = problem;
                 out << p_json;
