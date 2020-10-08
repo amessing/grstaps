@@ -74,11 +74,6 @@ namespace grstaps
          */
         Node(Node&);
 
-        /**
-         * Destructor
-         */
-        ~Node();
-
         enum ExploredStatus
         {
             UNEXPLORED,
