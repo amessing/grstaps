@@ -27,19 +27,22 @@
 
 namespace grstaps
 {
-    float allocationWeight = 0.5;
+    TAGoalDist::TAGoalDist(const float alpha)
+        : m_alpha(alpha)
+    {}
 
     float TAGoalDist::operator()(const Graph<TaskAllocation> &graph, const TaskAllocation &parentNode, TaskAllocation &newNode) const
     {
         TAScheduleTime schedule;
-        double makespan = schedule(graph, parentNode, newNode);
+        const double makespan = schedule(graph, parentNode, newNode);
         if(makespan == std::numeric_limits<float>::max())
         {
             return makespan;
         }
-        return ((makespan - newNode.taToScheduling.sched.bestSchedule) /
-                (newNode.taToScheduling.sched.worstSchedule - newNode.taToScheduling.sched.bestSchedule)) +
-               ((newNode.getGoalDistance() / (*newNode.startingGoalDistance)) * allocationWeight);
+        const float normalized_schedule_quality = ((makespan - newNode.taToScheduling.sched.bestSchedule) /
+                                                   (newNode.taToScheduling.sched.worstSchedule - newNode.taToScheduling.sched.bestSchedule));
+        const float percentage_allocated_remaining = newNode.getGoalDistance() / (*newNode.startingGoalDistance);
+        return m_alpha * normalized_schedule_quality + (1.0 - m_alpha) * percentage_allocated_remaining;
     }
 
 }  // namespace grstaps

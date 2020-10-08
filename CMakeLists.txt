@@ -74,9 +74,8 @@ if(BUILD_ICRA)
     message("Building experiments for ICRA 2021...")
 
     file(GLOB_RECURSE icra_2021_files
-            icra_2021_experiments/**
-            icra_2021_experiments/**/**)
-    list(REMOVE_ITEM icra_2021_files ${CMAKE_CURRENT_SOURCE_DIR}/icra_2021_experiments/main.cpp)
+            icra_2021_experiments/maps/**
+            icra_2021_experiments/problems/**)
 
     # Copy test data to outdir/test
     make_outputs(${CMAKE_CURRENT_SOURCE_DIR} "${icra_2021_files}" ${CMAKE_CURRENT_BINARY_DIR}/experiment_configs configOutputs)

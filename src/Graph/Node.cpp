@@ -42,8 +42,6 @@ namespace grstaps
         nodeData      = copyNode.nodeData;
     }
 
-    template <class Data>
-    Node<Data>::~Node() = default;
 
     template <class Data>
     std::string Node<Data>::getNodeID() const

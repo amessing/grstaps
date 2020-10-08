@@ -44,7 +44,7 @@ namespace grstaps
         /**
          * Constructor
          *
-         * \param the heuistic object
+         * \param the heuristic object
          * \param the cost object
          *
          */
@@ -55,7 +55,7 @@ namespace grstaps
          *
          * \param the graph
          * \param the node parent
-         * \param the node whos children you wish to add
+         * \param the node who's children you wish to add
          *
          */
         bool operator()(Graph<TaskAllocation>& graph, nodePtr<TaskAllocation> expandNode) const override;

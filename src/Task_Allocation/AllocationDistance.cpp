@@ -15,13 +15,6 @@
  * along with GRSTAPS; if not, write to the Free Software Foundation,
  * Inc., #59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
-
-#include <cstdlib>
-#include <iostream>
-#include <stdexcept>
-#include <utility>
-
-#include "grstaps/Connections/taskAllocationToScheduling.h"
 #include "grstaps/Graph/Node.h"
 #include "grstaps/Task_Allocation/AllocationDistance.h"
 

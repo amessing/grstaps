@@ -30,6 +30,9 @@ namespace grstaps
     class TAGoalDist : public Heuristic
     {
        public:
+        //! \brief Constructor
+        TAGoalDist(const float alpha = 0.5);
+
         /**
          *
          * Returns the heuristic of a node
@@ -40,6 +43,8 @@ namespace grstaps
          *
          */
         float operator()(const Graph<TaskAllocation> &graph, const TaskAllocation &parentNode, TaskAllocation &newNode) const override;
+       private:
+        float m_alpha;
     };
 }  // namespace grstaps
 #endif  // GSTAPS_TA_GOAL_DIST
