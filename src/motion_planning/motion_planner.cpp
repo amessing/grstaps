@@ -35,7 +35,9 @@ namespace grstaps
     MotionPlanner::MotionPlanner()
         : m_map_set(false)
         , m_query_time(1.0)
-    {}
+    {
+        ompl::msg::noOutputHandler();
+    }
 
     void MotionPlanner::setMap(const std::vector<b2PolygonShape>& obstacles, float boundary_min, float boundary_max)
     {
