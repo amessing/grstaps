@@ -38,6 +38,7 @@
 #include "grstaps/solution.hpp"
 #include "grstaps/task_planning/plan.hpp"
 #include "grstaps/task_planning/task_planner.hpp"
+#include "grstaps/Task_Allocation/checkAllocatable.h"
 
 
 namespace grstaps
@@ -59,7 +60,7 @@ namespace grstaps
 
 
         // Task Allocation
-        taskAllocationToScheduling taToSched(motion_planners, &problem.startingLocations());
+        taskAllocationToScheduling taToSched(motion_planners, &problem.startingLocations(),problem.longestPath);
         bool usingSpecies = false;
         unsigned int talloc_nodes_expanded = 0;
         unsigned int talloc_nodes_visited  = 0;
@@ -75,8 +76,8 @@ namespace grstaps
         auto numSpec     = boost::make_shared<std::vector<int>>(problem.robotTraits().size(), 1);
         auto robotTraits = &problem.robotTraits();
 
-        Timer planTime;
-        planTime.start();
+        Timer planTimer;
+        planTimer.start();
 
         while(!task_planner.emptySearchSpace())
         {
@@ -110,30 +111,31 @@ namespace grstaps
 
                 Timer taTime;
                 taTime.start();
+                if(isAllocatable(goalDistribution, robotTraits, noncumTraitCutoff, numSpec))
+                {
+                    TaskAllocation ta(usingSpecies,
+                                      goalDistribution,
+                                      robotTraits,
+                                      noncumTraitCutoff,
+                                      taToSched,
+                                      durations,
+                                      orderingCon,
+                                      numSpec,
+                                      problem.speedIndex,
+                                      problem.mpIndex);
 
-                TaskAllocation ta(usingSpecies,
-                                  goalDistribution,
-                                  robotTraits,
-                                  noncumTraitCutoff,
-                                  taToSched,
-                                  durations,
-                                  orderingCon,
-                                  numSpec,
-                                  problem.speedIndex,
-                                  problem.mpIndex);
+                    auto root = boost::make_shared<Node<TaskAllocation>>(ta.getID(), ta);
+                    root->setData(ta);
+                    Graph<TaskAllocation> allocationGraph;
+                    allocationGraph.addNode(root);
 
-
-                auto root = boost::make_shared<Node<TaskAllocation>>(ta.getID(), ta);
-                root->setData(ta);
-                Graph<TaskAllocation> allocationGraph;
-                allocationGraph.addNode(root);
-
-                AStarSearch<TaskAllocation> graphAllocateAndSchedule(allocationGraph, root);
-                graphAllocateAndSchedule.search(isGoal, expander, package);
-                talloc_nodes_expanded += graphAllocateAndSchedule.nodesExpanded;
-                talloc_nodes_visited += graphAllocateAndSchedule.nodesSearched;
-                taTime.recordSplit(Timer::SplitType::e_ta);
-                taTime.stop();
+                    AStarSearch<TaskAllocation> graphAllocateAndSchedule(allocationGraph, root);
+                    graphAllocateAndSchedule.search(isGoal, expander, package);
+                    talloc_nodes_expanded += graphAllocateAndSchedule.nodesExpanded;
+                    talloc_nodes_visited += graphAllocateAndSchedule.nodesSearched;
+                    taTime.recordSplit(Timer::SplitType::e_ta);
+                    taTime.stop();
+                }
 
                 if(package->foundGoal)
                 {
@@ -154,10 +156,11 @@ namespace grstaps
                 auto* potential_plan = std::get<0>(potential_successors[i]);
                 if(potential_plan->isSolution())
                 {
-                    planTime.recordSplit(Timer::SplitType::e_tp);
-                    planTime.stop();
+                    planTimer.recordSplit(Timer::SplitType::e_tp);
+                    planTimer.stop();
                     delete package;
                     auto potential_ta = std::get<1>(potential_successors[i]);
+
 
                     nlohmann::json metrics = {
                         {"makespan", potential_ta.getScheduleTime()},
@@ -167,7 +170,7 @@ namespace grstaps
                         {"num_tp_nodes_pruned", tplan_nodes_pruned},
                         {"num_ta_nodes_expanded", talloc_nodes_expanded},
                         {"num_ta_nodes_visited", talloc_nodes_visited},
-                        {"timers", planTime}
+                        {"timers", planTimer}
                     };
 
                     auto m_solution =
@@ -177,7 +180,6 @@ namespace grstaps
 
                     return m_solution;
                 }
-            }
 
             std::vector<Plan*> valid_successors;
             for(auto it = potential_successors.begin(), end = potential_successors.end(); it != end; ++it)
@@ -188,16 +190,17 @@ namespace grstaps
             tplan_nodes_pruned += potential_successors.size() - valid_successors.size();
             tplan_nodes_visited += valid_successors.size();
             task_planner.update(base, valid_successors);
+            }
         }
-        planTime.recordSplit(Timer::SplitType::e_tp);
-        planTime.stop();
+
+        planTimer.recordSplit(Timer::SplitType::e_tp);
+        planTimer.stop();
 
         delete package;
         return nullptr;
     }
 
-    std::shared_ptr<Solution> Solver::solveSequentially(Problem& problem)
-    {
+    std::shared_ptr<Solution> Solver::solveSequentially(Problem& problem){
         // Initialize everything
         const nlohmann::json& config = problem.config();
 
@@ -230,6 +233,7 @@ namespace grstaps
 
         Timer planTime;
         planTime.start();
+        float longestMP = problem.longestPath;
 
         while(!task_planner.emptySearchSpace())
         {
@@ -255,28 +259,30 @@ namespace grstaps
                                                   goalDistribution,
                                                   actionLocations);
 
-                    taToSched.setActionLocations(actionLocations);
-                    Timer taTime;
-                    taTime.start();
 
-                    TaskAllocation ta(usingSpecies,
-                                      goalDistribution,
-                                      robotTraits,
-                                      noncumTraitCutoff,
-                                      taToSched,
-                                      durations,
-                                      orderingCon,
-                                      numSpec,
-                                      problem.speedIndex,
-                                      problem.mpIndex);
+                    if(isAllocatable(goalDistribution, robotTraits, noncumTraitCutoff, numSpec))
+                    {
+                        taToSched.setActionLocations(actionLocations);
+                        Timer taTime;
+                        taTime.start();
 
+                        TaskAllocation ta(usingSpecies,
+                                          goalDistribution,
+                                          robotTraits,
+                                          noncumTraitCutoff,
+                                          taToSched,
+                                          durations,
+                                          orderingCon,
+                                          numSpec,
+                                          problem.speedIndex,
+                                          problem.mpIndex);
 
-                    auto root = boost::make_shared<Node<TaskAllocation>>(ta.getID(), ta);
-                    root->setData(ta);
-                    Graph<TaskAllocation> allocationGraph;
-                    allocationGraph.addNode(root);
+                        auto root = boost::make_shared<Node<TaskAllocation>>(ta.getID(), ta);
+                        root->setData(ta);
+                        Graph<TaskAllocation> allocationGraph;
+                        allocationGraph.addNode(root);
 
-                    AStarSearch<TaskAllocation> graphAllocateAndSchedule(allocationGraph, root);
+                        AStarSearch<TaskAllocation> graphAllocateAndSchedule(allocationGraph, root);
 
                     while(!graphAllocateAndSchedule.empty())
                     {
@@ -286,33 +292,33 @@ namespace grstaps
                         taTime.recordSplit(Timer::SplitType::e_ta);
                         taTime.stop();
 
-                        if(package->foundGoal)
-                        {
-                            // if a schedule cannot be found then continue allocating
-                            if(package->finalNode->getData().getScheduleTime() < 0.0)
+                            if(package->foundGoal)
                             {
-                                continue;
-                            }
+                                // if a schedule cannot be found then continue allocating
+                                if(package->finalNode->getData().getScheduleTime() < 0.0)
+                                {
+                                    continue;
+                                }
 
                             planTime.recordSplit(Timer::SplitType::e_tp);
                             planTime.stop();
                             delete package;
 
-                            // todo: finish adding metrics
-                            nlohmann::json metrics = {
-                                {"makespan", package->finalNode->getData().getScheduleTime()},
-                                {"num_actions", (*package->finalNode->getData().actionDurations).size()},
-                                {"num_tp_nodes_expanded", tplan_nodes_expanded},
-                                {"num_tp_nodes_visited", tplan_nodes_visited},
-                                {"num_ta_nodes_expanded", talloc_nodes_expanded},
-                                {"num_ta_nodes_visited", talloc_nodes_visited},
-                                {"timers", planTime}
-                            };
-                            auto m_solution = std::make_shared<Solution>(
-                                std::shared_ptr<Plan>(plan),
-                                std::make_shared<TaskAllocation>(package->finalNode->getData()),
-                                metrics);
-                            return m_solution;
+                                // todo: finish adding metrics
+                                nlohmann::json metrics = {
+                                    {"makespan", package->finalNode->getData().getScheduleTime()},
+                                    {"num_actions", (*package->finalNode->getData().actionDurations).size()},
+                                    {"num_tp_nodes_expanded", tplan_nodes_expanded},
+                                    {"num_tp_nodes_visited", tplan_nodes_visited},
+                                    {"num_ta_nodes_expanded", talloc_nodes_expanded},
+                                    {"num_ta_nodes_visited", talloc_nodes_visited},
+                                    {"timers", planTime}};
+                                auto m_solution = std::make_shared<Solution>(
+                                    std::shared_ptr<Plan>(plan),
+                                    std::make_shared<TaskAllocation>(package->finalNode->getData()),
+                                    metrics);
+                                return m_solution;
+                            }
                         }
                         taTime.restart();
                     }
@@ -340,7 +346,7 @@ namespace grstaps
         std::string filepath = fmt::format("{}/output.json", folder);
         solution->write(filepath);
     }
-
+master
     void Solver::planSubcomponents(const Plan* base, std::vector<const Plan*>& plan_subcomponents)
     {
         if(base == nullptr)

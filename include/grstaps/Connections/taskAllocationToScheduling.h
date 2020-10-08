@@ -47,7 +47,7 @@ namespace grstaps
          *
          */
         taskAllocationToScheduling(boost::shared_ptr<std::vector<boost::shared_ptr<MotionPlanner>>> motion_planners  = nullptr,
-                                   const std::vector<unsigned int>* staring_locations= nullptr);
+                                   const std::vector<unsigned int>* staring_locations= nullptr, float longestMotion= 0);
 
         /**
          * Get the schedule for a task allocation that does not use species
@@ -115,6 +115,7 @@ namespace grstaps
         std::vector<int> actionOrder;
         std::vector<float> maxTraitTeam;
         std::vector<int> concurrent;
+        float longestMP;
 
         boost::shared_ptr<std::vector<boost::shared_ptr<MotionPlanner>>> m_motion_planners;
         const std::vector<unsigned int>* m_starting_locations;

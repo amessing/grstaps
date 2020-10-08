@@ -136,7 +136,7 @@ namespace grstaps
             AStarSearch<TaskAllocation> searcher(graphTest, node1);
 
             AllocationResultsPackager *results = static_cast<AllocationResultsPackager *>(package);
-            if(check && isAllocatable(*goalDistribution, speciesDistribution, *noncumTraitCutoff, numSpec))
+            if(check)
             {
                 auto start = std::chrono::high_resolution_clock::now();
                 searcher.search(isGoal, expander, package);

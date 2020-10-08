@@ -60,6 +60,8 @@ namespace grstaps
         void setActionNonCumRequirements(const std::vector<std::vector<float>>& actionNonCumReq);
         void setStartingLocations(const std::vector<unsigned int>& starting_locations);
 
+        void setWorstMP();
+
         const std::vector<Location>& locations() const;
         const Location& location(uint i) const;
         const std::pair<unsigned int, unsigned int>& actionLocation(const std::string& name) const;
@@ -77,6 +79,7 @@ namespace grstaps
         std::vector<NonCumVector> actionNonCumRequirements;
         int speedIndex;
         int mpIndex;
+        float longestPath;
 
        protected:
         std::vector<Location> m_locations;  //!< coordinates and name of location
