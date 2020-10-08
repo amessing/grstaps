@@ -15,7 +15,11 @@
  * along with grstaps; if not, write to the Free Software Foundation,
  * Inc., #59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
+#include <iostream>
+
 #include "grstaps/problem.hpp"
+#include <iostream>
+#include<cmath>
 
 // Local
 #include "grstaps/json_conversions.hpp"
@@ -44,12 +48,57 @@ namespace grstaps
         m_starting_locations = config["starting_locations"].get<std::vector<unsigned int>>();
         m_obstacles = config["obstacles"].get<std::vector<std::vector<b2PolygonShape>>>();
 
-
         m_robot_traits = config["robot_traits"].get<std::vector<TraitVector>>();
         speedIndex = config["speed_index"];
         mpIndex = config["mp_index"];
-
         m_config = config;
+
+        setWorstMP();
+    }
+
+    void Problem::setWorstMP()
+    {
+        longestPath = 0;
+        for(int i = 0; i < m_obstacles.size(); i++)
+        {
+            float currentPath = 0;
+            for(int j = 0; j < m_obstacles[i].size(); j++)
+            {
+                std::cout << "New" << std::endl;
+                for(int k = 0; k < (m_obstacles[i][j]).m_count; k++)
+                {
+                    if(k == ((m_obstacles[i][j]).m_count - 1))
+                    {
+                        float x_squared =
+                            pow((m_obstacles[i][j]).m_vertices[k].x - ((m_obstacles[i][j]).m_vertices[0].x), 2);
+                        float y_squared =
+                            pow((m_obstacles[i][j]).m_vertices[k].y - ((m_obstacles[i][j]).m_vertices[0].y), 2);
+                        currentPath += sqrt(x_squared + y_squared);
+                    }
+                    else
+                    {
+                        float x_squared =
+                            pow((m_obstacles[i][j]).m_vertices[k].x - ((m_obstacles[i][j]).m_vertices[k + 1].x), 2);
+                        float y_squared =
+                            pow((m_obstacles[i][j]).m_vertices[k].y - ((m_obstacles[i][j]).m_vertices[k + 1].y), 2);
+                        currentPath += sqrt(x_squared + y_squared);
+                    }
+                }
+            }
+            if(currentPath > longestPath)
+            {
+                longestPath = currentPath;
+            }
+        }
+        if(speedIndex > 0){
+            float slowest = std::numeric_limits<float>::max();
+            for(int i = 0; i < m_robot_traits.size(); i++){
+                if(m_robot_traits[i][speedIndex] < slowest){
+                    slowest = m_robot_traits[i][speedIndex];
+                }
+            }
+            longestPath = longestPath/slowest;
+        }
     }
 
     void Problem::configureActions(std::function<void(const std::vector<SASAction>&, Problem*)> configure_function)

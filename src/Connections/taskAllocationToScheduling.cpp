@@ -26,9 +26,11 @@
 namespace grstaps
 {
     taskAllocationToScheduling::taskAllocationToScheduling(boost::shared_ptr<std::vector<boost::shared_ptr<MotionPlanner>>> motion_planners,
-                                                           const std::vector<unsigned int>* startingLoc)
+                                                           const std::vector<unsigned int>* startingLoc,
+                                                           float longestMotion)
         : m_motion_planners(motion_planners)
         , m_starting_locations(startingLoc)
+        , longestMP(longestMotion)
     {}
 
     float taskAllocationToScheduling::getNonSpeciesSchedule(TaskAllocation* allocObject)
@@ -60,7 +62,7 @@ namespace grstaps
             }
         }
         if(sched.schedule(
-               *allocObject->getActionDuration(), *allocObject->getOrderingConstraints(), disjunctiveConstraints))
+               *allocObject->getActionDuration(), *allocObject->getOrderingConstraints(), disjunctiveConstraints, longestMP))
         {
             adjustScheduleNonSpeciesSchedule(allocObject);
 
