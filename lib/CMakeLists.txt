@@ -44,4 +44,4 @@ if(NOT TARGET spdlog)
 endif(NOT TARGET spdlog)
 
 # Motion Planning
-find_package(ompl 1.4 REQUIRED)
+find_package(ompl 1.5 REQUIRED)
