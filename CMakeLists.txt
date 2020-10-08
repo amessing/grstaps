@@ -131,8 +131,9 @@ if(BUILD_TESTS)
     add_executable(${PROJECT_NAME}_test ${${PROJECT_NAME}_TEST_SOURCES} ${testDataOutputs})
     set_target_properties(${PROJECT_NAME}_test PROPERTIES CXX_STANDARD 17 CXX_STANDARD_REQUIRED YES)
     target_link_libraries(${PROJECT_NAME}_test PRIVATE
-            box2d fmt gtest gmock nlohmann_json stdc++fs
+            box2d fmt gtest gmock nlohmann_json stdc++fs ${OMPL_LIBRARIES}
             _${PROJECT_NAME})
     target_compile_options(${PROJECT_NAME}_test PRIVATE ${_opts})
+    target_include_directories(${PROJECT_NAME}_test PRIVATE ${OMPL_INCLUDE_DIRS})
 endif(BUILD_TESTS)
 
