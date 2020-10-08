@@ -24,6 +24,7 @@
 #include <ompl/geometric/planners/prm/LazyPRMstar.h>
 
 // local
+#include "grstaps/timer.h"
 #include "grstaps/motion_planning/validity_checker.hpp"
 
 namespace grstaps
@@ -83,7 +84,11 @@ namespace grstaps
     std::pair<bool, float> MotionPlanner::query(unsigned int from, unsigned int to)
     {
         assert(from < m_locations.size() && to < m_locations.size());
+        Timer mpTime;
+        mpTime.start();
         auto rv = getWaypoints(from, to);
+        mpTime.recordSplit(Timer::SplitType::e_mp);
+        mpTime.stop();
         return std::make_pair(std::get<0>(rv), std::get<1>(rv));
     }
 

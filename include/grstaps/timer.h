@@ -24,13 +24,15 @@ namespace grstaps
         //! \brief Constructor
         Timer();
 
-        //! \brief Start the timer
+        static void setITAGS();
+
+        //! \brief Start the Timer
         void start();
 
-        //! \brief Stop the timer
+        //! \brief Stop the Timer
         void stop();
 
-        //! \brief Restart the timer
+        //! \brief Restart the Timer
         void restart();
 
         void reset();
@@ -40,6 +42,7 @@ namespace grstaps
         static void printSplits();
         static void calcSplits();
 
+        static bool s_grstaps;
         static float s_schedule_time;
         static float s_talloc_time;
         static float s_tplan_time;

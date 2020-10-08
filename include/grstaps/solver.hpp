@@ -26,7 +26,7 @@
 
 // external
 #include "nlohmann/json.hpp"
-#include "Timer.h"
+#include "timer.h"
 
 namespace grstaps
 {

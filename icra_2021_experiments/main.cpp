@@ -83,7 +83,7 @@ namespace grstaps
                 {"makespan", package.foundGoal ? package.finalNode->getData().getScheduleTime() : -1},
                 {"nodes_expanded", graphAllocateAndSchedule.nodesExpanded},
                 {"nodes_visited", graphAllocateAndSchedule.nodesSearched},
-                {"timer", time}};
+                {"Timer", time}};
 
             return metrics;
         }
@@ -95,7 +95,7 @@ namespace grstaps
                                       {"makespan", -1},
                                       //{"nodes_expanded", graphAllocateAndSchedule.nodesExpanded},
                                       //{"nodes_visited", graphAllocateAndSchedule.nodesSearched},
-                                      {"timer", time}};
+                                      {"Timer", time}};
             return metrics;
         }
     }
@@ -157,7 +157,7 @@ namespace grstaps
                         {"makespan", package.foundGoal ? package.finalNode->getData().getScheduleTime() : -1},
                         {"nodes_expanded", graphAllocateAndSchedule.nodesExpanded},
                         {"nodes_visited", graphAllocateAndSchedule.nodesSearched},
-                        {"timer", time}};
+                        {"Timer", time}};
 
                     return metrics;
                 }
@@ -168,7 +168,7 @@ namespace grstaps
                                       {"makespan", -1},
                                       {"nodes_expanded", graphAllocateAndSchedule.nodesExpanded},
                                       {"nodes_visited", graphAllocateAndSchedule.nodesSearched},
-                                      {"timer", time}};
+                                      {"Timer", time}};
             return metrics;
         }
         catch(std::bad_alloc&)
@@ -177,7 +177,7 @@ namespace grstaps
                                       {"makespan", -1},
                                       //{"nodes_expanded", graphAllocateAndSchedule.nodesExpanded},
                                       //{"nodes_visited", graphAllocateAndSchedule.nodesSearched},
-                                      {"timer", time}};
+                                      {"Timer", time}};
             return metrics;
         }
     }
@@ -256,7 +256,7 @@ namespace grstaps
             if(future.wait_for(span) == std::future_status::timeout)
             {
                 Logger::debug("timedout");
-                round["alpha_0"] = {{"solved", false}, {"makespan", -1}, {"timer", 1800.0}};
+                round["alpha_0"] = {{"solved", false}, {"makespan", -1}, {"Timer", 1800.0}};
             }
             else
             {
@@ -269,7 +269,7 @@ namespace grstaps
             if(future.wait_for(span) == std::future_status::timeout)
             {
                 Logger::debug("timedout");
-                round["alpha_0.25"] = {{"solved", false}, {"makespan", -1}, {"timer", 1800.0}};
+                round["alpha_0.25"] = {{"solved", false}, {"makespan", -1}, {"Timer", 1800.0}};
             }
             else
             {
@@ -282,7 +282,7 @@ namespace grstaps
             if(future.wait_for(span) == std::future_status::timeout)
             {
                 Logger::debug("timedout");
-                round["alpha_0.5"] = {{"solved", false}, {"makespan", -1}, {"timer", 1800.0}};
+                round["alpha_0.5"] = {{"solved", false}, {"makespan", -1}, {"Timer", 1800.0}};
             }
             else
             {
@@ -295,7 +295,7 @@ namespace grstaps
             if(future.wait_for(span) == std::future_status::timeout)
             {
                 Logger::debug("timedout");
-                round["alpha_0.75"] = {{"solved", false}, {"makespan", -1}, {"timer", 1800.0}};
+                round["alpha_0.75"] = {{"solved", false}, {"makespan", -1}, {"Timer", 1800.0}};
             }
             else
             {
@@ -308,7 +308,7 @@ namespace grstaps
             if(future.wait_for(span) == std::future_status::timeout)
             {
                 Logger::debug("timedout");
-                round["alpha_1.0"] = {{"solved", false}, {"makespan", -1}, {"timer", 1800.0}};
+                round["alpha_1.0"] = {{"solved", false}, {"makespan", -1}, {"Timer", 1800.0}};
             }
             else
             {
@@ -322,7 +322,7 @@ namespace grstaps
             if(future.wait_for(span) == std::future_status::timeout)
             {
                 Logger::debug("timedout");
-                round["sequential"] = {{"solved", false}, {"makespan", -1}, {"timer", 1800.0}};
+                round["sequential"] = {{"solved", false}, {"makespan", -1}, {"Timer", 1800.0}};
             }
             else
             {
@@ -345,15 +345,15 @@ namespace grstaps
         using IcraProblem = grstaps::icra2021::IcraProblem;
 
         const std::string folder = "problems";
-        if(!std::filesystem::exists(folder))
+        if(!std::experimental::filesystem::exists(folder))
         {
-            std::filesystem::create_directories(folder);
+            std::experimental::filesystem::create_directories(folder);
         }
 
         const std::string outputs_folder = "outputs";
-        if(!std::filesystem::exists(outputs_folder))
+        if(!std::experimental::filesystem::exists(outputs_folder))
         {
-            std::filesystem::create_directories(outputs_folder);
+            std::experimental::filesystem::create_directories(outputs_folder);
         }
 
         // todo: create config for generating a problem
@@ -365,7 +365,7 @@ namespace grstaps
 
         const std::string file = folder + fmt::format("/problem_{}.json", problem_nr);
         IcraProblem problem;
-        if(!std::filesystem::exists(file))
+        if(!std::experimental::filesystem::exists(file))
         {
             // Rotate which map to use
             config["mp"]["obstacles"] = maps[problem_nr % 5];

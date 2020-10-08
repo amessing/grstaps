@@ -36,6 +36,8 @@ namespace grstaps
     float taskAllocationToScheduling::getNonSpeciesSchedule(TaskAllocation* allocObject)
     {
 
+        Timer schedTime;
+        schedTime.start();
         std::vector<std::vector<int>> disjunctiveConstraints;
         int numAction = allocObject->allocation.size() / (*allocObject->getNumSpecies()).size();
 
@@ -66,8 +68,13 @@ namespace grstaps
         {
             adjustScheduleNonSpeciesSchedule(allocObject);
 
-            return addMotionPlanningNonSpeciesSchedule(allocObject);
+            float rv = addMotionPlanningNonSpeciesSchedule(allocObject);
+            schedTime.recordSplit(Timer::SplitType::e_s);
+            schedTime.stop();
+            return rv;
         }
+        schedTime.recordSplit(Timer::SplitType::e_s);
+        schedTime.stop();
         return -1;
     }
 
@@ -212,18 +219,12 @@ namespace grstaps
 
     float taskAllocationToScheduling::addMotionPlanningNonSpeciesSchedule(TaskAllocation* TaskAlloc)
     {
-        Timer mpTime;
-        mpTime.start();
-
         if(m_motion_planners == nullptr)
         {
-            mpTime.recordSplit(Timer::SplitType::e_mp);
-            mpTime.stop();
             return sched.getMakeSpan();
         }
         else
         {
-
             std::vector<unsigned int> currentLocations = *m_starting_locations;
             for(int i = 0; i < actionOrder.size(); ++i)
             {
@@ -319,8 +320,6 @@ namespace grstaps
 
                 sched.increaseActionTime(actionOrder[i], maxTravelTime + (action_move_time / slowestAgent));
             }
-            mpTime.recordSplit(Timer::SplitType::e_mp);
-            mpTime.stop();
             return sched.getMakeSpan();
         }
     }

@@ -1,4 +1,4 @@
-#include <grstaps/Timer.h>
+#include <grstaps/timer.h>
 
 // Global
 #include <sstream>
@@ -6,6 +6,7 @@
 namespace grstaps
 {
     std::vector<std::pair<double, Timer::SplitType> > Timer::s_timer_splits;
+    bool Timer::s_grstaps = true;
     float Timer::s_tplan_time    = 0;
     float Timer::s_talloc_time   = 0;
     float Timer::s_schedule_time = 0;
@@ -14,6 +15,11 @@ namespace grstaps
     Timer::Timer()
         : m_running(false)
     {}
+
+    void Timer::setITAGS()
+    {
+        s_grstaps = false;
+    }
 
     void Timer::start()
     {
@@ -103,24 +109,47 @@ namespace grstaps
         {
             double curr_split = iter.first;
             SplitType type   = iter.second;
-            switch(type)
+            if(s_grstaps)
             {
-                case SplitType::e_tp:
-                    s_tplan_time += curr_split;
-                    break;
-                case SplitType::e_ta:
-                    s_talloc_time += curr_split;
-                    break;
-                case SplitType::e_s:
-                    s_schedule_time += curr_split;
-                    break;
-                case SplitType::e_mp:
-                    s_mp_time += curr_split;
-                    break;
+                switch(type)
+                {
+                    case SplitType::e_tp:
+                        s_tplan_time += curr_split;
+                        break;
+                    case SplitType::e_ta:
+                        s_talloc_time += curr_split;
+                        break;
+                    case SplitType::e_s:
+                        s_schedule_time += curr_split;
+                        break;
+                    case SplitType::e_mp:
+                        s_mp_time += curr_split;
+                        break;
+                }
+            }
+            else
+            {
+                switch(type)
+                {
+                    case SplitType::e_ta:
+                        s_talloc_time += curr_split;
+                        break;
+                    case SplitType::e_s:
+                        s_schedule_time += curr_split;
+                        break;
+                    case SplitType::e_mp:
+                        s_mp_time += curr_split;
+                        break;
+                    default:
+                        throw "TP";
+                }
             }
         }
 
-        s_tplan_time -= s_talloc_time;
+        if(s_grstaps)
+        {
+            s_tplan_time -= s_talloc_time;
+        }
         s_talloc_time -= s_schedule_time;
         s_schedule_time -= s_mp_time;
     }
