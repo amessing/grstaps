@@ -347,7 +347,7 @@ namespace grstaps
         vector<vector<float>> requirementsRemaining;
         vector<vector<float>> allocationTraitDistribution;
         boost::shared_ptr<vector<vector<float>>> goalTraitDistribution;
-        float* startingGoalDistance;
+        float startingGoalDistance;
         taskAllocationToScheduling taToScheduling;
         boost::shared_ptr<vector<float>> actionDurations;
         int speedIndex;

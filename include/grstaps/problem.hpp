@@ -80,6 +80,8 @@ namespace grstaps
         int speedIndex;
         int mpIndex;
         float longestPath;
+        float mp_max;
+        float mp_min;
 
        protected:
         std::vector<Location> m_locations;  //!< coordinates and name of location

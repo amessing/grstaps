@@ -41,7 +41,7 @@ namespace grstaps
         }
         const float normalized_schedule_quality = ((makespan - newNode.taToScheduling.sched.bestSchedule) /
                                                    (newNode.taToScheduling.sched.worstSchedule - newNode.taToScheduling.sched.bestSchedule));
-        const float percentage_allocated_remaining = newNode.getGoalDistance() / (*newNode.startingGoalDistance);
+        const float percentage_allocated_remaining = newNode.getGoalDistance() / (t toonewNode.startingGoalDistance);
         return m_alpha * normalized_schedule_quality + (1.0 - m_alpha) * percentage_allocated_remaining;
     }
 
