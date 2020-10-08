@@ -68,7 +68,7 @@ namespace grstaps
 
             // Create survivors
             {
-                const unsigned int num_survivors = std::uniform_int_distribution(3, 10)(gen);
+                const unsigned int num_survivors = std::uniform_int_distribution(3, 5)(gen);
                 Logger::debug("Creating {} survivors", num_survivors);
 
                 std::vector<float> traits = {0, 0, 0, 0, 0, 0};
@@ -147,7 +147,7 @@ namespace grstaps
 
             // Put out fire
             {
-                const unsigned int num_fires = std::uniform_int_distribution(0, 4)(gen);
+                const unsigned int num_fires = std::uniform_int_distribution(0, 3)(gen);
                 Logger::debug("Creating {} fires", num_fires);
 
                 std::vector<float> traits = {0, 0, 0, 0, 0, 0};
