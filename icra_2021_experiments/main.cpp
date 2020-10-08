@@ -8,6 +8,8 @@
 #include <vector>
 
 // External
+#include <args.hxx>
+
 #include <fmt/format.h>
 
 #include <boost/make_shared.hpp>
@@ -24,9 +26,9 @@
 #include <grstaps/Task_Allocation/AllocationResultsPackager.h>
 #include <grstaps/Task_Allocation/TAGoalDist.h>
 #include <grstaps/Task_Allocation/TaskAllocation.h>
+#include <grstaps/Task_Allocation/checkAllocatable.h>
 #include <grstaps/json_conversions.hpp>
 #include <grstaps/logger.hpp>
-#include <grstaps/Task_Allocation/checkAllocatable.h>
 
 // Local
 #include "icra_problem.hpp"
@@ -69,18 +71,33 @@ namespace grstaps
         Graph<TaskAllocation> allocationGraph;
         allocationGraph.addNode(root);
 
-        AStarSearch<TaskAllocation> graphAllocateAndSchedule(allocationGraph, root);
-        graphAllocateAndSchedule.search(isGoal, expander, &package);
-        time.recordSplit(Timer::SplitType::e_ta);
-        time.stop();
+        try
+        {
+            AStarSearch<TaskAllocation> graphAllocateAndSchedule(allocationGraph, root);
+            graphAllocateAndSchedule.search(isGoal, expander, &package);
+            time.recordSplit(Timer::SplitType::e_ta);
+            time.stop();
 
-        nlohmann::json metrics = {{"solved", package.foundGoal},
-                                  {"makespan", package.foundGoal ? package.finalNode->getData().getScheduleTime() : -1},
-                                  {"nodes_expanded", graphAllocateAndSchedule.nodesExpanded},
-                                  {"nodes_visited", graphAllocateAndSchedule.nodesSearched},
-                                  {"timer", time}};
+            nlohmann::json metrics = {
+                {"solved", package.foundGoal},
+                {"makespan", package.foundGoal ? package.finalNode->getData().getScheduleTime() : -1},
+                {"nodes_expanded", graphAllocateAndSchedule.nodesExpanded},
+                {"nodes_visited", graphAllocateAndSchedule.nodesSearched},
+                {"timer", time}};
 
-        return metrics;
+            return metrics;
+        }
+        catch(std::bad_alloc&)
+        {
+            time.recordSplit(Timer::SplitType::e_ta);
+            time.stop();
+            nlohmann::json metrics = {{"solved", false},
+                                      {"makespan", -1},
+                                      //{"nodes_expanded", graphAllocateAndSchedule.nodesExpanded},
+                                      //{"nodes_visited", graphAllocateAndSchedule.nodesSearched},
+                                      {"timer", time}};
+            return metrics;
+        }
     }
 
     nlohmann::json solveSequentially(grstaps::icra2021::IcraProblem problem)
@@ -118,41 +135,51 @@ namespace grstaps
         Graph<TaskAllocation> allocationGraph;
         allocationGraph.addNode(root);
 
-        AStarSearch<TaskAllocation> graphAllocateAndSchedule(allocationGraph, root);
-
-        do
+        try
         {
-            graphAllocateAndSchedule.search(isGoal, expander, &package);
-            if(package.foundGoal)
+            AStarSearch<TaskAllocation> graphAllocateAndSchedule(allocationGraph, root);
+            do
             {
-                time.recordSplit(Timer::SplitType::e_ta);
-                time.stop();
-                // if a schedule cannot be found then continue allocating
-                if(package.finalNode->getData().getScheduleTime() < 0.0)
+                graphAllocateAndSchedule.search(isGoal, expander, &package);
+                if(package.foundGoal)
                 {
-                    time.restart();
-                    continue;
+                    time.recordSplit(Timer::SplitType::e_ta);
+                    time.stop();
+                    // if a schedule cannot be found then continue allocating
+                    if(package.finalNode->getData().getScheduleTime() < 0.0)
+                    {
+                        time.restart();
+                        continue;
+                    }
+
+                    nlohmann::json metrics = {
+                        {"solved", package.foundGoal},
+                        {"makespan", package.foundGoal ? package.finalNode->getData().getScheduleTime() : -1},
+                        {"nodes_expanded", graphAllocateAndSchedule.nodesExpanded},
+                        {"nodes_visited", graphAllocateAndSchedule.nodesSearched},
+                        {"timer", time}};
+
+                    return metrics;
                 }
 
-                nlohmann::json metrics = {
-                    {"solved", package.foundGoal},
-                    {"makespan", package.foundGoal ? package.finalNode->getData().getScheduleTime() : -1},
-                    {"nodes_expanded", graphAllocateAndSchedule.nodesExpanded},
-                    {"nodes_visited", graphAllocateAndSchedule.nodesSearched},
-                    {"timer", time}};
+            } while(!graphAllocateAndSchedule.empty());
 
-                return metrics;
-            }
-
-        } while(!graphAllocateAndSchedule.empty());
-
-        nlohmann::json metrics = {{"solved", false},
-                                  {"makespan", -1},
-                                  {"nodes_expanded", graphAllocateAndSchedule.nodesExpanded},
-                                  {"nodes_visited", graphAllocateAndSchedule.nodesSearched},
-                                  {"timer", time}};
-
-        return metrics;
+            nlohmann::json metrics = {{"solved", false},
+                                      {"makespan", -1},
+                                      {"nodes_expanded", graphAllocateAndSchedule.nodesExpanded},
+                                      {"nodes_visited", graphAllocateAndSchedule.nodesSearched},
+                                      {"timer", time}};
+            return metrics;
+        }
+        catch(std::bad_alloc&)
+        {
+            nlohmann::json metrics = {{"solved", false},
+                                      {"makespan", -1},
+                                      //{"nodes_expanded", graphAllocateAndSchedule.nodesExpanded},
+                                      //{"nodes_visited", graphAllocateAndSchedule.nodesSearched},
+                                      {"timer", time}};
+            return metrics;
+        }
     }
 
     std::vector<std::vector<std::vector<b2PolygonShape>>> readMaps(const unsigned int nr)
@@ -160,7 +187,7 @@ namespace grstaps
         std::vector<std::vector<std::vector<b2PolygonShape>>> maps;
         for(unsigned int i = 0; i < nr; ++i)
         {
-            std::ifstream in(fmt::format("experiment_configs/icra_2021_experiments/maps/map{}.json", i + 1));
+            std::ifstream in(fmt::format("icra_2021_experiments/maps/map{}.json", i + 1));
             std::string content((std::istreambuf_iterator<char>(in)), (std::istreambuf_iterator<char>()));
             const nlohmann::json j                       = nlohmann::json::parse(content);
             std::vector<std::vector<b2PolygonShape>> map = j;
@@ -169,12 +196,12 @@ namespace grstaps
         return maps;
     }
 
-    int run(int argc, char** argv)
+    int runV1(int argc, char** argv)
     {
         using IcraProblem = grstaps::icra2021::IcraProblem;
 
         const unsigned int num_problems = 10;
-        const std::string folder        = "experiment_configs/problems";
+        const std::string folder        = "icra_2021_experiments/problems";
         if(!std::filesystem::exists(folder))
         {
             std::filesystem::create_directories(folder);
@@ -201,7 +228,8 @@ namespace grstaps
                 {
                     problem = IcraProblem::generate(config);
                     numSpec = boost::make_shared<std::vector<int>>(problem.robotTraits()->size(), 1);
-                } while(!isAllocatable(problem.goalDistribution(), problem.robotTraits().get(), problem.noncumTraitCutoff(), numSpec));
+                } while(!isAllocatable(
+                    problem.goalDistribution(), problem.robotTraits().get(), problem.noncumTraitCutoff(), numSpec));
 
                 // Save problem to file for reuse
                 std::ofstream out(file);
@@ -311,9 +339,109 @@ namespace grstaps
 
         return 0;
     }
+
+    int run(bool sequential, int problem_nr, float alpha=0.0)
+    {
+        using IcraProblem = grstaps::icra2021::IcraProblem;
+
+        const std::string folder = "problems";
+        if(!std::filesystem::exists(folder))
+        {
+            std::filesystem::create_directories(folder);
+        }
+
+        const std::string outputs_folder = "outputs";
+        if(!std::filesystem::exists(outputs_folder))
+        {
+            std::filesystem::create_directories(outputs_folder);
+        }
+
+        // todo: create config for generating a problem
+        nlohmann::json config{
+            {"mp", {{"boundary_min", 0.0}, {"boundary_max", 1.0}, {"query_time", 0.001}, {"connection_range", 0.1}}}};
+
+        // Read the maps
+        std::vector<std::vector<std::vector<b2PolygonShape>>> maps = readMaps(5);
+
+        const std::string file = folder + fmt::format("/problem_{}.json", problem_nr);
+        IcraProblem problem;
+        if(!std::filesystem::exists(file))
+        {
+            // Rotate which map to use
+            config["mp"]["obstacles"] = maps[problem_nr % 5];
+            boost::shared_ptr<std::vector<int>> numSpec;
+            do
+            {
+                problem = IcraProblem::generate(config);
+                numSpec = boost::make_shared<std::vector<int>>(problem.robotTraits()->size(), 1);
+            } while(!isAllocatable(
+                problem.goalDistribution(), problem.robotTraits().get(), problem.noncumTraitCutoff(), numSpec));
+
+            // Save problem to file for reuse
+            std::ofstream out(file);
+            nlohmann::json p_json = problem;
+            out << p_json;
+        }
+        else
+        {
+            std::ifstream input(file);
+            std::string content((std::istreambuf_iterator<char>(input)), (std::istreambuf_iterator<char>()));
+            const nlohmann::json j = nlohmann::json::parse(content);
+            problem.init(j);
+        }
+
+        Logger::info("Problem {}", problem_nr);
+
+        auto metrics = sequential ? solveSequentially(problem) : solve(problem, alpha);
+
+        std::ofstream out(fmt::format("outputs/output_{}_{}_{}.json", problem_nr, alpha, sequential ? 1 : 0));
+        out << metrics;
+
+        return 0;
+    }
 }  // namespace grstaps
 
 int main(int argc, char** argv)
 {
-    return grstaps::run(argc, argv);
+    args::ArgumentParser parser("ICRA Experiments");
+    args::ValueFlag<float> alpha(parser, "alpha", "Hyperparameter", {'a'});
+    args::ValueFlag<int> problem_nr(parser, "problem", "Problem Number", {'p'});
+    args::Flag seq(parser, "sequential", "Flag for running sequential", {'s'});
+    try
+    {
+        parser.ParseCLI(argc, argv);
+    }
+    catch(args::ParseError e)
+    {
+        std::cerr << e.what() << std::endl;
+        std::cerr << parser;
+        return 1;
+    }
+    catch(args::ValidationError e)
+    {
+        std::cerr << e.what() << std::endl;
+        std::cerr << parser;
+        return 1;
+    }
+
+    float a;
+    if(alpha)
+    {
+        a = args::get(alpha);
+    }
+
+    int pnr;
+    if(problem_nr)
+    {
+        pnr = args::get(problem_nr);
+    }
+
+    if(seq)
+    {
+        grstaps::run(seq, problem_nr);
+    }
+    else
+    {
+        grstaps::run(false, pnr, a);
+    }
 }

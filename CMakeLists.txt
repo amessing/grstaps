@@ -76,19 +76,16 @@ if(BUILD_ICRA)
     file(GLOB_RECURSE icra_2021_files
             icra_2021_experiments/maps/**
             icra_2021_experiments/problems/**)
+    make_outputs(${CMAKE_CURRENT_SOURCE_DIR} "${icra_2021_files}" ${CMAKE_CURRENT_BINARY_DIR} configOutputs)
 
-    # Copy test data to outdir/test
-    make_outputs(${CMAKE_CURRENT_SOURCE_DIR} "${icra_2021_files}" ${CMAKE_CURRENT_BINARY_DIR}/experiment_configs configOutputs)
-
-
-    add_executable(icra_2021_experiments icra_2021_experiments/main.cpp
+    add_executable(icra_experiments icra_2021_experiments/main.cpp
             icra_2021_experiments/icra_problem.hpp icra_2021_experiments/icra_problem.cpp
             ${configOutputs})
-    set_target_properties(icra_2021_experiments PROPERTIES CXX_STANDARD 17 CXX_STANDARD_REQUIRED YES)
-    target_link_libraries(icra_2021_experiments PRIVATE
-            box2d fmt nlohmann_json spdlog stdc++fs
+    set_target_properties(icra_experiments PROPERTIES CXX_STANDARD 17 CXX_STANDARD_REQUIRED YES)
+    target_link_libraries(icra_experiments PRIVATE
+            args box2d fmt nlohmann_json spdlog stdc++fs
             _${PROJECT_NAME})
-    target_compile_options(icra_2021_experiments PRIVATE ${_opts})
+    target_compile_options(icra_experiments PRIVATE ${_opts})
 endif(BUILD_ICRA)
 
 if(BUILD_DOC)
