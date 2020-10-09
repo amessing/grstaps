@@ -25,8 +25,8 @@ do
     echo "Ignore"
     continue
   fi
-  echo "timeout 30m ./icra_experiments -p ${i} -s"
-  eval "timeout 30m ./icra_experiments -p ${i} -s"
+  echo "timeout 10m ./icra_experiments -p ${i} -s"
+  eval "timeout 10m ./icra_experiments -p ${i} -s"
 done
 
 for a in "0.0" "0.25" "0.5" "0.75" "1.0"
@@ -42,8 +42,8 @@ do
     fi
 
     if [ ! -f "outputs/output_${i}_${a}_0.json" ]; then
-      echo "timeout 30m ./icra_experiments -p ${i} -a ${a}"
-      eval "timeout 30m ./icra_experiments -p ${i} -a ${a}"
+      echo "timeout 10m ./icra_experiments -p ${i} -a ${a}"
+      eval "timeout 10m ./icra_experiments -p ${i} -a ${a}"
     fi
   done
 done
