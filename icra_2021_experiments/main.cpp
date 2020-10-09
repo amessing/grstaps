@@ -343,7 +343,7 @@ namespace grstaps
     int run(bool sequential, int problem_nr, float alpha=0.0)
     {
         using IcraProblem = grstaps::icra2021::IcraProblem;
-        
+
         const std::string folder = "problems";
         if(!std::experimental::filesystem::exists(folder))
         {
@@ -403,6 +403,7 @@ namespace grstaps
 
 int main(int argc, char** argv)
 {
+    grstaps::Timer::setITAGS();
     args::ArgumentParser parser("ICRA Experiments");
     args::ValueFlag<float> alpha(parser, "alpha", "Hyperparameter", {'a'});
     args::ValueFlag<int> problem_nr(parser, "problem", "Problem Number", {'p'});
