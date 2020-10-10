@@ -1,1 +1,1 @@
-{"Timer":{"mp_compute_time":1.4999999464748726e-08,"s_compute_time":0.0,"ta_compute_time":-1.9999992773023223e-09,"total_compute_time":0.0,"tp_compute_time":-1.3000000187446403e-08},"makespan":18.18558120727539,"nodes_expanded":18,"nodes_visited":1798,"solved":true}
+{"Timer":{"mp_compute_time":2.5000000292152436e-08,"s_compute_time":3.000000248221113e-09,"ta_compute_time":-8.000000661922968e-09,"total_compute_time":1.999999987845058e-08,"tp_compute_time":0.0},"makespan":15.95323371887207,"nodes_expanded":18,"nodes_visited":2142,"solved":true}
