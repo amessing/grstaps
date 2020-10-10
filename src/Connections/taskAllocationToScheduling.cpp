@@ -236,7 +236,7 @@ namespace grstaps
                 int slowestAgentIndex = -1;
 
                 for(int j = 0; j < TaskAlloc->getNumSpecies()->size(); j++)
-                {
+                {0.712
                     if(TaskAlloc->allocation[actionOrder[i] * TaskAlloc->getNumSpecies()->size() + j] == 1)
                     {
                         if(TaskAlloc->speedIndex == -1)
@@ -262,7 +262,7 @@ namespace grstaps
                                     slowestAgent = 1;
                                     slowestAgentIndex = 0;
 
-                                    float arrivalTime =sched.stn[actionOrder[i]][0] - (travelTime.second + lastActionEnd[j]);
+                                    float arrivalTime = (travelTime.second + lastActionEnd[j]) - sched.stn[actionOrder[i]][0];
 
                                     if((arrivalTime) > maxTravelTime)
                                     {
@@ -273,7 +273,7 @@ namespace grstaps
                                 }
                                 else
                                 {
-                                    float arrivalTime =sched.stn[actionOrder[i]][0] - ((travelTime.second  / (*traits)[j][TaskAlloc->speedIndex]) + lastActionEnd[j]);
+                                    float arrivalTime = ((travelTime.second  / (*traits)[j][TaskAlloc->speedIndex]) + lastActionEnd[j]) - sched.stn[actionOrder[i]][0] ;
 
                                     if(arrivalTime > maxTravelTime)
                                     {
