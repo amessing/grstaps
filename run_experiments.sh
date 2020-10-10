@@ -11,7 +11,7 @@ make -j8 icra_experiments
 # 16 GB
 ulimit -v 17179869184
 
-for i in {1..200}
+for i in {1..125}
 do
   echo "Problem ${i}"
   if [ -f "problems/problem_${i}.json" ]; then
@@ -31,7 +31,7 @@ done
 
 for a in "0.0" "0.25" "0.5" "0.75" "1.0"
 do
-  for i in {1..200}
+  for i in {1..125}
   do
     echo "Problem ${i}"
     j=$(( ( i + 1 ) % 5 ))
