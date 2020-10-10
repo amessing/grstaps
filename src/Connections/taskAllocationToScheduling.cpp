@@ -236,7 +236,7 @@ namespace grstaps
                 int slowestAgentIndex = -1;
 
                 for(int j = 0; j < TaskAlloc->getNumSpecies()->size(); j++)
-                {0.712
+                {
                     if(TaskAlloc->allocation[actionOrder[i] * TaskAlloc->getNumSpecies()->size() + j] == 1)
                     {
                         if(TaskAlloc->speedIndex == -1)
