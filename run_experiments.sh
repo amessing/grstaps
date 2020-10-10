@@ -11,7 +11,7 @@ make -j8 icra_experiments
 # 16 GB
 ulimit -v 17179869184
 
-for i in {1..125}
+for i in {126..150}
 do
   echo "Problem ${i}"
   if [ -f "problems/problem_${i}.json" ]; then
