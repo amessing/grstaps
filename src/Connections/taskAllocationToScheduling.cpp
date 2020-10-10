@@ -226,6 +226,7 @@ namespace grstaps
         else
         {
             std::vector<unsigned int> currentLocations = *m_starting_locations;
+            std::vector<float> lastActionEnd(TaskAlloc->speciesTraitDistribution->size(),0);
             for(int i = 0; i < actionOrder.size(); ++i)
             {
 
@@ -251,26 +252,32 @@ namespace grstaps
                         }
                         if(currentLocations[j] != (*m_action_locations)[actionOrder[i]].first)
                         {
-                            std::pair<bool, float> travelTime =
-                                (*m_motion_planners)[(*TaskAlloc->speciesTraitDistribution)[j][TaskAlloc->mp_Index]]->query(currentLocations[j], (*m_action_locations)[actionOrder[i]].first);
+                            std::pair<bool, float> travelTime = (*m_motion_planners)[(*TaskAlloc->speciesTraitDistribution)[j][TaskAlloc->mp_Index]]->query(currentLocations[j], (*m_action_locations)[actionOrder[i]].first);
+
+
                             if(travelTime.first)
                             {
                                 if(TaskAlloc->speedIndex == -1)
                                 {
                                     slowestAgent = 1;
                                     slowestAgentIndex = 0;
-                                    if((travelTime.second) > maxTravelTime)
+
+                                    float arrivalTime =sched.stn[actionOrder[i]][0] - (travelTime.second + lastActionEnd[j]);
+
+                                    if((arrivalTime) > maxTravelTime)
                                     {
-                                        maxTravelTime = travelTime.second;
+                                        maxTravelTime = arrivalTime;
                                         // Move to the end of the action
                                     }
                                     currentLocations[j] = (*m_action_locations)[actionOrder[i]].second;
                                 }
                                 else
                                 {
-                                    if((travelTime.second / (*traits)[j][TaskAlloc->speedIndex]) > maxTravelTime)
+                                    float arrivalTime =sched.stn[actionOrder[i]][0] - ((travelTime.second  / (*traits)[j][TaskAlloc->speedIndex]) + lastActionEnd[j]);
+
+                                    if(arrivalTime > maxTravelTime)
                                     {
-                                        maxTravelTime = travelTime.second / (*traits)[j][TaskAlloc->speedIndex];
+                                        maxTravelTime = arrivalTime;
                                         // Move to the end of the action
                                     }
                                     currentLocations[j] = (*m_action_locations)[actionOrder[i]].second;
@@ -311,7 +318,7 @@ namespace grstaps
                     {
                         action_move_time = action_travel_length.second;
                     }
-                        // The movement required during action i is impossible
+                    // The movement required during action i is impossible
                     else
                     {
                         return -1;
@@ -319,6 +326,15 @@ namespace grstaps
                 }
 
                 sched.increaseActionTime(actionOrder[i], maxTravelTime + (action_move_time / slowestAgent));
+
+                //update times for agents
+                for(int j = 0; j < TaskAlloc->getNumSpecies()->size(); j++)
+                {
+                    if(TaskAlloc->allocation[actionOrder[i] * TaskAlloc->getNumSpecies()->size() + j] == 1)
+                    {
+                        lastActionEnd[j] = sched.stn[actionOrder[i]][1];
+                    }
+                }
             }
             return sched.getMakeSpan();
         }
