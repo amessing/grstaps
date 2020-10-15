@@ -71,21 +71,7 @@ endif(BUILD_EXE)
 
 # Create the experiments for ICRA 2021
 if(BUILD_ICRA)
-    message("Building experiments for ICRA 2021...")
-
-    file(GLOB_RECURSE icra_2021_files
-            icra_2021_experiments/maps/**
-            icra_2021_experiments/problems/**)
-    make_outputs(${CMAKE_CURRENT_SOURCE_DIR} "${icra_2021_files}" ${CMAKE_CURRENT_BINARY_DIR} configOutputs)
-
-    add_executable(icra_experiments icra_2021_experiments/main.cpp
-            icra_2021_experiments/icra_problem.hpp icra_2021_experiments/icra_problem.cpp
-            ${configOutputs})
-    set_target_properties(icra_experiments PROPERTIES CXX_STANDARD 17 CXX_STANDARD_REQUIRED YES)
-    target_link_libraries(icra_experiments PRIVATE
-            args box2d fmt nlohmann_json spdlog stdc++fs
-            _${PROJECT_NAME})
-    target_compile_options(icra_experiments PRIVATE ${_opts})
+    add_subdirectory(icra_2021_experiments)
 endif(BUILD_ICRA)
 
 if(BUILD_DOC)
