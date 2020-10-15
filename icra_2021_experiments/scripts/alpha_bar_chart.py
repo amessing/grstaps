@@ -1,3 +1,4 @@
+import copy
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 import numpy as np
@@ -26,8 +27,8 @@ class Display:
             'nodes_visited': 'Nodes Visited'
             }
 
-        x = range(len(ALPHA_LIST))
-        colors = ['limegreen', 'gold', 'white', 'darkorange', 'red']
+        x = range(len(ALPHA_LIST) + 1)
+        colors = ['limegreen', 'gold', 'blue', 'purple', 'darkorange', 'red']
 
         for i, metric in enumerate(METRIC_LIST):
 
@@ -36,7 +37,9 @@ class Display:
             y = []
             labels = []
 
-            for alpha in ALPHA_LIST:
+            list_ = copy.deepcopy(ALPHA_LIST)
+            list_.append('s')
+            for alpha in list_:
                 labels.append(alpha)
 
                 ym = getattr(results[alpha], metric)
@@ -54,18 +57,31 @@ class Display:
             c = [colors[i] for i in order]
 
 
-            self.axs_m[metric].bar(x, y, tick_label=labels, color=c)
+            bar = self.axs_m[metric].bar(x, y, tick_label=labels, color=c)
             self.axs_m[metric].axhline(0.0, 0, len(ALPHA_LIST), color='k')
 
             self.axs_m[metric].set_title(titles[metric])
             self.axs_m[metric].set_ylim((min_y * 1.1, max_y * 1.1))
-            if i == 0:
-                self.axs_m[metric].set_ylabel("% Difference")
+            #if i == 0:
+            #    self.axs_m[metric].set_ylabel("% Difference")
             self.axs_m[metric].set_yscale('symlog')
 
-            self.axs_m[metric].set_xticklabels(ALPHA_LIST, rotation=90, ha='center')
+            self.axs_m[metric].set_xticklabels(list_, rotation=90, ha='center')
             self.axs_m[metric].set_xlabel("\u03B1")
+            #self.autolabel(self.axs_m[metric], bar)
+
+        #self.figs.tight_layout()
         self.setSize()
+
+    def autolabel(self, ax, rects):
+        """Attach a text label above each bar in *rects*, displaying its height."""
+        for rect in rects:
+            height = rect.get_height()
+            ax.annotate('{0:0.2e}'.format(height),
+                        xy=(rect.get_x() + rect.get_width() / 2, height),
+                        xytext=(0, 3),  # 3 points vertical offset
+                        textcoords="offset points",
+                        ha='center', va='bottom')
 
     def setSize(self, width=1.0, height=0.25):
 
@@ -108,7 +124,7 @@ def normalize(res):
 
 if __name__ == '__main__':
     results = Scrape().parseResults()
-    results = normalize(results)
+    #results = normalize(results)
     display = Display(results)
     display.run()
     display.save()

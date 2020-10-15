@@ -7,11 +7,20 @@ fi
 cd bin
 cmake ..
 make -j8 icra_experiments
+cd icra_2021_experiments
 
 # 16 GB
-ulimit -v 17179869184
+ulimit -v $((16 * 1024 * 1024)) # kilobytes
 
-for i in {126..150}
+# 10m
+ulimit -t $((10 * 60)) # seconds
+
+# Display?
+ulimit -a
+
+timeout="5m"
+
+for i in {1..10}
 do
   echo "Problem ${i}"
   if [ -f "problems/problem_${i}.json" ]; then
@@ -25,26 +34,21 @@ do
     echo "Ignore"
     continue
   fi
-  echo "timeout 10m ./icra_experiments -p ${i} -s"
-  eval "timeout 10m ./icra_experiments -p ${i} -s"
-done
+  if [ ! -f "outputs/output_${i}_0.0_1.json" ]; then
 
-for a in "0.0" "0.25" "0.5" "0.75" "1.0"
-do
-  for i in {126..150}
+    echo "./icra_experiments -p ${i} -s"
+    eval "./icra_experiments -p ${i} -s"
+    #echo "timeout --foreground -s 15 -k 10 ${timeout} ./icra_experiments -p ${i} -s"
+    #eval "timeout --foreground -s 15 -k 10 ${timeout}  ./icra_experiments -p ${i} -s"
+  fi
+
+  for a in "0.0" "0.25" "0.5" "0.75" "1.0"
   do
-    echo "Problem ${i}"
-    j=$(( ( i + 1 ) % 5 ))
-    echo "Map ${j}"
-    if [ "${j}" == "3" ]; then
-      echo "Ignore"
-      continue
-    fi
-
     if [ ! -f "outputs/output_${i}_${a}_0.json" ]; then
-      echo "timeout 10m ./icra_experiments -p ${i} -a ${a}"
-      eval "timeout 10m ./icra_experiments -p ${i} -a ${a}"
+      echo "./icra_experiments -p ${i} -a ${a}"
+      eval "./icra_experiments -p ${i} -a ${a}"
+      #echo "timeout --foreground -s 15 -k 10 ${timeout} ./icra_experiments -p ${i} -a ${a}"
+      #eval "timeout --foreground -s 15 -k 10 ${timeout} ./icra_experiments -p ${i} -a ${a}"
     fi
   done
 done
-

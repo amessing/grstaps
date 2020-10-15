@@ -1,5 +1,5 @@
-#ifndef GRSTAPS_ICRA_PROBLEM_HPP
-#define GRSTAPS_ICRA_PROBLEM_HPP
+#ifndef GRSTAPS_ICRA_PROBLEM_BASE_HPP
+#define GRSTAPS_ICRA_PROBLEM_BASE_HPP
 
 // Global
 #include <random>
@@ -19,18 +19,13 @@ namespace grstaps
 
     namespace icra2021
     {
-        class IcraProblem
+        class IcraProblemBase
         {
            public:
-            IcraProblem();
-
             //! \brief Initializes this problem
             void init(const nlohmann::json& data);
 
             nlohmann::json json() const;
-
-            //! \brief Generates a problem for the icra experiments
-            static IcraProblem generate(nlohmann::json& config);
 
             boost::shared_ptr<std::vector<boost::shared_ptr<MotionPlanner>>>& motionPlanners();
             boost::shared_ptr<std::vector<std::vector<float>>>& robotTraits();
@@ -43,7 +38,8 @@ namespace grstaps
             unsigned int speedIndex() const;
             unsigned int mpIndex() const;
 
-           private:
+           protected:
+            IcraProblemBase();
             void setupMotionPlanners(const nlohmann::json& data);
             static Location generateLocation(const std::vector<std::vector<b2PolygonShape>>& obstacles,
                                              std::vector<Location>& locations,
@@ -69,9 +65,10 @@ namespace grstaps
             nlohmann::json m_mp_json;
         };
 
-        void to_json(nlohmann::json& j, const IcraProblem& p);
-        void from_json(const nlohmann::json& j, IcraProblem& p);
+        void to_json(nlohmann::json& j, const IcraProblemBase& p);
+        void from_json(const nlohmann::json& j, IcraProblemBase& p);
     }  // namespace icra2021
 }  // namespace grstaps
 
-#endif  // GRSTAPS_ICRA_PROBLEM_HPP
+
+#endif  // GRSTAPS_ICRA_PROBLEM_BASE_HPP

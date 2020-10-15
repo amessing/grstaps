@@ -6,7 +6,7 @@
 namespace grstaps
 {
     std::vector<std::pair<double, Timer::SplitType> > Timer::s_timer_splits;
-    bool Timer::s_grstaps = true;
+    Timer::TimerType Timer::s_type = Timer::TimerType::e_grstaps;
     float Timer::s_tplan_time    = 0;
     float Timer::s_talloc_time   = 0;
     float Timer::s_schedule_time = 0;
@@ -18,7 +18,12 @@ namespace grstaps
 
     void Timer::setITAGS()
     {
-        s_grstaps = false;
+        s_type = TimerType::e_itags;
+    }
+
+    void Timer::setITAGS_S()
+    {
+        s_type = TimerType::e_itags_s;
     }
 
     void Timer::start()
@@ -70,34 +75,6 @@ namespace grstaps
         }
     }
 
-    /*
-    void Timer::printSplits()
-    {
-        int msg_length, num_whitespaces;
-
-        for(auto iter : s_timer_splits)
-        {
-            std::stringstream formatted_msg;
-
-            double curr_split = iter.first;
-            SplitType type   = iter.second;
-            msg_length = strlen(curr_msg);
-
-            // Num whitespaces for formatting is:
-            // 80 max char - 13 char for logger - 13 for time - msg length
-            num_whitespaces = 80 - 13 - 11 - msg_length - 3;
-
-            formatted_msg << curr_msg;
-
-            // Add periods to format message to 80 characters length
-            for(int i = 0; i < num_whitespaces; i++)
-                formatted_msg << ".";
-
-            printf("%s%.7f sec \n", formatted_msg.str().c_str(), curr_split);
-        }
-    }
-    */
-
     void Timer::calcSplits()
     {
         s_schedule_time = 0;
@@ -109,7 +86,7 @@ namespace grstaps
         {
             double curr_split = iter.first;
             SplitType type   = iter.second;
-            if(s_grstaps)
+            if(s_type == TimerType::e_grstaps)
             {
                 switch(type)
                 {
@@ -127,7 +104,7 @@ namespace grstaps
                         break;
                 }
             }
-            else
+            else if (s_type == TimerType::e_itags || s_type == TimerType::e_itags_s)
             {
                 switch(type)
                 {
@@ -146,12 +123,20 @@ namespace grstaps
             }
         }
 
-        if(s_grstaps)
+        // ITAGS and ITAGS_S don't have planning
+        if(s_type == TimerType::e_grstaps)
         {
             s_tplan_time -= s_talloc_time;
         }
-        s_talloc_time -= s_schedule_time;
+
+        // ITAGS_S does TA separate from S&M
+        if(s_type != TimerType::e_itags_s)
+        {
+            s_talloc_time -= s_schedule_time;
+        }
         s_schedule_time -= s_mp_time;
+
+
     }
     void to_json(nlohmann::json& j, const Timer& t)
     {

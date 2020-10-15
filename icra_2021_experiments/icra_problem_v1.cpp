@@ -1,10 +1,7 @@
-#include "icra_problem.hpp"
+#include "icra_problem_v1.hpp"
 
 // Global
 #include <cmath>
-
-// External
-#include <boost/make_shared.hpp>
 
 // Grstaps
 #include <grstaps/location.hpp>
@@ -17,34 +14,7 @@ namespace grstaps
 {
     namespace icra2021
     {
-        IcraProblem::IcraProblem()
-        {
-            m_robot_traits = boost::make_shared<std::vector<std::vector<float>>>();
-            m_ordering_constraints = boost::make_shared<std::vector<std::vector<int>>>();
-            m_durations = boost::make_shared<std::vector<float>>();
-            m_noncum_trait_cutoff = boost::make_shared<std::vector<std::vector<float>>>();
-            m_goal_distribution = boost::make_shared<std::vector<std::vector<float>>>();
-            m_action_locations = boost::make_shared<std::vector<std::pair<unsigned int, unsigned int>>>();
-            m_starting_locations = boost::make_shared<std::vector<unsigned int>>();
-            m_motion_planners = boost::make_shared<std::vector<boost::shared_ptr<MotionPlanner>>>();
-        }
-
-        void IcraProblem::init(const nlohmann::json& data)
-        {
-            setupMotionPlanners(data["mp"]);
-
-            *m_robot_traits = data["robot_traits"].get<std::vector<std::vector<float>>>();
-            *m_ordering_constraints = data["ordering_constraints"].get<std::vector<std::vector<int>>>();
-            *m_durations = data["durations"].get<std::vector<float>>();
-            *m_noncum_trait_cutoff = data["noncum_trait_cutoff"].get<std::vector<std::vector<float>>>();
-            *m_goal_distribution = data["goal_distribution"].get<std::vector<std::vector<float>>>();
-            *m_action_locations = data["action_locations"].get<std::vector<std::pair<unsigned int, unsigned int>>>();
-            *m_starting_locations = data["starting_locations"].get<std::vector<unsigned int>>();
-            m_speed_index = data["speed_index"].get<unsigned int>();
-            m_mp_index = data["mp_index"].get<unsigned int>();
-        }
-
-        IcraProblem IcraProblem::generate(nlohmann::json& config)
+        IcraProblemV1 IcraProblemV1::generate(nlohmann::json& config)
         {
             Logger::debug("Generating problem");
             std::random_device rd;
@@ -52,7 +22,7 @@ namespace grstaps
             const float boundary_min = config["mp"]["boundary_min"];
             const float boundary_max = config["mp"]["boundary_max"];
 
-            IcraProblem problem;
+            IcraProblemV1 problem;
             problem.m_speed_index = 0;
             problem.m_mp_index = 5;
 
@@ -68,7 +38,7 @@ namespace grstaps
 
             // Create survivors
             {
-                const unsigned int num_survivors = std::uniform_int_distribution(1, 3)(gen);
+                const unsigned int num_survivors = std::uniform_int_distribution(10, 20)(gen);
                 Logger::debug("Creating {} survivors", num_survivors);
 
                 std::vector<float> traits = {0, 0, 0, 0, 0, 0};
@@ -147,7 +117,7 @@ namespace grstaps
 
             // Put out fire
             {
-                const unsigned int num_fires = std::uniform_int_distribution(0, 2)(gen);
+                const unsigned int num_fires = std::uniform_int_distribution(5, 10)(gen);
                 Logger::debug("Creating {} fires", num_fires);
 
                 std::vector<float> traits = {0, 0, 0, 0, 0, 0};
@@ -228,7 +198,7 @@ namespace grstaps
             {
                 // speed, payload, water capacity, heal ability, repair ability, mp index
                 std::vector<float> traits(6);
-                const unsigned int num_ground = std::uniform_int_distribution(1, 2)(gen);
+                const unsigned int num_ground = std::uniform_int_distribution(2, 4)(gen);
                 Logger::debug("Creating {} ground robots", num_ground);
 
                 for(unsigned int robot_nr = 0; robot_nr < num_ground; ++robot_nr)
@@ -250,7 +220,7 @@ namespace grstaps
             {
                 // speed, payload, water capacity, heal ability, repair ability, mp index
                 std::vector<float> traits(6);
-                const unsigned int num_aerial = std::uniform_int_distribution(1, 2)(gen);
+                const unsigned int num_aerial = std::uniform_int_distribution(2, 4)(gen);
                 Logger::debug("Creating {} aerial robots", num_aerial);
 
                 for(unsigned int robot_nr = 0; robot_nr < num_aerial; ++robot_nr)
@@ -272,7 +242,7 @@ namespace grstaps
             {
                 // speed, payload, water capacity, heal ability, repair ability, mp index
                 std::vector<float> traits(6);
-                const unsigned int num_med = std::uniform_int_distribution(1, 2)(gen);
+                const unsigned int num_med = std::uniform_int_distribution(2, 4)(gen);
                 Logger::debug("Creating {} med robots", num_med);
 
                 for(unsigned int robot_nr = 0; robot_nr < num_med; ++robot_nr)
@@ -294,7 +264,7 @@ namespace grstaps
             {
                 // speed, payload, water capacity, heal ability, repair ability, mp index
                 std::vector<float> traits(6);
-                const unsigned int num_util = std::uniform_int_distribution(1, 2)(gen);
+                const unsigned int num_util = std::uniform_int_distribution(2, 4)(gen);
                 Logger::debug("Creating {} util robots", num_util);
 
                 for(unsigned int robot_nr = 0; robot_nr < num_util; ++robot_nr)
@@ -587,151 +557,5 @@ namespace grstaps
             return problem;
         }
          */
-
-        boost::shared_ptr<std::vector<std::vector<int>>>& IcraProblem::orderingConstraints()
-        {
-            return m_ordering_constraints;
-        }
-        boost::shared_ptr<std::vector<float>>& IcraProblem::durations()
-        {
-            return m_durations;
-        }
-        boost::shared_ptr<std::vector<std::vector<float>>>& IcraProblem::noncumTraitCutoff()
-        {
-            return m_noncum_trait_cutoff;
-        }
-        boost::shared_ptr<std::vector<std::vector<float>>>& IcraProblem::goalDistribution()
-        {
-            return m_goal_distribution;
-        }
-        boost::shared_ptr<std::vector<std::pair<unsigned int, unsigned int>>>& IcraProblem::actionLocations()
-        {
-            return m_action_locations;
-        }
-        unsigned int IcraProblem::speedIndex() const
-        {
-            return m_speed_index;
-        }
-        unsigned int IcraProblem::mpIndex() const
-        {
-            return m_mp_index;
-        }
-        void IcraProblem::setupMotionPlanners(const nlohmann::json& config)
-        {
-            m_mp_json = config;
-
-            auto locations = config["locations"].get<std::vector<Location>>();
-            auto obstacles = config["obstacles"].get<std::vector<std::vector<b2PolygonShape>>>();
-
-            //m_motion_planners->clear();
-            m_motion_planners->reserve(obstacles.size());
-
-            const float boundary_min      = config["boundary_min"];
-            const float boundary_max      = config["boundary_max"];
-            const float query_time        = config["query_time"];
-            const float connection_range  = config["connection_range"];
-
-            for(int i = 0; i < obstacles.size(); ++i)
-            {
-                auto motion_planner = boost::make_shared<MotionPlanner>();
-                motion_planner->setMap(obstacles[i], boundary_min, boundary_max);
-                motion_planner->setLocations(locations);
-                motion_planner->setQueryTime(query_time);
-                motion_planner->setConnectionRange(connection_range);
-                m_motion_planners->push_back(motion_planner);
-            }
-        }
-        boost::shared_ptr<std::vector<boost::shared_ptr<MotionPlanner>>>& IcraProblem::motionPlanners()
-        {
-            return m_motion_planners;
-        }
-        boost::shared_ptr<std::vector<unsigned int>>& IcraProblem::startingLocations()
-        {
-            return m_starting_locations;
-        }
-        boost::shared_ptr<std::vector<std::vector<float>>>& IcraProblem::robotTraits()
-        {
-            return m_robot_traits;
-        }
-        Location IcraProblem::generateLocation(const std::vector<std::vector<b2PolygonShape>>& obstacles,
-                                               std::vector<Location>& locations,
-                                               std::mt19937& gen,
-                                               const float boundary_min,
-                                               const float boundary_max)
-        {
-            b2Transform transform;
-            transform.SetIdentity();
-
-            const float boundary_diff = boundary_max - boundary_min;
-            const float ep = boundary_diff / 1000;
-
-            while(true)
-            {
-                b2Vec2 point(std::uniform_real_distribution(boundary_min, boundary_max)(gen),
-                             std::uniform_real_distribution(boundary_min, boundary_max)(gen));
-
-                bool success = true;
-                for(const std::vector<b2PolygonShape>& set_obstacles: obstacles)
-                {
-                    for(const b2PolygonShape& obstacle: set_obstacles)
-                    {
-                        if(obstacle.TestPoint(transform, point))
-                        {
-                            success = false;
-                            break;
-                        }
-                    }
-                    if(!success)
-                    {
-                        break;
-                    }
-                }
-                if(!success)
-                {
-                    continue;
-                }
-
-                for(const Location& l: locations)
-                {
-                    if(std::sqrt(pow(l.x() - point.x, 2) + pow(l.y() - point.y, 2)) < ep)
-                    {
-                        success = false;
-                        break;
-                    }
-                }
-                if(!success)
-                {
-                    continue;
-                }
-
-                locations.emplace_back("generated", point.x, point.y);
-                return locations.back();
-            }
-        }
-
-        nlohmann::json IcraProblem::json() const
-        {
-            return {
-                {"mp", m_mp_json},
-                {"robot_traits", *m_robot_traits},
-                {"ordering_constraints", *m_ordering_constraints},
-                {"durations", *m_durations},
-                {"noncum_trait_cutoff", *m_noncum_trait_cutoff},
-                {"goal_distribution", *m_goal_distribution},
-                {"action_locations", *m_action_locations},
-                {"starting_locations", *m_starting_locations},
-                {"speed_index", m_speed_index},
-                {"mp_index", m_mp_index}
-            };
-        }
-        void to_json(nlohmann::json& j, const IcraProblem& p)
-        {
-            j = p.json();
-        }
-
-        void from_json(const nlohmann::json& j, IcraProblem& p)
-        {
-            p.init(j);
-        }
     }
 }
