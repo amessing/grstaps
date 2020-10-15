@@ -21,10 +21,19 @@ namespace grstaps
             e_mp
         };
 
+        enum class TimerType
+        {
+            e_grstaps,
+            e_itags,
+            e_itags_s
+        };
+
         //! \brief Constructor
         Timer();
 
         static void setITAGS();
+
+        static void setITAGS_S();
 
         //! \brief Start the Timer
         void start();
@@ -42,7 +51,7 @@ namespace grstaps
         static void printSplits();
         static void calcSplits();
 
-        static bool s_grstaps;
+        static TimerType s_type;
         static float s_schedule_time;
         static float s_talloc_time;
         static float s_tplan_time;
