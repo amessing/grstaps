@@ -29,12 +29,12 @@ class Scrape:
         result['compute_time'] = compute_time
         return result
 
-    def parseSingleResultSequential(self, problem_nr):
-        return self.parseSingleResultInner('outputs/output_{0}_0.0_1.json'.format(problem_nr))
+    def parseSingleResultSequential(self, filepath, problem_nr):
+        return self.parseSingleResultInner('{0}/outputs/output_{1}_0.0_1.json'.format(filepath, problem_nr))
 
 
-    def parseSingleResult(self, problem_nr, alpha):
-        return self.parseSingleResultInner('outputs/output_{0}_{1}_0.json'.format(problem_nr, alpha))
+    def parseSingleResult(self, filepath, problem_nr, alpha):
+        return self.parseSingleResultInner('{0}/outputs/output_{1}_{2}_0.json'.format(filepath, problem_nr, alpha))
 
     def parseAllResults(self):
         results = {
@@ -46,16 +46,16 @@ class Scrape:
         num_solved = 0
         for problem_nr in range(1, 150):
             # Check if baseline solved it
-            rv = self.parseSingleResult(problem_nr, "0.5")
+            rv = self.parseSingleResult(filepath, problem_nr, "0.5")
             if rv is None:
                 continue
             
-            rv = self.parseSingleResultSequential(problem_nr)
+            rv = self.parseSingleResultSequential(filepath, problem_nr)
             results['s'].append(rv)
 
             for alpha in ALPHA_LIST:
                 alpha_num = float(alpha)
-                rv = self.parseSingleResult(problem_nr, alpha_num)
+                rv = self.parseSingleResult(filepath, problem_nr, alpha_num)
                 results[alpha].append(rv)
             num_solved += 1
 
@@ -64,7 +64,7 @@ class Scrape:
 
 
 
-    def parseResults(self):
+    def parseResults(self, filepath):
         results = {
                 's': Results()
                 }
@@ -74,16 +74,16 @@ class Scrape:
         num_solved = 0 
         for problem_nr in range(126, 150):
             # Check if baseline solved it
-            rv = self.parseSingleResult(problem_nr, "0.5")
+            rv = self.parseSingleResult(filepath, problem_nr, "0.5")
             if rv is None:
                 continue
             
-            rv = self.parseSingleResultSequential(problem_nr)
+            rv = self.parseSingleResultSequential(filepath, problem_nr)
             results['s'].append(rv)
 
             for alpha in ALPHA_LIST:
                 alpha_num = float(alpha)
-                rv = self.parseSingleResult(problem_nr, alpha_num)
+                rv = self.parseSingleResult(filepath, problem_nr, alpha_num)
                 results[alpha].append(rv)
             num_solved += 1
 
@@ -92,17 +92,17 @@ class Scrape:
         problem_nr = 1
         while True:
             # Check if baseline solved it
-            rv = self.parseSingleResult(problem_nr, "0.5")
+            rv = self.parseSingleResult(filepath, problem_nr, "0.5")
             if rv is None:
                 problem_nr += 1
                 continue
         
-            rv = self.parseSingleResultSequential(problem_nr)
+            rv = self.parseSingleResultSequential(filepath, problem_nr)
             results['s'].append(rv)
 
             for alpha in ALPHA_LIST:
                 alpha_num = float(alpha)
-                rv = self.parseSingleResult(problem_nr, alpha_num)
+                rv = self.parseSingleResult(filepath, problem_nr, alpha_num)
                 results[alpha].append(rv)
 
             problem_nr += 1

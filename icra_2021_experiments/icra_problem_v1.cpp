@@ -4,558 +4,260 @@
 #include <cmath>
 
 // Grstaps
+#include <grstaps/json_conversions.hpp>
 #include <grstaps/location.hpp>
 #include <grstaps/logger.hpp>
-#include <grstaps/json_conversions.hpp>
 #include <grstaps/motion_planning/motion_planner.hpp>
 
-
-namespace grstaps
+namespace grstaps::icra2021
 {
-    namespace icra2021
+    std::unique_ptr<IcraProblemV1> IcraProblemV1::generate(nlohmann::json& config)
     {
-        IcraProblemV1 IcraProblemV1::generate(nlohmann::json& config)
+        std::unique_ptr<IcraProblemV1> problem = std::make_unique<IcraProblemV1>();
+
+        Logger::debug("Generating problem");
+        std::random_device rd;
+        std::mt19937 gen(rd());
+
+        problem->m_speed_index = 0;
+        problem->m_mp_index    = 1;
+
+        // 1000m x 1000m
+        const float boundary_min = config["mp"]["boundary_min"] = 0.0;
+        const float boundary_max = config["mp"]["boundary_max"] = 1000.0;
+        config["mp"]["query_time"]                              = 0.01;
+        // Create Locations
+        auto obstacles = config["mp"]["obstacles"].get<std::vector<std::vector<b2PolygonShape>>>();
+        std::vector<Location> locations;
+
+        // Create locations
+        Location hanger = generateLocation(obstacles, locations, gen, boundary_min, boundary_max);
+        const unsigned int hanger_index = 0;
+        Location hospital = generateLocation(obstacles, locations, gen, boundary_min, boundary_max);
+        const unsigned int hospital_index = 1;
+
+        // Create survivors
         {
-            Logger::debug("Generating problem");
-            std::random_device rd;
-            std::mt19937 gen(rd());
-            const float boundary_min = config["mp"]["boundary_min"];
-            const float boundary_max = config["mp"]["boundary_max"];
+            const unsigned int num_survivors = config["num_survivors"]["total"];
+            Logger::debug("Creating {} survivors", num_survivors);
 
-            IcraProblemV1 problem;
-            problem.m_speed_index = 0;
-            problem.m_mp_index = 5;
+            // speed, mp, payload
+            std::vector<float> traits              = {0, 0, 0};
+            const std::vector<float> noncumulative_traits = {0, 0, 0};
 
-            // Create Locations
-            auto obstacles = config["mp"]["obstacles"].get<std::vector<std::vector<b2PolygonShape>>>();
-            std::vector<Location> locations;
-
-
-            // Create locations
-            Location hanger = generateLocation(obstacles, locations, gen, boundary_min, boundary_max);
-            Location hospital = generateLocation(obstacles, locations, gen, boundary_min, boundary_max);
-            Location water_tank = generateLocation(obstacles, locations, gen, boundary_min, boundary_max);
-
-            // Create survivors
+            const unsigned int num_need_medicine = config["num_survivors"]["need_medicine"];
+            // Some need immediate medicine
+            for(unsigned int i = 0; i < num_need_medicine; ++i)
             {
-                const unsigned int num_survivors = std::uniform_int_distribution(10, 20)(gen);
-                Logger::debug("Creating {} survivors", num_survivors);
+                // Survivor location
+                const Location l = generateLocation(obstacles, locations, gen, boundary_min, boundary_max);
 
-                std::vector<float> traits = {0, 0, 0, 0, 0, 0};
-                const std::vector<float> noncum_traits = {0, 0, 0, 0, 0, 0};
-                for(unsigned int i = 0; i < num_survivors; ++i)
-                {
-                    Location l = generateLocation(obstacles, locations, gen, boundary_min, boundary_max);
+                // Move medicine to survivor
+                problem->m_action_locations->push_back(std::make_pair(hanger_index, locations.size() - 1));
 
-                    // Move survivor to the hospital
-                    problem.m_action_locations->push_back(std::make_pair(locations.size() - 1, 1));
+                // Some static time to pick up and drop off (6 min)
+                problem->m_durations->push_back(360);
 
-                    // Some static time to pick up and drop off
-                    problem.m_durations->push_back(1.0);
+                // Set payload ( 1-2 lbs)
+                traits[2] = std::uniform_real_distribution(1.0, 2.0)(gen);
+                problem->m_goal_distribution->push_back(traits);
 
-                    // Set payload
-                    traits[1] = std::uniform_real_distribution(2.0, 3.0)(gen);
-                    problem.m_goal_distribution->push_back(traits);
-
-                    problem.m_noncum_trait_cutoff->push_back(noncum_traits);
-                }
+                problem->m_noncum_trait_cutoff->push_back(noncumulative_traits);
             }
 
-            // Carry Medicine to Hospital
+            const unsigned int num_need_food = config["num_survivors"]["need_food"];
+            // Some need immediate food
+            for(unsigned int i = 0; i < num_need_food; ++i)
             {
-                const unsigned int num_survivors = problem.m_goal_distribution->size();
+                // Survivor location
+                const Location l = generateLocation(obstacles, locations, gen, boundary_min, boundary_max);
 
-                std::vector<float> traits = {0, 0, 0, 0, 0, 0};
-                const std::vector<float> noncum_traits = {0, 0, 0, 0, 0, 0};
-                for(unsigned int i = 0; i < num_survivors; ++i)
-                {
-                    // Move medicine to the hospital
-                    problem.m_action_locations->push_back(std::make_pair(0, 1));
+                // Move food to survivor
+                problem->m_action_locations->push_back(std::make_pair(hanger_index, locations.size() - 1));
 
-                    // Some static time to pick up and drop off
-                    problem.m_durations->push_back(1.0);
+                // Some static time to pick up and drop off (5 min)
+                problem->m_durations->push_back(300);
 
-                    // Set payload
-                    traits[1] = std::uniform_real_distribution(0.1, 1.0)(gen);
-                    problem.m_goal_distribution->push_back(traits);
+                // Set payload (3-5 lbs)
+                traits[2] = std::uniform_real_distribution(3.0, 4.9)(gen);
+                problem->m_goal_distribution->push_back(traits);
 
-                    problem.m_noncum_trait_cutoff->push_back(noncum_traits);
-                }
+                problem->m_noncum_trait_cutoff->push_back(noncumulative_traits);
             }
 
-            // Heal
+            const unsigned int num_need_hospital = config["num_survivors"]["need_hospital"];
+            // Some need medical attention
+            for(unsigned int i = 0; i < num_need_hospital; ++i)
             {
-                const unsigned int num_survivors = problem.m_goal_distribution->size() / 2;
-
-                std::vector<float> traits = {0, 0, 0, 0, 0, 0};
-                const std::vector<float> noncum_traits = {0, 0, 0, 0, 0, 0};
-                for(unsigned int i = 0; i < num_survivors; ++i)
+                // Move survivor to hospital
                 {
-                    // No movement
-                    problem.m_action_locations->push_back(std::make_pair(1, 1));
+                    // Survivor location
+                    const Location l = generateLocation(obstacles, locations, gen, boundary_min, boundary_max);
 
-                    // Some static time to setup
-                    problem.m_durations->push_back(1.0);
+                    // Move survivors to hospital
+                    problem->m_action_locations->push_back(std::make_pair(locations.size() - 1, hospital_index));
 
-                    // Set heal ability
-                    traits[3] = std::uniform_real_distribution(1.0, 3.0)(gen);
-                    problem.m_goal_distribution->push_back(traits);
+                    // Some static time to pick up and drop off (10 min)
+                    problem->m_durations->push_back(600);
 
-                    problem.m_noncum_trait_cutoff->push_back(noncum_traits);
+                    // Set payload (3-5 lbs)
+                    traits[2] = std::uniform_real_distribution(3.0, 4.9)(gen);
+                    problem->m_goal_distribution->push_back(traits);
+
+                    problem->m_noncum_trait_cutoff->push_back(noncumulative_traits);
                 }
 
-                // Ordering Constraints
-                for(unsigned int i = 0; i < num_survivors; ++i)
+                // Move medicine to hospital
                 {
-                    // ordering constraint from moving the survivor to healing
-                    problem.m_ordering_constraints->push_back({static_cast<int>(i), static_cast<int>(num_survivors * 2 + i)});
+                    problem->m_action_locations->push_back(std::make_pair(0, hospital_index));
 
-                    // ordering constraint from moving the medicine to healing
-                    problem.m_ordering_constraints->push_back({static_cast<int>(num_survivors + i), static_cast<int>(num_survivors * 2 + i)});
+                    // Some static time to pick up and drop off (6 min)
+                    problem->m_durations->push_back(360);
+
+                    // Set payload ( 1-2 lbs)
+                    traits[2] = std::uniform_real_distribution(1.0, 2.0)(gen);
+                    problem->m_goal_distribution->push_back(traits);
+
+                    problem->m_noncum_trait_cutoff->push_back(noncumulative_traits);
+                }
+
+                // Heal (terminal task)
+                {
+                    problem->m_action_locations->push_back(std::make_pair(hospital_index, hospital_index));
+
+                    // Instant
+                    problem->m_durations->push_back(0);
+
+                    // Set payload 0
+                    traits[2] = 0;
+                    problem->m_goal_distribution->push_back(traits);
+
+                    problem->m_noncum_trait_cutoff->push_back(noncumulative_traits);
+                }
+
+                // Ordering constraints
+                {
+                    // move survivor to heal
+                    problem->m_ordering_constraints->push_back({static_cast<int>(i * 3), static_cast<int>(i * 3 + 2)});
+                    // move medicine to heal
+                    problem->m_ordering_constraints->push_back({static_cast<int>(i * 3 + 1), static_cast<int>(i * 3 + 2)});
                 }
             }
-
-            // Put out fire
-            {
-                const unsigned int num_fires = std::uniform_int_distribution(5, 10)(gen);
-                Logger::debug("Creating {} fires", num_fires);
-
-                std::vector<float> traits = {0, 0, 0, 0, 0, 0};
-                const std::vector<float> noncum_traits = {0, 0, 0, 0, 0, 0};
-                for(unsigned int i = 0; i < num_fires; ++i)
-                {
-                    Location l = generateLocation(obstacles, locations, gen, boundary_min, boundary_max);
-
-                    // Move from the water tank to the fire
-                    problem.m_action_locations->push_back(std::pair(2, locations.size() - 1));
-
-                    // Some static time to fill up
-                    problem.m_durations->push_back(1.0);
-
-                    // Set water capacity
-                    traits[2] = std::uniform_real_distribution(1.0, 3.0)(gen);
-
-                    // Clear Payload and Repair
-                    traits[1] = 0;
-                    traits[4] = 0;
-
-                    problem.m_goal_distribution->push_back(traits);
-
-                    problem.m_noncum_trait_cutoff->push_back(noncum_traits);
-
-                    // Carry supplies and rebuild
-                    if(std::uniform_real_distribution(0.0f, 1.0f)(gen) >= 0.5)
-                    {
-                        // Carry supplies
-                        {
-                            // Move from hanger to the fire
-                            problem.m_action_locations->push_back(std::pair(0, locations.size() - 1));
-
-                            // Some static time to pick up stuff
-                            problem.m_durations->push_back(1.0);
-
-                            // Clear water capacity
-                            traits[2] = 0.0;
-
-                            traits[1] = std::uniform_real_distribution(1.0f, 3.0f)(gen);
-                            problem.m_goal_distribution->push_back(traits);
-                            problem.m_noncum_trait_cutoff->push_back(noncum_traits);
-
-                            problem.m_ordering_constraints->push_back(
-                                {static_cast<int>(problem.m_durations->size() - 2),
-                                 static_cast<int>(problem.m_durations->size() - 1)});
-                        }
-
-                        // Rebuild
-                        {
-                            // Move to the fire
-                            problem.m_action_locations->push_back(std::pair(locations.size() - 1, locations.size() - 1));
-
-                            // Some static time to work
-                            problem.m_durations->push_back(10.0);
-
-                            // Clear water capacity and payload
-                            traits[1] = 0.0;
-                            traits[2] = 0.0;
-
-                            // Set rebuild
-                            traits[4] = std::uniform_real_distribution(1.0f, 3.0f)(gen);
-                            problem.m_goal_distribution->push_back(traits);
-                            problem.m_noncum_trait_cutoff->push_back(noncum_traits);
-
-                            problem.m_ordering_constraints->push_back(
-                                {static_cast<int>(problem.m_durations->size() - 2),
-                                 static_cast<int>(problem.m_durations->size() - 1)});
-                        }
-
-                    }
-                }
-            }
-            config["mp"]["locations"] = locations;
-            problem.setupMotionPlanners(config["mp"]);
-
-            // Create Ground Robots
-            {
-                // speed, payload, water capacity, heal ability, repair ability, mp index
-                std::vector<float> traits(6);
-                const unsigned int num_ground = std::uniform_int_distribution(2, 4)(gen);
-                Logger::debug("Creating {} ground robots", num_ground);
-
-                for(unsigned int robot_nr = 0; robot_nr < num_ground; ++robot_nr)
-                {
-                    traits[0] = std::uniform_real_distribution(1.0f, 2.0f)(gen); // Speed
-                    traits[1] = std::uniform_real_distribution(3.0f, 4.0f)(gen); // Payload
-                    traits[2] = std::uniform_real_distribution(2.0f, 3.0f)(gen); // Water capacity
-                    traits[3] = std::uniform_real_distribution(0.0f, 1.0f)(gen); // Heal ability
-                    traits[4] = std::uniform_real_distribution(0.0f, 1.0f)(gen); // Repair
-                    traits[5] = 0;
-
-                    problem.m_robot_traits->push_back(traits);
-                    // Start in the hanger
-                    problem.m_starting_locations->push_back(0);
-                }
-            }
-
-            // Create Aerial Robots
-            {
-                // speed, payload, water capacity, heal ability, repair ability, mp index
-                std::vector<float> traits(6);
-                const unsigned int num_aerial = std::uniform_int_distribution(2, 4)(gen);
-                Logger::debug("Creating {} aerial robots", num_aerial);
-
-                for(unsigned int robot_nr = 0; robot_nr < num_aerial; ++robot_nr)
-                {
-                    traits[0] = std::uniform_real_distribution(4.0f, 5.0f)(gen); // Speed
-                    traits[1] = std::uniform_real_distribution(1.0f, 2.0f)(gen); // Payload
-                    traits[2] = std::uniform_real_distribution(1.0f, 2.0f)(gen); // Water capacity
-                    traits[3] = std::uniform_real_distribution(0.0f, 1.0f)(gen); // Heal ability
-                    traits[4] = std::uniform_real_distribution(0.0f, 1.0f)(gen); // Repair
-                    traits[5] = 1;
-
-                    problem.m_robot_traits->push_back(traits);
-                    // Start in the hanger
-                    problem.m_starting_locations->push_back(0);
-                }
-            }
-
-            // Create Med Robots
-            {
-                // speed, payload, water capacity, heal ability, repair ability, mp index
-                std::vector<float> traits(6);
-                const unsigned int num_med = std::uniform_int_distribution(2, 4)(gen);
-                Logger::debug("Creating {} med robots", num_med);
-
-                for(unsigned int robot_nr = 0; robot_nr < num_med; ++robot_nr)
-                {
-                    traits[0] = std::uniform_real_distribution(0.1f, 1.0f)(gen); // Speed
-                    traits[1] = std::uniform_real_distribution(0.0f, 1.0f)(gen); // Payload
-                    traits[2] = std::uniform_real_distribution(0.0f, 1.0f)(gen); // Water capacity
-                    traits[3] = std::uniform_real_distribution(2.0f, 3.0f)(gen); // Heal ability
-                    traits[4] = std::uniform_real_distribution(0.0f, 1.0f)(gen); // Repair
-                    traits[5] = 0;
-
-                    problem.m_robot_traits->push_back(traits);
-                    // Start in the hospital
-                    problem.m_starting_locations->push_back(1);
-                }
-            }
-
-            // Create Util Robots
-            {
-                // speed, payload, water capacity, heal ability, repair ability, mp index
-                std::vector<float> traits(6);
-                const unsigned int num_util = std::uniform_int_distribution(2, 4)(gen);
-                Logger::debug("Creating {} util robots", num_util);
-
-                for(unsigned int robot_nr = 0; robot_nr < num_util; ++robot_nr)
-                {
-                    traits[0] = std::uniform_real_distribution(2.0f, 3.0f)(gen); // Speed
-                    traits[1] = std::uniform_real_distribution(2.0f, 3.0f)(gen); // Payload
-                    traits[2] = std::uniform_real_distribution(2.0f, 3.0f)(gen); // Water capacity
-                    traits[3] = std::uniform_real_distribution(0.0f, 1.0f)(gen); // Heal ability
-                    traits[4] = std::uniform_real_distribution(2.0f, 3.0f)(gen); // Repair
-                    traits[5] = 0;
-
-                    problem.m_robot_traits->push_back(traits);
-                    // Start in the hanger
-                    problem.m_starting_locations->push_back(0);
-                }
-            }
-
-            return problem;
         }
 
-        /* Normal
-        IcraProblem IcraProblem::generate(nlohmann::json& config)
+        // Create fires
         {
-            Logger::debug("Generating problem");
-            std::random_device rd;
-            std::mt19937 gen(rd());
-            const float boundary_min = config["mp"]["boundary_min"];
-            const float boundary_max = config["mp"]["boundary_max"];
+            const unsigned int num_prior = problem->m_goal_distribution->size();
 
-            IcraProblem problem;
-            problem.m_speed_index = 0;
-            problem.m_mp_index = 5;
+            // speed, mp, payload
+            std::vector<float> traits              = {0, 0, 0};
+            const std::vector<float> noncumulative_traits = {0, 0, 0};
 
-            // Create Locations
-            auto obstacles = config["mp"]["obstacles"].get<std::vector<std::vector<b2PolygonShape>>>();
-            std::vector<Location> locations;
-
-
-            // Create locations
-            Location hanger = generateLocation(obstacles, locations, gen, boundary_min, boundary_max);
-            Location hospital = generateLocation(obstacles, locations, gen, boundary_min, boundary_max);
-            Location water_tank = generateLocation(obstacles, locations, gen, boundary_min, boundary_max);
-
-            // Create survivors
+            const unsigned int num_fire = config["num_fires"];
+            for(unsigned int i = 0; i < num_fire; ++i)
             {
-                const unsigned int num_survivors = std::uniform_int_distribution(3, 5)(gen);
-                Logger::debug("Creating {} survivors", num_survivors);
+                // Fire location
+                const Location l = generateLocation(obstacles, locations, gen, boundary_min, boundary_max);
 
-                std::vector<float> traits = {0, 0, 0, 0, 0, 0};
-                const std::vector<float> noncum_traits = {0, 0, 0, 0, 0, 0};
-                for(unsigned int i = 0; i < num_survivors; ++i)
+                // Bring water
                 {
-                    Location l = generateLocation(obstacles, locations, gen, boundary_min, boundary_max);
+                    problem->m_action_locations->push_back(std::make_pair(hanger_index, locations.size() - 1));
 
-                    // Move survivor to the hospital
-                    problem.m_action_locations->push_back(std::make_pair(locations.size() - 1, 1));
-
-                    // Some static time to pick up and drop off
-                    problem.m_durations->push_back(1.0);
+                    // Fill up on water and pray it out
+                    problem->m_durations->push_back(600);
 
                     // Set payload
-                    traits[1] = std::uniform_real_distribution(2.0, 3.0)(gen);
-                    problem.m_goal_distribution->push_back(traits);
+                    traits[2] = 3.74;
+                    problem->m_goal_distribution->push_back(traits);
 
-                    problem.m_noncum_trait_cutoff->push_back(noncum_traits);
+                    problem->m_noncum_trait_cutoff->push_back(noncumulative_traits);
                 }
-            }
 
-            // Carry Medicine to Hospital
-            {
-                const unsigned int num_survivors = problem.m_goal_distribution->size();
-
-                std::vector<float> traits = {0, 0, 0, 0, 0, 0};
-                const std::vector<float> noncum_traits = {0, 0, 0, 0, 0, 0};
-                for(unsigned int i = 0; i < num_survivors; ++i)
+                // Bring Supplies
                 {
-                    // Move medicine to the hospital
-                    problem.m_action_locations->push_back(std::make_pair(0, 1));
+                    problem->m_action_locations->push_back(std::make_pair(hanger_index, locations.size() - 1));
 
-                    // Some static time to pick up and drop off
-                    problem.m_durations->push_back(1.0);
+                    // Pick up and drop off
+                    problem->m_durations->push_back(600);
 
                     // Set payload
-                    traits[1] = std::uniform_real_distribution(0.1, 1.0)(gen);
-                    problem.m_goal_distribution->push_back(traits);
+                    traits[2] = 3.74;
+                    problem->m_goal_distribution->push_back(traits);
 
-                    problem.m_noncum_trait_cutoff->push_back(noncum_traits);
+                    problem->m_noncum_trait_cutoff->push_back(noncumulative_traits);
+                }
+
+                // Repair
+                {
+                    problem->m_action_locations->push_back(std::make_pair(locations.size() - 1, locations.size() - 1));
+
+                    // Pick up and drop off
+                    problem->m_durations->push_back(3600);
+
+                    // Set payload
+                    traits[2] = 1;
+                    problem->m_goal_distribution->push_back(traits);
+
+                    problem->m_noncum_trait_cutoff->push_back(noncumulative_traits);
+                }
+
+                // Ordering constraints
+                {
+                    // move water to fire and the bring supplies to repair
+                    problem->m_ordering_constraints->push_back({static_cast<int>(num_prior + i * 3), static_cast<int>(num_prior + i * 3 + 1)});
+                    // bring supplies to repair before repairing
+                    problem->m_ordering_constraints->push_back({static_cast<int>(num_prior + i * 3 + 1), static_cast<int>(num_prior + i * 3 + 2)});
                 }
             }
-
-            // Heal
-            {
-                const unsigned int num_survivors = problem.m_goal_distribution->size() / 2;
-
-                std::vector<float> traits = {0, 0, 0, 0, 0, 0};
-                const std::vector<float> noncum_traits = {0, 0, 0, 0, 0, 0};
-                for(unsigned int i = 0; i < num_survivors; ++i)
-                {
-                    // No movement
-                    problem.m_action_locations->push_back(std::make_pair(1, 1));
-
-                    // Some static time to setup
-                    problem.m_durations->push_back(1.0);
-
-                    // Set heal ability
-                    traits[3] = std::uniform_real_distribution(1.0, 3.0)(gen);
-                    problem.m_goal_distribution->push_back(traits);
-
-                    problem.m_noncum_trait_cutoff->push_back(noncum_traits);
-                }
-
-                // Ordering Constraints
-                for(unsigned int i = 0; i < num_survivors; ++i)
-                {
-                    // ordering constraint from moving the survivor to healing
-                    problem.m_ordering_constraints->push_back({static_cast<int>(i), static_cast<int>(num_survivors * 2 + i)});
-
-                    // ordering constraint from moving the medicine to healing
-                    problem.m_ordering_constraints->push_back({static_cast<int>(num_survivors + i), static_cast<int>(num_survivors * 2 + i)});
-                }
-            }
-
-            // Put out fire
-            {
-                const unsigned int num_fires = std::uniform_int_distribution(0, 3)(gen);
-                Logger::debug("Creating {} fires", num_fires);
-
-                std::vector<float> traits = {0, 0, 0, 0, 0, 0};
-                const std::vector<float> noncum_traits = {0, 0, 0, 0, 0, 0};
-                for(unsigned int i = 0; i < num_fires; ++i)
-                {
-                    Location l = generateLocation(obstacles, locations, gen, boundary_min, boundary_max);
-
-                    // Move from the water tank to the fire
-                    problem.m_action_locations->push_back(std::pair(2, locations.size() - 1));
-
-                    // Some static time to fill up
-                    problem.m_durations->push_back(1.0);
-
-                    // Set water capacity
-                    traits[2] = std::uniform_real_distribution(1.0, 3.0)(gen);
-
-                    // Clear Payload and Repair
-                    traits[1] = 0;
-                    traits[4] = 0;
-
-                    problem.m_goal_distribution->push_back(traits);
-
-                    problem.m_noncum_trait_cutoff->push_back(noncum_traits);
-
-                    // Carry supplies and rebuild
-                    if(std::uniform_real_distribution(0.0f, 1.0f)(gen) >= 0.5)
-                    {
-                        // Carry supplies
-                        {
-                            // Move from hanger to the fire
-                            problem.m_action_locations->push_back(std::pair(0, locations.size() - 1));
-
-                            // Some static time to pick up stuff
-                            problem.m_durations->push_back(1.0);
-
-                            // Clear water capacity
-                            traits[2] = 0.0;
-
-                            traits[1] = std::uniform_real_distribution(1.0f, 3.0f)(gen);
-                            problem.m_goal_distribution->push_back(traits);
-                            problem.m_noncum_trait_cutoff->push_back(noncum_traits);
-
-                            problem.m_ordering_constraints->push_back(
-                                {static_cast<int>(problem.m_durations->size() - 2),
-                                 static_cast<int>(problem.m_durations->size() - 1)});
-                        }
-
-                        // Rebuild
-                        {
-                            // Move to the fire
-                            problem.m_action_locations->push_back(std::pair(locations.size() - 1, locations.size() - 1));
-
-                            // Some static time to work
-                            problem.m_durations->push_back(10.0);
-
-                            // Clear water capacity and payload
-                            traits[1] = 0.0;
-                            traits[2] = 0.0;
-
-                            // Set rebuild
-                            traits[4] = std::uniform_real_distribution(1.0f, 3.0f)(gen);
-                            problem.m_goal_distribution->push_back(traits);
-                            problem.m_noncum_trait_cutoff->push_back(noncum_traits);
-
-                            problem.m_ordering_constraints->push_back(
-                                {static_cast<int>(problem.m_durations->size() - 2),
-                                 static_cast<int>(problem.m_durations->size() - 1)});
-                        }
-
-                    }
-                }
-            }
-            config["mp"]["locations"] = locations;
-            problem.setupMotionPlanners(config["mp"]);
-
-            // Create Ground Robots
-            {
-                // speed, payload, water capacity, heal ability, repair ability, mp index
-                std::vector<float> traits(6);
-                const unsigned int num_ground = std::uniform_int_distribution(3, 4)(gen);
-                Logger::debug("Creating {} ground robots", num_ground);
-
-                for(unsigned int robot_nr = 0; robot_nr < num_ground; ++robot_nr)
-                {
-                    traits[0] = std::uniform_real_distribution(1.0f, 2.0f)(gen); // Speed
-                    traits[1] = std::uniform_real_distribution(3.0f, 4.0f)(gen); // Payload
-                    traits[2] = std::uniform_real_distribution(2.0f, 3.0f)(gen); // Water capacity
-                    traits[3] = std::uniform_real_distribution(0.0f, 1.0f)(gen); // Heal ability
-                    traits[4] = std::uniform_real_distribution(0.0f, 1.0f)(gen); // Repair
-                    traits[5] = 0;
-
-                    problem.m_robot_traits->push_back(traits);
-                    // Start in the hanger
-                    problem.m_starting_locations->push_back(0);
-                }
-            }
-
-            // Create Aerial Robots
-            {
-                // speed, payload, water capacity, heal ability, repair ability, mp index
-                std::vector<float> traits(6);
-                const unsigned int num_aerial = std::uniform_int_distribution(3, 4)(gen);
-                Logger::debug("Creating {} aerial robots", num_aerial);
-
-                for(unsigned int robot_nr = 0; robot_nr < num_aerial; ++robot_nr)
-                {
-                    traits[0] = std::uniform_real_distribution(4.0f, 5.0f)(gen); // Speed
-                    traits[1] = std::uniform_real_distribution(1.0f, 2.0f)(gen); // Payload
-                    traits[2] = std::uniform_real_distribution(1.0f, 2.0f)(gen); // Water capacity
-                    traits[3] = std::uniform_real_distribution(0.0f, 1.0f)(gen); // Heal ability
-                    traits[4] = std::uniform_real_distribution(0.0f, 1.0f)(gen); // Repair
-                    traits[5] = 1;
-
-                    problem.m_robot_traits->push_back(traits);
-                    // Start in the hanger
-                    problem.m_starting_locations->push_back(0);
-                }
-            }
-
-            // Create Med Robots
-            {
-                // speed, payload, water capacity, heal ability, repair ability, mp index
-                std::vector<float> traits(6);
-                const unsigned int num_med = std::uniform_int_distribution(3, 4)(gen);
-                Logger::debug("Creating {} med robots", num_med);
-
-                for(unsigned int robot_nr = 0; robot_nr < num_med; ++robot_nr)
-                {
-                    traits[0] = std::uniform_real_distribution(0.1f, 1.0f)(gen); // Speed
-                    traits[1] = std::uniform_real_distribution(0.0f, 1.0f)(gen); // Payload
-                    traits[2] = std::uniform_real_distribution(0.0f, 1.0f)(gen); // Water capacity
-                    traits[3] = std::uniform_real_distribution(2.0f, 3.0f)(gen); // Heal ability
-                    traits[4] = std::uniform_real_distribution(0.0f, 1.0f)(gen); // Repair
-                    traits[5] = 0;
-
-                    problem.m_robot_traits->push_back(traits);
-                    // Start in the hospital
-                    problem.m_starting_locations->push_back(1);
-                }
-            }
-
-            // Create Util Robots
-            {
-                // speed, payload, water capacity, heal ability, repair ability, mp index
-                std::vector<float> traits(6);
-                const unsigned int num_util = std::uniform_int_distribution(3, 4)(gen);
-                Logger::debug("Creating {} util robots", num_util);
-
-                for(unsigned int robot_nr = 0; robot_nr < num_util; ++robot_nr)
-                {
-                    traits[0] = std::uniform_real_distribution(2.0f, 3.0f)(gen); // Speed
-                    traits[1] = std::uniform_real_distribution(2.0f, 3.0f)(gen); // Payload
-                    traits[2] = std::uniform_real_distribution(2.0f, 3.0f)(gen); // Water capacity
-                    traits[3] = std::uniform_real_distribution(0.0f, 1.0f)(gen); // Heal ability
-                    traits[4] = std::uniform_real_distribution(2.0f, 3.0f)(gen); // Repair
-                    traits[5] = 0;
-
-                    problem.m_robot_traits->push_back(traits);
-                    // Start in the hanger
-                    problem.m_starting_locations->push_back(0);
-                }
-            }
-
-            return problem;
         }
-         */
+
+        config["mp"]["locations"] = locations;
+        problem->setupMotionPlanners(config["mp"]);
+
+        // Create robots
+        {
+            const unsigned int num_robots = config["num_robots"]["total"];
+            std::vector<float> traits(3);
+
+            // some fast but weak (aerial)
+            const unsigned int num_aerial = config["num_robots"]["aerial"];
+            for(unsigned int i = 0; i < num_aerial; ++i)
+            {
+                traits[0] = 50;   // Speed (m/s)
+                traits[1] = 1;    // MP
+                traits[2] = 2.5;  // Payload (lbs)
+
+                problem->m_robot_traits->push_back(traits);
+                // Start in the hanger
+                problem->m_starting_locations->push_back(0);
+            }
+
+            // some strong but slow (ground)
+            const unsigned int num_ground = config["num_robots"]["ground"];
+            for(unsigned int i = 0; i < num_ground; ++i)
+            {
+                traits[0] = 25;  // Speed (m/s)
+                traits[1] = 0;   // MP
+                traits[2] = 5;   // Payload (lbs)
+
+                problem->m_robot_traits->push_back(traits);
+                // Start in the hanger
+                problem->m_starting_locations->push_back(0);
+            }
+
+            // some middle (utility)
+            const unsigned int num_utility = config["num_robots"]["utility"];
+            for(unsigned int i = 0; i < num_utility; ++i)
+            {
+                traits[0] = 37.5;  // Speed (m/s)
+                traits[1] = 0;   // MP
+                traits[2] = 3.75;   // Payload (lbs)
+
+                problem->m_robot_traits->push_back(traits);
+                // Start in the hanger
+                problem->m_starting_locations->push_back(0);
+            }
+        }
+        return problem;
     }
-}
+}  // namespace grstaps::icra2021
