@@ -12,19 +12,20 @@
 
 // Local
 #include "icra_problem_v1.hpp"
-#include "icra_problem_v2.hpp"
+#include "old_icra_problem_v1.hpp"
 
 namespace grstaps
 {
 
     namespace icra2021
     {
-        using IcraProblem = IcraProblemV2;
-
         class Experiments : public Noncopyable
         {
            public:
             static Experiments& getInstance();
+
+            void setProblemVersion(unsigned int version);
+
             /**
              * ITAGS solve
              */
@@ -54,12 +55,13 @@ namespace grstaps
 
            private:
             Experiments() = default;
-            IcraProblem getProblem(const unsigned int problem_number);
-            std::vector<std::vector<std::vector<b2PolygonShape>>> readMaps(const unsigned int nr);
+            std::unique_ptr<IcraProblemBase> getProblem(const unsigned int problem_number) const;
+            static std::vector<std::vector<std::vector<b2PolygonShape>>> readMaps(const unsigned int nr);
 
             Timer m_timer;
             std::unique_ptr<AStarSearch<TaskAllocation>> m_search;
             unsigned int m_problem_number;
+            unsigned int m_problem_version;
             float m_alpha;
             bool m_sequential;
         };

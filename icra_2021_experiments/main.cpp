@@ -16,6 +16,7 @@ int main(int argc, char** argv)
     args::ArgumentParser parser("ICRA Experiments");
     args::ValueFlag<float> alpha(parser, "alpha", "Hyperparameter", {'a'});
     args::ValueFlag<int> problem_nr(parser, "problem", "Problem Number", {'p'});
+    args::ValueFlag<int> problem_ver(parser, "version", "Problem Version", {'v'});
     args::Flag seq(parser, "sequential", "Flag for running sequential", {'s'});
     try
     {
@@ -44,6 +45,16 @@ int main(int argc, char** argv)
         pnr = args::get(problem_nr);
     }
 
+    int pv = 0;
+    if(problem_ver)
+    {
+        pv = args::get(problem_ver);
+    }
+    else
+    {
+        throw "problem version not set";
+    }
+
     // Catch termination signal from timeout
     signal(SIGTERM, grstaps::icra2021::Experiments::handleSignal);
     signal(SIGKILL, grstaps::icra2021::Experiments::handleSignal);
@@ -61,6 +72,7 @@ int main(int argc, char** argv)
     }
 
     auto& experiments = grstaps::icra2021::Experiments::getInstance();
+    experiments.setProblemVersion(pv);
     char* free_block = new char[32];
     nlohmann::json metrics;
     try

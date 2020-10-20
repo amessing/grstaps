@@ -14,7 +14,7 @@ namespace grstaps
         {
            public:
             //! \brief Generates a problem for the icra experiments
-            static IcraProblemV1 generate(nlohmann::json& config);
+            static std::unique_ptr<IcraProblemV1> generate(nlohmann::json& config);
         };
     }  // namespace icra2021
 }  // namespace grstaps
