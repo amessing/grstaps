@@ -8,8 +8,8 @@ make_outputs(${CMAKE_CURRENT_SOURCE_DIR}/icra_2021_experiments "${icra_2021_file
 
 add_executable(icra_experiments main.cpp
         icra_problem_base.hpp icra_problem_base.cpp
+        old_icra_problem_v1.hpp old_icra_problem_v1.cpp
         icra_problem_v1.hpp icra_problem_v1.cpp
-        icra_problem_v2.hpp icra_problem_v2.cpp
         experiments.hpp experiments.cpp
         ${configOutputs})
 set_target_properties(icra_experiments PROPERTIES CXX_STANDARD 17 CXX_STANDARD_REQUIRED YES)

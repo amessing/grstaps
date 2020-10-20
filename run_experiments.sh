@@ -18,37 +18,30 @@ ulimit -t $((10 * 60)) # seconds
 # Display?
 ulimit -a
 
-timeout="5m"
+for alpha in "s" "0.00" "0.25" "0.50" "0.75" "1.00"; do
+  problem_nr=0
+  for problem_version in {0..9}; do
+    for iteration in {0..14}; do
+      problem_nr=$((problem_nr + 1))
+      echo "Problem ${problem_nr}"
 
-for i in {1..10}
-do
-  echo "Problem ${i}"
-  if [ -f "problems/problem_${i}.json" ]; then
-    echo "Already done"
-    continue
-  fi
+      map_nr=$(( (problem_nr + 1) % 5 ))
+      if [ "${map_nr}" == "3" ]; then
+        echo "Map 3; skipping"
+        continue
+      fi
 
-  j=$(( ( i + 1 ) % 5 ))
-  echo "Map ${j}"
-  if [ "${j}" == "3" ]; then
-    echo "Ignore"
-    continue
-  fi
-  if [ ! -f "outputs/output_${i}_0.0_1.json" ]; then
-
-    echo "./icra_experiments -p ${i} -s"
-    eval "./icra_experiments -p ${i} -s"
-    #echo "timeout --foreground -s 15 -k 10 ${timeout} ./icra_experiments -p ${i} -s"
-    #eval "timeout --foreground -s 15 -k 10 ${timeout}  ./icra_experiments -p ${i} -s"
-  fi
-
-  for a in "0.0" "0.25" "0.5" "0.75" "1.0"
-  do
-    if [ ! -f "outputs/output_${i}_${a}_0.json" ]; then
-      echo "./icra_experiments -p ${i} -a ${a}"
-      eval "./icra_experiments -p ${i} -a ${a}"
-      #echo "timeout --foreground -s 15 -k 10 ${timeout} ./icra_experiments -p ${i} -a ${a}"
-      #eval "timeout --foreground -s 15 -k 10 ${timeout} ./icra_experiments -p ${i} -a ${a}"
-    fi
+      if [ "${alpha}" == "s" ]; then
+        if [ ! -f "outputs/output_${problem_nr}_0.00_1.json" ]; then
+          echo "./icra_experiments -p ${problem_nr} -v ${problem_version} -s"
+          eval "./icra_experiments -p ${problem_nr} -v ${problem_version} -s"
+        fi
+      else
+        if [ ! -f "outputs/output_${problem_nr}_${alpha}_0.json" ]; then
+          echo "./icra_experiments -p ${problem_nr} -v ${problem_version} -a ${alpha}"
+          eval "./icra_experiments -p ${problem_nr} -v ${problem_version} -a ${alpha}"
+        fi
+      fi
+    done
   done
 done
