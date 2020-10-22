@@ -226,7 +226,7 @@ namespace grstaps::icra2021
                         config["num_survivors"] = {
                             {"total", 12}, {"need_food", 4}, {"need_medicine", 4}, {"need_hospital", 4}};
                         config["num_fires"]  = 0;
-                        config["num_robots"] = {{"total", 12}, {"ground", 6}, {"aerial", 6}, {"num_utility", 0}};
+                        config["num_robots"] = {{"total", 12}, {"ground", 6}, {"aerial", 6}, {"utility", 0}};
                         break;
                     case 7:
                         config["num_survivors"] = {
