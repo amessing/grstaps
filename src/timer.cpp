@@ -135,8 +135,6 @@ namespace grstaps
             s_talloc_time -= s_schedule_time;
         }
         s_schedule_time -= s_mp_time;
-
-
     }
     void to_json(nlohmann::json& j, const Timer& t)
     {
