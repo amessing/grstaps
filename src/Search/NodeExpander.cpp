@@ -26,11 +26,13 @@
 
 namespace grstaps
 {
+    /*
     template <class Data>
     NodeExpander<Data>::NodeExpander()
         : heuristicFunc(new TAGoalDist)
         , costFunc(new TAScheduleTime)
     {}
+    */
 
     template <class Data>
     NodeExpander<Data>::NodeExpander(boost::shared_ptr<const Heuristic> heur, boost::shared_ptr<const Cost> cost)
