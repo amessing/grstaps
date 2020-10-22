@@ -146,12 +146,7 @@ namespace grstaps::icra2021
 
         } while(!m_search->empty());
 
-        nlohmann::json metrics = {{"solved", false},
-                                  {"makespan", -1},
-                                  {"nodes_expanded", m_search->nodesExpanded},
-                                  {"nodes_visited", m_search->nodesSearched},
-                                  {"Timer", m_timer}};
-        return metrics;
+        return errorData();
     }
 
     nlohmann::json Experiments::errorData()
@@ -313,17 +308,11 @@ namespace grstaps::icra2021
 
         auto& experiments = Experiments::getInstance();
 
-        nlohmann::json metrics = {{"solved", false},
-                                  {"makespan", -1},
-                                  {"nodes_expanded", experiments.m_search->nodesExpanded},
-                                  {"nodes_visited", experiments.m_search->nodesSearched},
-                                  {"Timer", -1}};
-
         std::ofstream out(fmt::format("outputs/output_{0:d}_{1:0.2f}_{2:d}.json",
                                       experiments.m_problem_number,
                                       experiments.m_alpha,
                                       experiments.m_sequential ? 1 : 0));
-        out << metrics;
+        out << experiments.errorData();
         out.flush();
 
         exit(signal);
