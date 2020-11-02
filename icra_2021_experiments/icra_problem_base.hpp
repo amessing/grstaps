@@ -41,7 +41,8 @@ namespace grstaps
            protected:
             IcraProblemBase();
             void setupMotionPlanners(const nlohmann::json& data);
-            static Location generateLocation(const std::vector<std::vector<b2PolygonShape>>& obstacles,
+            static Location generateLocation(const std::string& name,
+                                             const std::vector<std::vector<b2PolygonShape>>& obstacles,
                                              std::vector<Location>& locations,
                                              std::mt19937& gen,
                                              const float boundary_min,
@@ -63,6 +64,7 @@ namespace grstaps
             unsigned int m_mp_index;
 
             nlohmann::json m_mp_json;
+            nlohmann::json m_human;
         };
 
         void to_json(nlohmann::json& j, const IcraProblemBase& p);

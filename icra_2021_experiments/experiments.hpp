@@ -57,6 +57,7 @@ namespace grstaps
             Experiments() = default;
             std::unique_ptr<IcraProblemBase> getProblem(const unsigned int problem_number) const;
             static std::vector<std::vector<std::vector<b2PolygonShape>>> readMaps(const unsigned int nr);
+            nlohmann::json writeSolution(TaskAllocation& allocation) const;
 
             Timer m_timer;
             std::unique_ptr<AStarSearch<TaskAllocation>> m_search;

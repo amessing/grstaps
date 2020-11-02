@@ -24,17 +24,20 @@ namespace grstaps::icra2021
 
         // 1000m x 1000m
         const float boundary_min = config["mp"]["boundary_min"] = 0.0;
-        const float boundary_max = config["mp"]["boundary_max"] = 1000.0;
+        const float boundary_max = config["mp"]["boundary_max"] = 3.0;
         config["mp"]["query_time"]                              = 0.01;
         // Create Locations
         auto obstacles = config["mp"]["obstacles"].get<std::vector<std::vector<b2PolygonShape>>>();
         std::vector<Location> locations;
 
         // Create locations
-        Location hanger = generateLocation(obstacles, locations, gen, boundary_min, boundary_max);
+        Location hanger = generateLocation("hanger", obstacles, locations, gen, boundary_min, boundary_max);
         const unsigned int hanger_index = 0;
-        Location hospital = generateLocation(obstacles, locations, gen, boundary_min, boundary_max);
+        Location hospital = generateLocation("hospital", obstacles, locations, gen, boundary_min, boundary_max);
         const unsigned int hospital_index = 1;
+
+        // Add the config for the problem so a human can know what is going on (num survivors, etc)
+        problem->m_human = config;
 
         // Create survivors
         {
@@ -50,7 +53,7 @@ namespace grstaps::icra2021
             for(unsigned int i = 0; i < num_need_medicine; ++i)
             {
                 // Survivor location
-                const Location l = generateLocation(obstacles, locations, gen, boundary_min, boundary_max);
+                const Location l = generateLocation(fmt::format("survivor_med{0}_start", i), obstacles, locations, gen, boundary_min, boundary_max);
 
                 // Move medicine to survivor
                 problem->m_action_locations->push_back(std::make_pair(hanger_index, locations.size() - 1));
@@ -70,7 +73,7 @@ namespace grstaps::icra2021
             for(unsigned int i = 0; i < num_need_food; ++i)
             {
                 // Survivor location
-                const Location l = generateLocation(obstacles, locations, gen, boundary_min, boundary_max);
+                const Location l = generateLocation(fmt::format("survivor_food{0}_start", i),obstacles, locations, gen, boundary_min, boundary_max);
 
                 // Move food to survivor
                 problem->m_action_locations->push_back(std::make_pair(hanger_index, locations.size() - 1));
@@ -92,7 +95,7 @@ namespace grstaps::icra2021
                 // Move survivor to hospital
                 {
                     // Survivor location
-                    const Location l = generateLocation(obstacles, locations, gen, boundary_min, boundary_max);
+                    const Location l = generateLocation(fmt::format("survivor_hosp{0}_start", i),obstacles, locations, gen, boundary_min, boundary_max);
 
                     // Move survivors to hospital
                     problem->m_action_locations->push_back(std::make_pair(locations.size() - 1, hospital_index));
@@ -157,7 +160,7 @@ namespace grstaps::icra2021
             for(unsigned int i = 0; i < num_fire; ++i)
             {
                 // Fire location
-                const Location l = generateLocation(obstacles, locations, gen, boundary_min, boundary_max);
+                const Location l = generateLocation(fmt::format("fire{0}_start", i),obstacles, locations, gen, boundary_min, boundary_max);
 
                 // Bring water
                 {

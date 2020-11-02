@@ -1,3 +1,4 @@
+#if 0
 #include "old_icra_problem_v1.hpp"
 
 // Global
@@ -556,3 +557,4 @@ namespace grstaps::icra2021
         }
          */
     }
+#endif
