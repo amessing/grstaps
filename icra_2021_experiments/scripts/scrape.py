@@ -80,7 +80,7 @@ class Scrape:
                 results[alpha] = Results()
 
         num_solved = 0
-        for problem_nr in range(126, 150):
+        for problem_nr in range(1, 150):
             # Check if baseline solved it
             rv = self.parseSingleResult(filepath, problem_nr, "0.50")
             if rv is None:
@@ -115,7 +115,7 @@ class Scrape:
 
             problem_nr += 1
             num_solved += 1
-            if num_solved == 50:
+            if num_solved == 150:
                 break
 
         return results
