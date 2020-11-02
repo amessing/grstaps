@@ -75,7 +75,8 @@ namespace grstaps::icra2021
                                   {"makespan", package.foundGoal ? package.finalNode->getData().getScheduleTime() : -1},
                                   {"nodes_expanded", m_search->nodesExpanded},
                                   {"nodes_visited", m_search->nodesSearched},
-                                  {"Timer", m_timer}};
+                                  {"Timer", m_timer},
+                                  {"solution", writeSolution(package.finalNode->getData())}};
 
         return metrics;
     }
@@ -260,7 +261,32 @@ namespace grstaps::icra2021
                                                 {"aerial", std::uniform_int_distribution(3, 4)(gen)},
                                                 {"utility", std::uniform_int_distribution(3, 4)(gen)}};
                     }
+                    case 10: {
+                        int total = 800;
+                        std::random_device rd;
+                        std::mt19937 gen(rd());
+                        const unsigned int need_food = std::uniform_int_distribution(0, 400)(gen);
+                        total -= need_food;
+                        const unsigned int need_medicine = std::uniform_int_distribution(0, total)(gen);
+                        total -= need_medicine;
+
+                        config["num_survivors"] = {{"total", 800},
+                                                   {"need_food", need_food},
+                                                   {"need_medicine", need_medicine},
+                                                   {"need_hospital", total}};
+                        config["num_fires"]     = std::uniform_int_distribution(50, 200)(gen);
+                        config["num_robots"]    = {{"total", 20},
+                                                   {"ground", std::uniform_int_distribution(6, 8)(gen)},
+                                                   {"aerial", std::uniform_int_distribution(6, 8)(gen)},
+                                                   {"utility", std::uniform_int_distribution(6, 8)(gen)}};
+                    }
                     break;
+                    case 11:
+                        config["num_survivors"] = {
+                            {"total", 2}, {"need_food", 0}, {"need_medicine", 0}, {"need_hospital", 2}};
+                        config["num_fires"]  = 2;
+                        config["num_robots"] = {{"total", 5}, {"ground", 2}, {"aerial", 2}, {"utility", 1}};
+                        break;
                     default:
                         throw "help";
                 }
@@ -300,6 +326,48 @@ namespace grstaps::icra2021
             maps.push_back(map);
         }
         return maps;
+    }
+
+    nlohmann::json Experiments::writeSolution(TaskAllocation& allocation) const
+    {
+        nlohmann::json rv;
+        const auto motion_plans = allocation.taToScheduling.saveMotionPlanningNonSpeciesSchedule(&allocation);
+        rv["allocation"] = allocation.getID();
+        rv["motion_plans"] = nlohmann::json();
+
+        unsigned int i = 0;
+        for(const auto& agent_motion_plans: motion_plans.second)
+        {
+            nlohmann::json agent;
+            for(const auto& motion_plan: agent_motion_plans)
+            {
+                nlohmann::json mp;
+                mp["start"]     = motion_plan.first.first;
+                mp["end"]       = motion_plan.first.second;
+                mp["waypoints"] = nlohmann::json();
+                for(const std::pair<float, float>& waypoint: motion_plan.second)
+                {
+                    nlohmann::json w;
+                    w.push_back(waypoint.first);
+                    w.push_back(waypoint.second);
+                    mp["waypoints"].push_back(w);
+                }
+                agent.push_back(mp);
+            }
+            rv["motion_plans"][fmt::format("agent_{}", i)] = agent;
+            ++i;
+        }
+
+        rv["schedule"] = nlohmann::json();
+        for(unsigned int i = 0; i < allocation.taToScheduling.sched.actionStartTimes.size(); ++i)
+        {
+            nlohmann::json action    = {{"index", i},
+                                        {"start_time", allocation.taToScheduling.sched.actionStartTimes[i]},
+                                        {"end_time", allocation.taToScheduling.sched.stn[i][1]}};
+            rv["schedule"].push_back(action);
+        }
+
+        return rv;
     }
 
     void Experiments::handleSignal(int signal)

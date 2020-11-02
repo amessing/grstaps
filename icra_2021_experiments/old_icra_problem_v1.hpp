@@ -1,3 +1,4 @@
+#if 0
 #ifndef GRSTAPS_OLD_ICRA_PROBLEM_V1_HPP
 #define GRSTAPS_OLD_ICRA_PROBLEM_V1_HPP
 
@@ -20,3 +21,4 @@ namespace grstaps
 }  // namespace grstaps
 
 #endif  // GRSTAPS_OLD_ICRA_PROBLEM_V1_HPP
+#endif
