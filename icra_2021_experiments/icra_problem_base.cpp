@@ -109,7 +109,8 @@ namespace grstaps
         {
             return m_robot_traits;
         }
-        Location IcraProblemBase::generateLocation(const std::vector<std::vector<b2PolygonShape>>& obstacles,
+        Location IcraProblemBase::generateLocation(const std::string& name,
+                                                   const std::vector<std::vector<b2PolygonShape>>& obstacles,
                                                  std::vector<Location>& locations,
                                                  std::mt19937& gen,
                                                  const float boundary_min,
@@ -160,7 +161,7 @@ namespace grstaps
                     continue;
                 }
 
-                locations.emplace_back("generated", point.x, point.y);
+                locations.emplace_back(name, point.x, point.y);
                 return locations.back();
             }
         }
@@ -177,7 +178,8 @@ namespace grstaps
                 {"action_locations", *m_action_locations},
                 {"starting_locations", *m_starting_locations},
                 {"speed_index", m_speed_index},
-                {"mp_index", m_mp_index}
+                {"mp_index", m_mp_index},
+                {"human", m_human}
             };
         }
         void to_json(nlohmann::json& j, const IcraProblemBase& p)
