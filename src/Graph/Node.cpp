@@ -132,7 +132,7 @@ namespace grstaps
     }
 
     template <class Data>
-    boost::weak_ptr<Node<Data>>& Node<Data>::getParentNode(const std::string id) const
+    std::weak_ptr<Node<Data>>& Node<Data>::getParentNode(const std::string id) const
     {
         auto foundNode           = enteringEdges.find(id);
         edgePtr<Data> parentNode = NULL;
@@ -144,7 +144,7 @@ namespace grstaps
     }
 
     template <class Data>
-    boost::weak_ptr<Node<Data>>& Node<Data>::getChildNode(const std::string id) const
+    std::weak_ptr<Node<Data>>& Node<Data>::getChildNode(const std::string id) const
     {
         auto foundNode          = leavingEdges.find(id);
         edgePtr<Data> childNode = NULL;
@@ -254,7 +254,6 @@ namespace grstaps
             enteringEdges.erase(id);
             removedFromNode = true;
         }
-
         return removedFromNode;
     }
 

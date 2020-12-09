@@ -30,7 +30,7 @@
 namespace grstaps
 {
     template <typename Data>
-    using nodePtr = typename boost::shared_ptr<Node<Data>>;
+    using nodePtr = typename std::shared_ptr<Node<Data>>;
 
     /**
      * Functor for expanding the graph by adding children to a node
@@ -48,7 +48,7 @@ namespace grstaps
          * \param the cost object
          *
          */
-        AllocationExpander(boost::shared_ptr<const Heuristic>, boost::shared_ptr<const Cost>);
+        AllocationExpander(std::shared_ptr<const Heuristic>, std::shared_ptr<const Cost>);
 
         /**
          * Expands a  graph by adding a nodes children
@@ -67,7 +67,7 @@ namespace grstaps
          * \param int representing the task species combo that you are adding too
          *
          */
-        std::string editID(const vector<short>&, const std::string&, int) const;
+        static std::string editID(const vector<short>&, const std::string&, int) ;
     };
 
 }  // namespace grstaps

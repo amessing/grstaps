@@ -40,6 +40,7 @@
 #include "grstaps/task_planning/task_planner.hpp"
 #include "grstaps/Task_Allocation/checkAllocatable.h"
 
+using std::shared_ptr;
 
 namespace grstaps
 {
@@ -66,14 +67,14 @@ namespace grstaps
         unsigned int talloc_nodes_visited  = 0;
 
         // Also can any of them be const? That will help with multithreading in the future (fewer mutexes)
-        auto heuristic = boost::make_shared<const TAGoalDist>();
-        auto path_cost = boost::make_shared<const TAScheduleTime>();
+        auto heuristic = std::make_shared<const TAGoalDist>();
+        auto path_cost = std::make_shared<const TAScheduleTime>();
 
-        auto isGoal    = boost::make_shared<const AllocationIsGoal>();
-        auto expander = boost::make_shared<const AllocationExpander>(heuristic, path_cost);
+        auto isGoal    = std::make_shared<const AllocationIsGoal>();
+        auto expander = std::make_shared<const AllocationExpander>(heuristic, path_cost);
         SearchResultPackager<TaskAllocation>* package            = new AllocationResultsPackager();
 
-        auto numSpec     = boost::make_shared<std::vector<int>>(problem.robotTraits().size(), 1);
+        auto numSpec     = std::make_shared<std::vector<int>>(problem.robotTraits().size(), 1);
         auto robotTraits = &problem.robotTraits();
 
         Timer planTimer;
@@ -92,11 +93,11 @@ namespace grstaps
             // openmp line
             for(unsigned int i = 0; i < num_children; ++i)
             {
-                auto orderingCon       = boost::make_shared<std::vector<std::vector<int>>>();
-                auto durations         = boost::make_shared<std::vector<float>>();
-                auto noncumTraitCutoff = boost::make_shared<std::vector<std::vector<float>>>();
-                auto goalDistribution  = boost::make_shared<std::vector<std::vector<float>>>();
-                auto  actionLocations = boost::make_shared<std::vector<std::pair<unsigned int, unsigned int>>>();
+                auto orderingCon       = std::make_shared<std::vector<std::vector<int>>>();
+                auto durations         = std::make_shared<std::vector<float>>();
+                auto noncumTraitCutoff = std::make_shared<std::vector<std::vector<float>>>();
+                auto goalDistribution  = std::make_shared<std::vector<std::vector<float>>>();
+                auto  actionLocations  = std::make_shared<std::vector<std::pair<unsigned int, unsigned int>>>();
 
                 Plan* plan = successors[i];
                 setupTaskAllocationParameters(plan,
@@ -124,7 +125,7 @@ namespace grstaps
                                       problem.speedIndex,
                                       problem.mpIndex);
 
-                    auto root = boost::make_shared<Node<TaskAllocation>>(ta.getID(), ta);
+                    auto root = std::make_shared<Node<TaskAllocation>>(ta.getID(), ta);
                     root->setData(ta);
                     Graph<TaskAllocation> allocationGraph;
                     allocationGraph.addNode(root);
@@ -164,7 +165,7 @@ namespace grstaps
 
                     nlohmann::json metrics = {
                         {"makespan", potential_ta.getScheduleTime()},
-                        {"num_actions", (*potential_ta.actionDurations).size()},
+                        {"num_actions", (*potential_ta.params->actionDurations).size()},
                         {"num_tp_nodes_expanded", tplan_nodes_expanded},
                         {"num_tp_nodes_visited", tplan_nodes_visited},
                         {"num_tp_nodes_pruned", tplan_nodes_pruned},
@@ -221,14 +222,14 @@ namespace grstaps
         unsigned int talloc_nodes_visited  = 0;
 
         // Also can any of them be const? That will help with multithreading in the future (fewer mutexes)
-        auto heur = boost::make_shared<const AllocationDistance>();
-        auto cos       = boost::make_shared<const TAScheduleTime>();
+        auto heur = std::make_shared<const AllocationDistance>();
+        auto cos       = std::make_shared<const TAScheduleTime>();
 
-        auto isGoal    = boost::make_shared<const AllocationIsGoal>();
-        auto expander = boost::make_shared<const AllocationExpander>(heur, cos);
+        auto isGoal    = std::make_shared<const AllocationIsGoal>();
+        auto expander = std::make_shared<const AllocationExpander>(heur, cos);
         SearchResultPackager<TaskAllocation>* package            = new AllocationResultsPackager();
 
-        auto numSpec     = boost::make_shared<std::vector<int>>(problem.robotTraits().size(), 1);
+        auto numSpec     = std::make_shared<std::vector<int>>(problem.robotTraits().size(), 1);
         auto robotTraits = &problem.robotTraits();
 
         Timer planTime;
@@ -245,11 +246,11 @@ namespace grstaps
             {
                 if(plan->isSolution())
                 {
-                    auto orderingCon       = boost::make_shared<std::vector<std::vector<int>>>();
-                    auto durations         = boost::make_shared<std::vector<float>>();
-                    auto noncumTraitCutoff = boost::make_shared<std::vector<std::vector<float>>>();
-                    auto goalDistribution  = boost::make_shared<std::vector<std::vector<float>>>();
-                    auto  actionLocations = boost::make_shared<std::vector<std::pair<unsigned int, unsigned int>>>();
+                    auto orderingCon       = std::make_shared<std::vector<std::vector<int>>>();
+                    auto durations         = std::make_shared<std::vector<float>>();
+                    auto noncumTraitCutoff = std::make_shared<std::vector<std::vector<float>>>();
+                    auto goalDistribution  = std::make_shared<std::vector<std::vector<float>>>();
+                    auto  actionLocations = std::make_shared<std::vector<std::pair<unsigned int, unsigned int>>>();
 
                     setupTaskAllocationParameters(plan,
                                                   problem,
@@ -277,7 +278,7 @@ namespace grstaps
                                           problem.speedIndex,
                                           problem.mpIndex);
 
-                        auto root = boost::make_shared<Node<TaskAllocation>>(ta.getID(), ta);
+                        auto root = std::make_shared<Node<TaskAllocation>>(ta.getID(), ta);
                         root->setData(ta);
                         Graph<TaskAllocation> allocationGraph;
                         allocationGraph.addNode(root);
@@ -307,7 +308,7 @@ namespace grstaps
                                 // todo: finish adding metrics
                                 nlohmann::json metrics = {
                                     {"makespan", package->finalNode->getData().getScheduleTime()},
-                                    {"num_actions", (*package->finalNode->getData().actionDurations).size()},
+                                    {"num_actions", (*package->finalNode->getData().params->actionDurations).size()},
                                     {"num_tp_nodes_expanded", tplan_nodes_expanded},
                                     {"num_tp_nodes_visited", tplan_nodes_visited},
                                     {"num_ta_nodes_expanded", talloc_nodes_expanded},
@@ -359,12 +360,12 @@ namespace grstaps
             plan_subcomponents.push_back(base);
         }
     }
-    boost::shared_ptr<std::vector<boost::shared_ptr<MotionPlanner>>> Solver::setupMotionPlanners(const Problem& problem)
+    std::shared_ptr<std::vector<std::shared_ptr<MotionPlanner>>> Solver::setupMotionPlanners(const Problem& problem)
     {
         const std::vector<std::vector<b2PolygonShape>>& obstacles =  problem.obstacles();
         const nlohmann::json& config = problem.config();
 
-        auto motion_planners = boost::make_shared<std::vector<boost::shared_ptr<MotionPlanner>>>();
+        auto motion_planners = std::make_shared<std::vector<std::shared_ptr<MotionPlanner>>>();
         motion_planners->reserve(obstacles.size());
 
         const float boundary_min      = config["mp_boundary_min"];
@@ -374,7 +375,7 @@ namespace grstaps
 
         for(int i = 0; i < obstacles.size(); ++i)
         {
-            auto motion_planner = boost::make_shared<MotionPlanner>();
+            auto motion_planner = std::make_shared<MotionPlanner>();
             motion_planner->setMap(obstacles[i], boundary_min, boundary_max);
             motion_planner->setLocations(problem.locations());
             motion_planner->setQueryTime(query_time);
@@ -386,11 +387,11 @@ namespace grstaps
     void Solver::setupTaskAllocationParameters(
         const Plan* plan,
         const Problem& problem,
-        boost::shared_ptr<std::vector<std::vector<int>>> ordering_constraints,
-        boost::shared_ptr<std::vector<float>> durations,
-        boost::shared_ptr<std::vector<std::vector<float>>> noncum_trait_cutoff,
-        boost::shared_ptr<std::vector<std::vector<float>>> goal_distribution,
-        boost::shared_ptr<std::vector<std::pair<unsigned int, unsigned int>>> action_locations)
+        std::shared_ptr<std::vector<std::vector<int>>> ordering_constraints,
+        std::shared_ptr<std::vector<float>> durations,
+        std::shared_ptr<std::vector<std::vector<float>>> noncum_trait_cutoff,
+        std::shared_ptr<std::vector<std::vector<float>>> goal_distribution,
+        std::shared_ptr<std::vector<std::pair<unsigned int, unsigned int>>> action_locations)
     {
         // Fill in vectors for TA and Scheduling
         std::vector<const Plan*> plan_subcomponents;

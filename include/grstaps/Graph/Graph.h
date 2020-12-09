@@ -66,7 +66,7 @@ namespace grstaps
          * Prints out all nodes
          *
          */
-        int printNodeList() const;
+        [[maybe_unused]] int printNodeList() const;
 
         /**
          *
@@ -102,7 +102,7 @@ namespace grstaps
          * \param the data that will be inside of the new node
          *
          */
-        void addNode(const string &, Data, bool quick = true);
+        [[maybe_unused]] void addNode(const string &, Data, bool quick = true);
 
         /**
          *
@@ -114,7 +114,7 @@ namespace grstaps
          * \param the heuristic cost of the node
          *
          */
-        void addNode(const string &, Data, float, float, int quick = true);
+        [[maybe_unused]] void addNode(const string &, Data, float, float, int quick = true);
 
         /**
          *

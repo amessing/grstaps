@@ -27,7 +27,7 @@
 namespace grstaps
 {
     template <typename Data>
-    using nodePtr = typename boost::shared_ptr<Node<Data>>;
+    using nodePtr = typename std::shared_ptr<Node<Data>>;
 
     /**
      * Functor for expanding the graph by adding children to a node
@@ -46,7 +46,7 @@ namespace grstaps
          * \param cost object
          *
          */
-        NodeExpander(boost::shared_ptr<const Heuristic>, boost::shared_ptr<const Cost>);
+        NodeExpander(std::shared_ptr<const Heuristic>, std::shared_ptr<const Cost>);
 
         /**
          * Constructor
@@ -61,8 +61,8 @@ namespace grstaps
         // operator function () on objects of increment
         virtual bool operator()(Graph<Data>&, nodePtr<Data>) const = 0;
 
-        boost::shared_ptr<const Heuristic> heuristicFunc;  //!< heuristic object
-        boost::shared_ptr<const Cost> costFunc;            //!< cost object
+        std::shared_ptr<const Heuristic> heuristicFunc;  //!< heuristic object
+        std::shared_ptr<const Cost> costFunc;            //!< cost object
     };
 
 }  // namespace grstaps

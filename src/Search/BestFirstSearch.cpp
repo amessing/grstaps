@@ -35,23 +35,6 @@ namespace grstaps {
     }
 
     template<class Data>
-    BestFirstSearch<Data>::BestFirstSearch(BestFirstSearch<Data> &p2, NodeExpander<Data> &expander) : SearchBase<Data>() {
-        NodeExpander<Data>& expandGraph = expander;
-
-        for (auto itr = p2.frontier.begin(); itr != p2.frontier.leavingEdges.end(); ++itr) {
-            nodePtr<Data> nodeToAdd = nodePtr<Data>(new Node<Data>(itr));
-            this->graph.addNode(nodeToAdd);
-            frontier.push(nodeToAdd);
-        }
-        for (auto itr = closedList.begin(); itr != closedList.end(); ++itr) {
-            nodePtr<Data> nodeToExpand = nodePtr<Data>(new Node<Data>(itr));
-            expandGraph(this->graph, nodeToExpand);
-        }
-
-        currentNode = this->graph.findNode(p2->currentNode->getNodeID());
-        this->initialNodePtr = this->graph.findNode(p2->initialNodePtr->getNodeID());
-    }
-    template<class Data>
     void BestFirstSearch<Data>::search(GoalLocator<Data>* goal, NodeExpander<Data>* expander, SearchResultPackager<Data>* results) {
         GoalLocator<Data>& isGoal = *goal;  // Functor that tells us if a node is a goal
         NodeExpander<Data>& expandGraph = *expander;  // Functor that takes a node and a graph and expands that node to add children
@@ -86,6 +69,24 @@ namespace grstaps {
         }
         return searchFailed;
 
+    }
+
+    template<class Data>
+    BestFirstSearch<Data>::BestFirstSearch(BestFirstSearch<Data> &p2, NodeExpander<Data> &expander) : SearchBase<Data>() {
+        NodeExpander<Data>& expandGraph = expander;
+
+        for (auto itr = p2.frontier.begin(); itr != p2.frontier.leavingEdges.end(); ++itr) {
+            nodePtr<Data> nodeToAdd = nodePtr<Data>(new Node<Data>(itr));
+            this->graph.addNode(nodeToAdd);
+            frontier.push(nodeToAdd);
+        }
+        for (auto itr = closedList.begin(); itr != closedList.end(); ++itr) {
+            nodePtr<Data> nodeToExpand = nodePtr<Data>(new Node<Data>(itr));
+            expandGraph(this->graph, nodeToExpand);
+        }
+
+        currentNode = this->graph.findNode(p2->currentNode->getNodeID());
+        this->initialNodePtr = this->graph.findNode(p2->initialNodePtr->getNodeID());
     }
 
 }//namespace grstaps

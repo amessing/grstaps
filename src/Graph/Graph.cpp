@@ -59,7 +59,7 @@ namespace grstaps
     }
 
     template <class Data>
-    int Graph<Data>::printNodeList() const
+    [[maybe_unused]] int Graph<Data>::printNodeList() const
     {
         int count = 0;
         std::cout << "Nodes : \n";
@@ -134,7 +134,7 @@ namespace grstaps
     }
 
     template <class Data>
-    void Graph<Data>::addNode(const string &id, Data data, bool quick)
+    [[maybe_unused]] void Graph<Data>::addNode(const string &id, Data data, bool quick)
     {
         if(quick)
         {
@@ -159,7 +159,7 @@ namespace grstaps
     }
 
     template <class Data>
-    void Graph<Data>::addNode(const string &id, Data data, float cost, float heur, int quick)
+    [[maybe_unused]] void Graph<Data>::addNode(const string &id, Data data, float cost, float heur, int quick)
     {
         if(quick)
         {

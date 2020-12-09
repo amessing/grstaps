@@ -71,7 +71,7 @@ namespace grstaps
                 id    = currentDisID;
                 id[i] = 1;
             }
-            float currentMakespan = -1;
+            double currentMakespan = -1;
             auto found            = tabu_list.find(id);
             if(found == tabu_list.end())
             {
@@ -84,7 +84,7 @@ namespace grstaps
                 currentMakespan = foundMakespans.at(id);
             }
 
-            if(currentMakespan > 0 && (bestScore > currentMakespan))
+            if(currentMakespan > 0.0 && (bestScore > currentMakespan))
             {
                 bestDisSwitch      = i;
                 bestScore          = currentMakespan;

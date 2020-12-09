@@ -28,13 +28,15 @@
 #include <vector>
 
 #include <../lib/unordered_map/robin_hood.h>
-#include <boost/shared_ptr.hpp>
 #include <grstaps/Connections/taskAllocationToScheduling.h>
+#include <grstaps/Task_Allocation/taskAllocationSearchParams.h>
+
 
 using std::vector;
 
 namespace grstaps
 {
+
     class taskAllocationToScheduling;
 
     /**
@@ -61,14 +63,14 @@ namespace grstaps
          *\param a vector containing initial allocation
          */
         TaskAllocation(bool,
-                       const boost::shared_ptr<vector<vector<float>>>,
+                       std::shared_ptr<vector<vector<float>>>,
                        vector<vector<float>>*,
                        vector<short>,
-                       boost::shared_ptr<vector<vector<float>>>,
+                       std::shared_ptr<vector<vector<float>>>,
                        taskAllocationToScheduling,
-                       boost::shared_ptr<vector<float>>              = nullptr,
-                       boost::shared_ptr<vector<vector<int>>>        = nullptr,
-                       const boost::shared_ptr<vector<int>>          = nullptr,
+                       std::shared_ptr<vector<float>>              = nullptr,
+                       std::shared_ptr<vector<vector<int>>>        = nullptr,
+                       std::shared_ptr<vector<int>>          = nullptr,
                        int                                           = -1,
                        int                                           = -1);
 
@@ -79,13 +81,13 @@ namespace grstaps
          *\param a vector containing the species trait distribution
          */
         TaskAllocation(bool,
-                       const boost::shared_ptr<vector<vector<float>>>,
+                       std::shared_ptr<vector<vector<float>>>,
                        vector<vector<float>>*,
-                       boost::shared_ptr<vector<vector<float>>>,
+                       std::shared_ptr<vector<vector<float>>>,
                        taskAllocationToScheduling,
-                       boost::shared_ptr<vector<float>>              = nullptr,
-                       boost::shared_ptr<vector<vector<int>>>        = nullptr,
-                       boost::shared_ptr<vector<int>>                = nullptr,
+                       std::shared_ptr<vector<float>>              = nullptr,
+                       std::shared_ptr<vector<vector<int>>>        = nullptr,
+                       std::shared_ptr<vector<int>>                = nullptr,
                        int speedInd                                  = -1,
                        int mpInd                                     = -1);
 
@@ -96,20 +98,6 @@ namespace grstaps
          *
          */
         TaskAllocation(TaskAllocation const&);
-
-        /**
-         * Adds an action to the task allocators job
-         *
-         * \param the requirements of the new action
-         * \param the cutoff values for all noncumulative traits
-         *
-         * \return bool is this node a goal
-         *
-         */
-        void addAction(const vector<float>&,
-                       const vector<float>&,
-                       const float actionDuration,
-                       vector<vector<int>>* orderingCon);
 
         /**
          * runs the scheduler on this allocation and returns the time to schedule
@@ -127,7 +115,7 @@ namespace grstaps
          * \return bool is this node a goal
          *
          */
-        bool isGoalAllocation() const;
+        [[nodiscard]] bool isGoalAllocation() const;
 
         /**
          * does the check to see if the node is a goal
@@ -135,7 +123,7 @@ namespace grstaps
          * \return bool is this node a goal
          *
          */
-        bool checkGoalAllocation() const;
+        [[nodiscard]] bool checkGoalAllocation() const;
 
         /**
          * fixes the Allocation Trait Distribution
@@ -169,23 +157,7 @@ namespace grstaps
          * \param returns the allocation as a vector<vector<float>>
          *
          */
-        const std::vector<short>& getAllocation() const;
-
-        /**
-         * getter for  getGoalTraitDistribution
-         *
-         * \param returns the  getGoalTraitDistribution as a vector<vector<float>>
-         *
-         */
-        boost::shared_ptr<vector<vector<float>>> getGoalTraitDistribution() const;
-
-        /**
-         * getter for getAllocationTraitDistribution
-         *
-         * \param returns the getAllocationTraitDistribution as a vector<vector<float>>
-         *
-         */
-        [[maybe_unused]] const std::vector<std::vector<float>>& getAllocationTraitDistribution() const;
+        [[nodiscard]] const std::vector<short>& getAllocation() const;
 
         /**
          * getter for getSpeciesTraitDistribution
@@ -196,108 +168,11 @@ namespace grstaps
         vector<vector<float>>* getSpeciesTraitDistribution();
 
         /**
-         * getter for actionNoncumulativeTraitValue
-         *
-         * \param returns the actionNoncumulativeTraitValue as a vector<vector<float>>
-         *
-         */
-        boost::shared_ptr<vector<vector<float>>> getActionNoncumulativeTraitValue();
-
-        /**
-         * setter for Allocation
-         *
-         *
-         */
-        [[maybe_unused]] void setAllocation(const std::vector<short>&);
-
-        /**
-         * setter for GoalTraitDistribution
-         *
-         *
-         */
-        [[maybe_unused]] void setGoalTraitDistribution(boost::shared_ptr<vector<vector<float>>>);
-
-        /**
-         * setter for peciesTraitDistribution
-         *
-         *
-         */
-        [[maybe_unused]] void setSpeciesTraitDistribution(vector<vector<float>>*);
-
-        /**
-         * setter for ActionNoncumulativeTraitValue
-         *
-         *
-         */
-        [[maybe_unused]] void setActionNoncumulativeTraitValue(boost::shared_ptr<vector<vector<float>>>);
-
-        /**
-         * setter for SpeciesNames
-         *
-         * vector of strings that is the names
-         *
-         */
-        void setSpeciesNames(const std::vector<std::string>&);
-
-        /**
-         * setter for ActionNames
-         *
-         * vector of strings that is the names
-         *
-         */
-        void setActionNames(const std::vector<std::string>&);
-
-        /**
-         * setter for Number of each species
-         *
-         * vector of ints that is the counts
-         *
-         */
-        void setNumSpecies(boost::shared_ptr<vector<int>>);
-
-        /**
-         * getter for SpeciesNames
-         *
-         *
-         */
-        robin_hood::unordered_map<std::string, int>* getSpeciesNames();
-
-        /**
-         * getter for ActionDurations
-         *
-         *
-         */
-        boost::shared_ptr<vector<float>> getActionDuration();
-
-        /**
-         * setter for ActionDuration
-         *
-         *\param the new action durations
-         *
-         */
-        void setActionDuration(boost::shared_ptr<vector<float>>);
-
-        /**
-         * getter for orderingConstraints
-         *
-         *
-         */
-        boost::shared_ptr<vector<vector<int>>> getOrderingConstraints();
-
-        /**
-         * setter for orderingConstraints
-         *
-         *\param the new orderingconstraints
-         *
-         */
-        void setOrderingConstraints(boost::shared_ptr<vector<vector<int>>>);
-
-        /**
          * getter for Number of each species
          *
          *
          */
-        boost::shared_ptr<vector<int>> getNumSpecies();
+        std::shared_ptr<vector<int>> getNumSpecies();
 
         /**
          * getter for task allocation ID
@@ -311,21 +186,125 @@ namespace grstaps
          *
          *
          */
-        float getGoalDistance() const;
+        [[nodiscard]] float getGoalDistance() const;
+
+        /**
+         * getter for ActionDurations
+         *
+         *
+         */
+        std::shared_ptr<vector<float>> getActionDuration();
+
+        /**
+         * getter for orderingConstraints
+         *
+         *
+         */
+        std::shared_ptr<vector<vector<int>>> getOrderingConstraints();
+
+
+
+
+        /**
+         * Adds an action to the task allocators job
+         *
+         * \param the requirements of the new action
+         * \param the cutoff values for all noncumulative traits
+         *
+         * \return bool is this node a goal
+         *
+         */
+        [[maybe_unused]] void addAction(const vector<float>&, const vector<float>&, float actionDuration, vector<vector<int>>* orderingCon);
+
+        /**
+         * getter for  getGoalTraitDistribution
+         *
+         * \param returns the  getGoalTraitDistribution as a vector<vector<float>>
+         *
+         */
+        [[maybe_unused]] [[nodiscard]] std::shared_ptr<vector<vector<float>>> getGoalTraitDistribution() const;
+
+        /**
+         * getter for getAllocationTraitDistribution
+         *
+         * \param returns the getAllocationTraitDistribution as a vector<vector<float>>
+         *
+         */
+        [[maybe_unused]] [[nodiscard]] const std::vector<std::vector<float>>& getAllocationTraitDistribution() const;
+
+        /**
+         * getter for actionNoncumulativeTraitValue
+         *
+         * \param returns the actionNoncumulativeTraitValue as a vector<vector<float>>
+         *
+         */
+        [[maybe_unused]] std::shared_ptr<vector<vector<float>>> getActionNoncumulativeTraitValue();
+
+        /**
+         * setter for Allocation
+         *
+         *
+         */
+        [[maybe_unused]] void setAllocation(const std::vector<short>&);
+
+        /**
+         * setter for GoalTraitDistribution
+         *
+         *
+         */
+        [[maybe_unused]] void setGoalTraitDistribution(std::shared_ptr<vector<vector<float>>>);
+
+        /**
+         * setter for peciesTraitDistribution
+         *
+         *
+         */
+        [[maybe_unused]] void setSpeciesTraitDistribution(vector<vector<float>>*);
+
+        /**
+         * setter for ActionNoncumulativeTraitValue
+         *
+         *
+         */
+        [[maybe_unused]] void setActionNoncumulativeTraitValue(std::shared_ptr<vector<vector<float>>>);
+
+        /**
+         * setter for Number of each species
+         *
+         * vector of ints that is the counts
+         *
+         */
+        [[maybe_unused]] void setNumSpecies(std::shared_ptr<vector<int>>);
+
+        /**
+         * setter for ActionDuration
+         *
+         *\param the new action durations
+         *
+         */
+        [[maybe_unused]] void setActionDuration(std::shared_ptr<vector<float>>);
+
+        /**
+         * setter for orderingConstraints
+         *
+         *\param the new orderingconstraints
+         *
+         */
+        [[maybe_unused]] void setOrderingConstraints(std::shared_ptr<vector<vector<int>>>);
 
         /**
          * getter for numSpecies
          *
          *
          */
-        [[maybe_unused]] boost::shared_ptr<vector<int>> getnumSpecies();
+        [[maybe_unused]] std::shared_ptr<vector<int>> getnumSpecies();
 
         /**
          * shows the size of a task allocation object broken down by its parts
          *
          *
          */
-        void checkSize();
+        [[maybe_unused]] void checkSize();
 
         /**
          * Adds an action to the task allocators job
@@ -336,37 +315,24 @@ namespace grstaps
          * \param the new amount to add to the goal distance
          *
          */
-        void addAction(const vector<float>&,
-                       const vector<float>&,
+        [[maybe_unused]] void addAction(const vector<float>&, const vector<float>&,
                        float,
                        const float&         = -1,
-                       vector<vector<int>>* = NULL);
+                       vector<vector<int>>* = nullptr);
 
+
+        std::shared_ptr<taskAllocationSearchParams> params;
+        vector<short> action_dynamics;
         vector<short> allocation;
-        boost::shared_ptr<vector<float>> traitTeamMax;
         vector<vector<float>> requirementsRemaining;
         vector<vector<float>> allocationTraitDistribution;
-        boost::shared_ptr<vector<vector<float>>> goalTraitDistribution;
-        float startingGoalDistance;
         taskAllocationToScheduling taToScheduling;
-        boost::shared_ptr<vector<float>> actionDurations;
-        int speedIndex;
-        float maxSpeed;
-        int mp_Index;
-        vector<vector<float>>* speciesTraitDistribution;
-        vector<int> action_dynamics;
 
        private:
-
-        boost::shared_ptr<vector<int>> numSpecies{};
-        boost::shared_ptr<vector<vector<float>>> actionNoncumulativeTraitValue{};
-        boost::shared_ptr<vector<vector<int>>> orderingConstraints{};
         float scheduleTime;
         float goalDistance;
-
-
         bool isGoal;
-        bool usingSpecies;
+
 
     };
 

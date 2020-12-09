@@ -16,10 +16,8 @@
  * Inc., #59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 #include "grstaps/Task_Allocation/AllocationResultsPackager.h"
-#include <fstream>
 #include <iostream>
 
-#include "grstaps/Connections/taskAllocationToScheduling.h"
 
 namespace grstaps
 {
@@ -37,7 +35,7 @@ namespace grstaps
         }
     }
 
-    void AllocationResultsPackager::fileResults(string folder)
+    void AllocationResultsPackager::fileResults(const string& folder)
     {
         if(this->foundGoal)
         {
@@ -69,10 +67,10 @@ namespace grstaps
                            << "Start: " << motionPlans[i][j].first.first << "End: " << motionPlans[i][j].first.second
                            << endl
                            << "Waypoints" << endl;
-                    for(int k = 0; k < motionPlans[i][j].second.size(); ++k)
+                    for(auto & k : motionPlans[i][j].second)
                     {
-                        myfile << "X: " << motionPlans[i][j].second[k].first
-                               << "Y: " << motionPlans[i][j].second[k].second;
+                        myfile << "X: " << k.first
+                               << "Y: " << k.second;
                     }
                 }
                 myfile << endl;

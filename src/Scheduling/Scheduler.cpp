@@ -16,14 +16,11 @@
  * Inc., #59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-#include <numeric>
 #include <ostream>
-#include <utility>
 #include <vector>
 
 #include <grstaps/Scheduling/Scheduler.h>
 #include <grstaps/Scheduling/tabu.h>
-#include <vector>
 
 namespace grstaps
 {
@@ -33,7 +30,7 @@ namespace grstaps
     {
         scheduleValid = true;
         makeSpan      = -1;
-        lastAction    = -1;
+
         bestSchedule  = 0;
         constraintsToUpdate.reserve(1000);
         bestSchedule  = 0;
@@ -50,7 +47,6 @@ namespace grstaps
         disjuctiveOrderings   = toCopy.disjuctiveOrderings;
         scheduleValid         = toCopy.scheduleValid;
         makeSpan              = toCopy.makeSpan;
-        lastAction            = toCopy.lastAction;
         disID                 = toCopy.disID;
         copySTN               = toCopy.stn;
         bestSchedule          = toCopy.bestSchedule;
@@ -107,7 +103,7 @@ namespace grstaps
         disjuctiveConstraints = disConstraints;
         disjuctiveOrderings.resize(disjuctiveConstraints.size());
         std::fill(disjuctiveOrderings.begin(), disjuctiveOrderings.end(), 0);
-        if(disConstraints.size() > 0)
+        if(!disConstraints.empty())
         {
             setDisjuctive();
         }
@@ -131,11 +127,11 @@ namespace grstaps
         return 1;
     }
 
-    float Scheduler::getMakeSpan()
+    double Scheduler::getMakeSpan()
     {
         if(scheduleValid)
         {
-            if(makeSpan >= 0)
+            if(makeSpan >= 0.0)
             {
                 return makeSpan;
             }
@@ -145,7 +141,6 @@ namespace grstaps
                 if(max < stn[i][1])
                 {
                     max        = stn[i][1];
-                    lastAction = i;
                 }
             }
             makeSpan = max;
@@ -170,7 +165,7 @@ namespace grstaps
         return max;
     }
 
-    bool Scheduler::checkConcurrent(int first, int second)
+    [[maybe_unused]] bool Scheduler::checkConcurrent(int first, int second)
     {
         return (stn[first][1] < stn[second][0] || stn[first][0] > stn[second][1]);
     }
@@ -198,7 +193,7 @@ namespace grstaps
                 if(makeSpan != -1 && stn[second][1] > makeSpan)
                 {
                     makeSpan   = stn[second][1];
-                    lastAction = second;
+
                 }
                 for(int i = 0; i < beforeConstraints[second].size(); ++i)
                 {
@@ -267,7 +262,7 @@ namespace grstaps
         return getMakeSpanSTN(copySTN);
     }
 
-    bool Scheduler::addOCTime(int first,
+    [[maybe_unused]] bool Scheduler::addOCTime(int first,
                               int second,
                               std::vector<std::vector<float>>& stnCopy,
                               std::vector<std::vector<int>>& beforeConstraintVec,
@@ -384,7 +379,7 @@ namespace grstaps
         }
     }
 
-    void Scheduler::removeOCTime(int first, int second, std::vector<std::vector<float>>& stnCopy)
+    [[maybe_unused]] void Scheduler::removeOCTime(int first, int second, std::vector<std::vector<float>>& stnCopy)
     {
         constraintsToUpdate.clear();
         if(stnCopy[first][1] == stnCopy[second][0])
@@ -607,7 +602,7 @@ namespace grstaps
         return scheduleValid;
     }
 
-    bool Scheduler::addAction(float duration,
+    [[maybe_unused]] bool Scheduler::addAction(float duration,
                               const std::vector<int>& orderingConstraints,
                               std::vector<std::vector<int>> disorderingConstraints)
     {
@@ -988,7 +983,7 @@ namespace grstaps
             }
 
             maxDelay         = 0;
-            float actionTime = 0;
+            float actionTime;
             for(int i = 0; i < stn.size(); ++i)
             {
                 auto actTime = editedActionTimes.find(i);

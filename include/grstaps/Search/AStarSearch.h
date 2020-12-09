@@ -77,8 +77,8 @@ namespace grstaps
          *
          * \returns a search results object that contains all needed return information from the search
          */
-        virtual void search(boost::shared_ptr<const GoalLocator<TaskAllocation>> goal,
-                            boost::shared_ptr<const NodeExpander<TaskAllocation>>,
+        void search(std::shared_ptr<const GoalLocator<TaskAllocation>> goal,
+                            std::shared_ptr<const NodeExpander<TaskAllocation>>,
                             SearchResultPackager<Data> *) override;
 
         /**
@@ -88,10 +88,10 @@ namespace grstaps
         bool updateCurrent();
 
         //! \returns Whether the frontier is empty
-        bool empty() const;
+        [[nodiscard]] bool empty() const;
 
-        int nodesExpanded;
-        int nodesSearched;
+        int nodesExpanded{};
+        int nodesSearched{};
 
        private:
         nodePtr<Data> currentNode;
@@ -108,6 +108,31 @@ namespace grstaps
         nodesExpanded = 0;
         nodesSearched = 0;
     }
+
+    template <typename Data>
+    bool AStarSearch<Data>::empty() const
+    {
+        return frontier.empty();
+    }
+
+    template <class Data>
+    bool AStarSearch<Data>::updateCurrent()
+    {
+        bool searchFailed = false;
+        if(frontier.empty())
+        {
+            searchFailed = true;
+        }
+        else
+        {
+            currentNode = frontier.top();
+            closedList.push(currentNode);
+            frontier.pop();
+            nodesExpanded += 1;
+        }
+        return searchFailed;
+    }
+
 
     template <class Data>
     AStarSearch<Data>::AStarSearch(AStarSearch<Data> &p2, NodeExpander<TaskAllocation> *expander)
@@ -133,52 +158,9 @@ namespace grstaps
         this->initialNodePtr = this->graph.findNode(p2.currentNode->getNodeID());
     }
 
-    /*
-    template<> AStarSearch<TaskAllocation>::AStarSearch(AStarSearch<TaskAllocation> &p2, short newActionDuration,
-    vector<float>& traitRequirements, vector<float>& nonCumTraits, NodeExpander<TaskAllocation>* expander,
-    vector<vector<int>>* orderingConstraints ) : SearchBase<TaskAllocation>() { graph = Graph<TaskAllocation>(); float
-    goalDistAdd = 0; for(int i=0; i < traitRequirements.size(); i++){ goalDistAdd += traitRequirements[i];
-        }
-
-        boost::shared_ptr<vector<vector<float>>> goalTrait = boost::shared_ptr<vector<vector<float>>>( new
-    vector<vector<float>>(*p2.initialNodePtr->getData().getGoalTraitDistribution())); boost::shared_ptr<vector<float>>
-    durations = boost::shared_ptr<vector<float>>( new vector<float>(*p2.initialNodePtr->getData().getActionDuration()));
-        boost::shared_ptr<vector<vector<int>>> orderings = boost::shared_ptr<vector<vector<int>>>(new
-    vector<vector<int>>(*p2.initialNodePtr->getData().getOrderingConstraints()));
-
-        TaskAllocation copy((p2.currentNode)->getData());
-        nodePtr<TaskAllocation> nodeToAdd = nodePtr<TaskAllocation>(new Node<TaskAllocation>(p2.currentNode->getNodeID()
-    + string ( copy.getSpeciesTraitDistribution()->size(), '0'), copy));
-
-        nodeToAdd->getData().setGoalTraitDistribution(goalTrait);
-        nodeToAdd->getData().setActionDuration(durations);
-        nodeToAdd->getData().setOrderingConstraints(orderings);
-
-        (nodeToAdd->getData()).addAction(traitRequirements, nonCumTraits, goalDistAdd,  newActionDuration,
-    orderingConstraints); this->graph.addNode(nodeToAdd); frontier.push(nodeToAdd);
-
-        for (auto itr = p2.frontier.ordered_begin(); itr != p2.frontier.ordered_end(); ++itr) {
-            TaskAllocation copy((*itr)->getData());
-            nodePtr<TaskAllocation> nodeToAdd = nodePtr<TaskAllocation>(new Node<TaskAllocation>((*itr)->getNodeID() +
-    string ( copy.getSpeciesTraitDistribution()->size(), '0'), copy));
-
-            nodeToAdd->getData().setGoalTraitDistribution(goalTrait);
-            nodeToAdd->getData().setActionDuration(durations);
-            nodeToAdd->getData().setOrderingConstraints(orderings);
-
-            (nodeToAdd->getData()).addAction(traitRequirements, nonCumTraits, goalDistAdd,  newActionDuration,
-    orderingConstraints); this->graph.addNode(nodeToAdd); frontier.push(nodeToAdd);
-        }
-        this->initialNodePtr = this->frontier.top();
-        this->currentNode = this->frontier.top();
-        closedList.push(currentNode);
-        frontier.pop();
-    }
-    */
-
     template <class Data>
-    void AStarSearch<Data>::search(boost::shared_ptr<const GoalLocator<TaskAllocation>> goal,
-                                   boost::shared_ptr<const NodeExpander<TaskAllocation>> expander,
+    void AStarSearch<Data>::search(std::shared_ptr<const GoalLocator<TaskAllocation>> goal,
+                                   std::shared_ptr<const NodeExpander<TaskAllocation>> expander,
                                    SearchResultPackager<Data> *results)
     {
         bool searchFailed = updateCurrent();
@@ -201,36 +183,6 @@ namespace grstaps
             searchFailed = updateCurrent();
         }
         results->addResults(this->graph, currentNode, searchFailed);
-    }
-
-    template <class Data>
-    bool AStarSearch<Data>::updateCurrent()
-    {
-        bool searchFailed = false;
-        if(frontier.empty())
-        {
-            searchFailed = true;
-        }
-        else
-        {
-            //for(int i=0; !frontier.empty(); ++i){
-            //    currentNode = frontier.top();
-            //    frontier.pop();
-            //cout << (*currentNode).getNodeID() << endl;
-            //}
-            //cout << "done" << endl;
-            currentNode = frontier.top();
-            closedList.push(currentNode);
-            frontier.pop();
-            nodesExpanded += 1;
-        }
-        return searchFailed;
-    }
-
-    template <typename Data>
-    bool AStarSearch<Data>::empty() const
-    {
-        return frontier.empty();
     }
 
 }  // namespace grstaps

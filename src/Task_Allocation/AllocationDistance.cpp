@@ -24,7 +24,7 @@ namespace grstaps
                                          const TaskAllocation &parentNode,
                                          TaskAllocation &newNode) const
     {
-        return (newNode.getGoalDistance()) / (newNode.startingGoalDistance);
+        return (newNode.getGoalDistance()) / (newNode.params->startingGoalDistance);
     }
 
 }  // namespace grstaps

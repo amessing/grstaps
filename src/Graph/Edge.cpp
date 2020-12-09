@@ -75,7 +75,7 @@ namespace grstaps
     template <typename Data>
     void Edge<Data>::setEdgeCost(const float c)
     {
-        edgeCost = 1.0f;
+        edgeCost = c;
     }
 
     template <typename Data>

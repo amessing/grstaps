@@ -50,8 +50,8 @@ namespace grstaps
             const std::string id = "Node0";
             float cost           = 5.5;
 
-            boost::shared_ptr<vector<vector<float>>> goalDistribution =
-                boost::shared_ptr<vector<vector<float>>>(new vector<vector<float>>(vector<vector<float>>{
+            std::shared_ptr<vector<vector<float>>> goalDistribution =
+                std::shared_ptr<vector<vector<float>>>(new vector<vector<float>>(vector<vector<float>>{
                     {1.0},
                     {1.0},
                     {1.0},
@@ -63,28 +63,13 @@ namespace grstaps
                 {0.5},
             };
 
-            boost::shared_ptr<vector<vector<float>>> noncumTraitCutoff =
-                boost::shared_ptr<vector<vector<float>>>(new vector<vector<float>>(vector<vector<float>>{
-                    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-                    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-                    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-                    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-                    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-                    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-                    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-                    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-                    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-                    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-                    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-                    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-                    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-                    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-                    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-                    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
+            std::shared_ptr<vector<vector<float>>> noncumTraitCutoff =
+                std::shared_ptr<vector<vector<float>>>(new vector<vector<float>>(vector<vector<float>>{
+                    {0},{0},{0}
 
                 }));
 
-            boost::shared_ptr<vector<int>> numSpec = boost::shared_ptr<vector<int>>(new vector<int>{1, 1, 1});
+            std::shared_ptr<vector<int>> numSpec = std::shared_ptr<vector<int>>(new vector<int>{1, 1, 1});
             vector<float> newCutoff{0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
             vector<vector<float>> actionDist{
@@ -99,14 +84,14 @@ namespace grstaps
 
             };
 
-            boost::shared_ptr<vector<vector<int>>> orderingCon =
-                boost::shared_ptr<vector<vector<int>>>(new vector<vector<int>>{{0, 2}});
+            std::shared_ptr<vector<vector<int>>> orderingCon =
+                std::shared_ptr<vector<vector<int>>>(new vector<vector<int>>{{0, 2}});
 
-            boost::shared_ptr<vector<float>> durations = boost::shared_ptr<vector<float>>(new vector<float>(vector<float>{1, 1, 1}));
+            std::shared_ptr<vector<float>> durations = std::shared_ptr<vector<float>>(new vector<float>(vector<float>{1, 1, 1}));
             taskAllocationToScheduling taToSched = taskAllocationToScheduling();
             bool usingSpecies = false;
 
-            boost::shared_ptr<vector<int>> robot_dynamics(new vector<int>(speciesDistribution.size(),0));
+            std::shared_ptr<vector<int>> robot_dynamics(new vector<int>(speciesDistribution.size(),0));
 
             TaskAllocation ta(usingSpecies,
                               goalDistribution,
@@ -117,19 +102,19 @@ namespace grstaps
                               orderingCon,
                               numSpec);
 
-            auto node1 = boost::shared_ptr<Node<TaskAllocation>>(new Node<TaskAllocation>(std::string(ta.getID()), ta));
+            auto node1 = std::shared_ptr<Node<TaskAllocation>>(new Node<TaskAllocation>(std::string(ta.getID()), ta));
 
             node1->setData(ta);
             Graph<TaskAllocation> graphTest;
             graphTest.addNode(node1);
 
-            const boost::shared_ptr<Heuristic> heur = boost::shared_ptr<Heuristic>(new TAGoalDist());
-            const boost::shared_ptr<Cost> cos       = boost::shared_ptr<Cost>(new TAScheduleTime());
+            std::shared_ptr<Heuristic> heur = std::shared_ptr<Heuristic>(new TAGoalDist());
+            std::shared_ptr<Cost> cos       = std::shared_ptr<Cost>(new TAScheduleTime());
 
-            const boost::shared_ptr<GoalLocator<TaskAllocation>> isGoal =
-                boost::shared_ptr<GoalLocator<TaskAllocation>>(new AllocationIsGoal());
-            const boost::shared_ptr<AllocationExpander> expander =
-                boost::shared_ptr<AllocationExpander>(new AllocationExpander(heur, cos));
+            std::shared_ptr<GoalLocator<TaskAllocation>> isGoal =
+                std::shared_ptr<GoalLocator<TaskAllocation>>(new AllocationIsGoal());
+            std::shared_ptr<AllocationExpander> expander =
+                std::shared_ptr<AllocationExpander>(new AllocationExpander(heur, cos));
 
             SearchResultPackager<TaskAllocation> *package = new AllocationResultsPackager();
 

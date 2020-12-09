@@ -83,7 +83,7 @@ namespace grstaps
          * @param config
          * @param motion_planners
          */
-        boost::shared_ptr<std::vector<boost::shared_ptr<MotionPlanner>>> setupMotionPlanners(const Problem& problem);
+        std::shared_ptr<std::vector<std::shared_ptr<MotionPlanner>>> setupMotionPlanners(const Problem& problem);
 
         /**!
          * \brief Fills all the vectors needed by task allocation and scheduling
@@ -97,11 +97,11 @@ namespace grstaps
          */
         void setupTaskAllocationParameters(const Plan* plan,
                                            const Problem& problem,
-                                           boost::shared_ptr<std::vector<std::vector<int>>> ordering_constraints,
-                                           boost::shared_ptr<std::vector<float>> durations,
-                                           boost::shared_ptr<std::vector<std::vector<float>>> noncum_trait_cutoff,
-                                           boost::shared_ptr<std::vector<std::vector<float>>> goal_distribution,
-                                           boost::shared_ptr<std::vector<std::pair<unsigned int, unsigned int>>> action_locations);
+                                           std::shared_ptr<std::vector<std::vector<int>>> ordering_constraints,
+                                           std::shared_ptr<std::vector<float>> durations,
+                                           std::shared_ptr<std::vector<std::vector<float>>> noncum_trait_cutoff,
+                                           std::shared_ptr<std::vector<std::vector<float>>> goal_distribution,
+                                           std::shared_ptr<std::vector<std::pair<unsigned int, unsigned int>>> action_locations);
 
         std::string planToPDDL();
         void writeTrace(std::ofstream& f, Plan* p);

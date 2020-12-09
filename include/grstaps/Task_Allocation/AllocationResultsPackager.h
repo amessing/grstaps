@@ -36,7 +36,7 @@ namespace grstaps
     {
        public:
         void printResults();
-        void fileResults(string);
+        void fileResults(const string&);
     };
 }  // namespace grstaps
 #endif  // GRSTAPS_ALLOCATIONRESULTS

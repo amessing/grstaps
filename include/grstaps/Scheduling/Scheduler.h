@@ -44,7 +44,7 @@ namespace grstaps
          * \return do the timeframes of these actions overlap
          *
          */
-        bool checkConcurrent(int first, int second);
+        [[maybe_unused]] bool checkConcurrent(int first, int second);
 
         /**
          *
@@ -80,7 +80,7 @@ namespace grstaps
          *
          * \return the makespan of the stn
          */
-        float getMakeSpan();
+        double getMakeSpan();
 
         /**
          *
@@ -103,7 +103,7 @@ namespace grstaps
          *
          * \return successfully added
          */
-        bool addOCTime(int first,
+        [[maybe_unused]] bool addOCTime(int first,
                        int second,
                        std::vector<std::vector<float>>& stnCopy,
                        std::vector<std::vector<int>>& beforeConstraintVec,
@@ -162,7 +162,7 @@ namespace grstaps
          * \param a stn that you will be editing
          *
          */
-        void removeOCTime(int first, int second, std::vector<std::vector<float>>& stnCopy);
+        [[maybe_unused]] void removeOCTime(int first, int second, std::vector<std::vector<float>>& stnCopy);
 
         /**
          *
@@ -184,7 +184,7 @@ namespace grstaps
          * \return float denoting the makespan of the stn
          *
          */
-        float getMakeSpanSTN(std::vector<std::vector<float>>& stnCopy);
+        static float getMakeSpanSTN(std::vector<std::vector<float>>& stnCopy);
 
         /**
          *
@@ -215,7 +215,7 @@ namespace grstaps
          * \param the disjunctive ordering constraints of the action
          *
          */
-        bool addAction(float duration,
+        [[maybe_unused]] bool addAction(float duration,
                        const std::vector<int>& orderingConstraints,
                        std::vector<std::vector<int>> disorderingConstraints);
 
@@ -339,6 +339,8 @@ namespace grstaps
                         std::vector<std::vector<int>>& beforeConstraintVec,
                         std::vector<std::vector<int>>& afterConstraintVec);
 
+
+
         bool scheduleValid{};                             // is the schedule valid
         std::vector<std::vector<float>> stn;              // stn representing the disjuntive graph
         std::vector<std::vector<int>> beforeConstraints;  // constraints on actions happening before other actions
@@ -351,13 +353,12 @@ namespace grstaps
        private:
         std::vector<std::vector<int>> disjuctiveConstraints;  // list of disjunctive constraints
         std::vector<int> disjuctiveOrderings;                 // the orderings on those constraints
-        int lastAction;
+        float longestMotion;
+
+        robin_hood::unordered_map<int, std::vector<float>> editedActionTimes;
         std::string disID;
-        int flag = 1;
         std::vector<std::vector<float>> copySTN;
         std::vector<int> constraintsToUpdate;
-        robin_hood::unordered_map<int, std::vector<float>> editedActionTimes;
-        float longestMotion;
     };
 }  // namespace grstaps
 #endif  // GRSTAPS_SCHEDULER_H

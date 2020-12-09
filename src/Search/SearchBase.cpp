@@ -18,12 +18,10 @@
 #ifndef SEARCH_BASE_CPP
 #define SEARCH_BASE_CPP
 
-#include <iostream>
 #include <stack>
 
 #include "grstaps/Scheduling/TAScheduleTime.h"
 #include "grstaps/Search/SearchBase.h"
-#include "grstaps/Task_Allocation/TAGoalDist.h"
 
 namespace grstaps
 {

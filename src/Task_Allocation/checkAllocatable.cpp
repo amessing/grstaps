@@ -6,10 +6,10 @@
 
 namespace grstaps
 {
-    bool isAllocatable(const boost::shared_ptr<std::vector<std::vector<float>>> goalDistribution,
+    bool isAllocatable(std::shared_ptr<std::vector<std::vector<float>>>& goalDistribution,
                        std::vector<std::vector<float>>* speciesDistribution,
-                       boost::shared_ptr<std::vector<std::vector<float>>> nonCumTraitCutoff,
-                       const boost::shared_ptr<std::vector<int>> numSpec)
+                       std::shared_ptr<std::vector<std::vector<float>>>& nonCumTraitCutoff,
+                       std::shared_ptr<std::vector<int>>& numSpec)
     {
         std::vector<float> traitMax;
         for(int j = 0; j < (*speciesDistribution)[0].size(); ++j)

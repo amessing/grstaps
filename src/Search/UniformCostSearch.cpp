@@ -42,25 +42,6 @@ namespace grstaps
     }
 
     template <class Data>
-    UniformCostSearch<Data>::UniformCostSearch(UniformCostSearch<Data>& p2, NodeExpander<Data>& expandGraph)
-        : SearchBase<Data>()
-    {
-        for(auto itr = p2.frontier.begin(); itr != p2.frontier.leavingEdges.end(); ++itr)
-        {
-            nodePtr<Data> nodeToAdd = nodePtr<Data>(new Node<Data>(itr));
-            this->graph.addNode(nodeToAdd);
-            frontier.push(nodeToAdd);
-        }
-        for(auto itr = closedList.begin(); itr != closedList.end(); ++itr)
-        {
-            nodePtr<Data> nodeToExpand = nodePtr<Data>(new Node<Data>(itr));
-            expandGraph(this->graph, nodeToExpand);
-        }
-
-        currentNode          = this->graph.findNode(p2->currentNode->getNodeID());
-        this->initialNodePtr = this->graph.findNode(p2->initialNodePtr->getNodeID());
-    }
-    template <class Data>
     void UniformCostSearch<Data>::search(GoalLocator<Data>* goal,
                                          NodeExpander<Data>* expander,
                                          SearchResultPackager<Data>* results)
@@ -98,6 +79,26 @@ namespace grstaps
             closedList.push(currentNode);
         }
         return searchFailed;
+    }
+
+    template <class Data>
+    UniformCostSearch<Data>::UniformCostSearch(UniformCostSearch<Data>& p2, NodeExpander<Data>& expandGraph)
+        : SearchBase<Data>()
+    {
+        for(auto itr = p2.frontier.begin(); itr != p2.frontier.leavingEdges.end(); ++itr)
+        {
+            nodePtr<Data> nodeToAdd = nodePtr<Data>(new Node<Data>(itr));
+            this->graph.addNode(nodeToAdd);
+            frontier.push(nodeToAdd);
+        }
+        for(auto itr = closedList.begin(); itr != closedList.end(); ++itr)
+        {
+            nodePtr<Data> nodeToExpand = nodePtr<Data>(new Node<Data>(itr));
+            expandGraph(this->graph, nodeToExpand);
+        }
+
+        currentNode          = this->graph.findNode(p2->currentNode->getNodeID());
+        this->initialNodePtr = this->graph.findNode(p2->initialNodePtr->getNodeID());
     }
 
 }  // namespace grstaps

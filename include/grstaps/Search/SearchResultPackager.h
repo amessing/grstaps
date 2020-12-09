@@ -24,7 +24,7 @@
 namespace grstaps
 {
     template <typename Data>
-    using nodePtr = typename boost::shared_ptr<Node<Data>>;
+    using nodePtr = typename std::shared_ptr<Node<Data>>;
 
     /**
      * Functor for taking in a goal node and returning the answer in an appropriate form

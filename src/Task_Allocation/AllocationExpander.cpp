@@ -21,13 +21,15 @@
 
 #include "grstaps/Task_Allocation/AllocationExpander.h"
 
+#include <utility>
+
 namespace grstaps
 {
     template <typename Data>
-    using nodePtr = typename boost::shared_ptr<Node<Data>>;
+    using nodePtr = typename std::shared_ptr<Node<Data>>;
 
-    AllocationExpander::AllocationExpander(boost::shared_ptr<const Heuristic> heur, boost::shared_ptr<const Cost> cos)
-        : NodeExpander(heur, cos)
+    AllocationExpander::AllocationExpander(std::shared_ptr<const Heuristic> heur, std::shared_ptr<const Cost> cos)
+        : NodeExpander(std::move(heur), std::move(cos))
     {}
 
     // check to prevent duplicate
@@ -40,7 +42,7 @@ namespace grstaps
         int numSpecies            = data.getNumSpecies()->size();
         float parentsGoalDistance = data.getGoalDistance();
 
-        int numTask         = allocation.size() / numSpecies;
+        int numTask         = int(allocation.size()) / numSpecies;
         vector<int> numSpec = *data.getNumSpecies();
         for(int i = 0; i < numTask; ++i)
         {
@@ -50,7 +52,7 @@ namespace grstaps
                 std::string newNodeID = editID(allocation, nodeID, index);
 
                 //
-                if(!graph.nodeExist(newNodeID) && (int(newNodeID[(i * numSpecies) + j] - '0') <= (numSpec)[j]) && (expandNode->getData().action_dynamics[i] == -1 || ((*expandNode->getData().speciesTraitDistribution)[j][expandNode->getData().mp_Index] == expandNode->getData().action_dynamics[i])))
+                if(!graph.nodeExist(newNodeID) && (int(newNodeID[(i * numSpecies) + j] - '0') <= (numSpec)[j]) && (expandNode->getData().action_dynamics[i] == -1 || ((*expandNode->getData().params->speciesTraitDistribution)[j][expandNode->getData().params->mp_Index] == expandNode->getData().action_dynamics[i])))
                 {
                     TaskAllocation newNodeData(data);
                     newNodeData.addAgent(j, i);
@@ -72,9 +74,9 @@ namespace grstaps
         return true;
     }
 
-    std::string AllocationExpander::editID(const vector<short>& allocation, const std::string& parentNodeID, int indexExp) const
+    std::string AllocationExpander::editID(const vector<short>& allocation, const std::string& parentNodeID, int indexExp)
     {
-        int idSize       = parentNodeID.length() / (allocation.size());
+        int idSize       = int(parentNodeID.length() / (allocation.size()));
         string newNodeID = parentNodeID;
         int index        = idSize * indexExp + idSize - 1;
         int add          = 1;
@@ -83,12 +85,12 @@ namespace grstaps
             int newDigit = int(newNodeID[index]) - 48 + add;
             if(newDigit == 10)
             {
-                newDigit = 0;
+                ++index;
             }
             else
             {
                 newNodeID[index] = char(newDigit + 48);
-                index--;
+                --index;
                 add = 0;
             }
         }

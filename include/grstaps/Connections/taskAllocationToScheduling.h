@@ -21,7 +21,6 @@
 #include <string>
 #include <vector>
 
-#include <boost/shared_ptr.hpp>
 #include <grstaps/Scheduling/Scheduler.h>
 
 using std::string;
@@ -31,6 +30,7 @@ using start_end          = std::pair<float, float>;
 using waypoints          = std::vector<std::pair<float, float>>;
 using single_plan        = std::pair<start_end, waypoints>;
 using agent_motion_plans = std::vector<std::pair<start_end, waypoints>>;
+
 
 namespace grstaps
 {
@@ -46,7 +46,7 @@ namespace grstaps
          * \param the motion planner pointer to use for planning
          *
          */
-        taskAllocationToScheduling(boost::shared_ptr<std::vector<boost::shared_ptr<MotionPlanner>>> motion_planners  = nullptr,
+        explicit taskAllocationToScheduling(std::shared_ptr<std::vector<std::shared_ptr<MotionPlanner>>> motion_planners  = nullptr,
                                    const std::vector<unsigned int>* staring_locations= nullptr, float longestMotion= 0);
 
         /**
@@ -69,7 +69,7 @@ namespace grstaps
          *
          */
         // todo finish this
-        float getSpeciesSchedule(TaskAllocation* allocObject);
+        static float getSpeciesSchedule(TaskAllocation* allocObject);
 
         /**
          * Adjust the schedule to account for non allocated actions
@@ -80,7 +80,7 @@ namespace grstaps
          *
          */
         // todo finish this
-        void adjustScheduleNonSpeciesSchedule(TaskAllocation* TaskAlloc);
+        [[maybe_unused]] void adjustScheduleNonSpeciesSchedule(TaskAllocation* TaskAlloc);
 
         /**
          * Adjust the schedule to account for motion planning
@@ -106,7 +106,7 @@ namespace grstaps
         /**
          * Sets a list of the indices of the start and end locations for the actions
          */
-        void setActionLocations(boost::shared_ptr<const std::vector<std::pair<unsigned int, unsigned int>>> action_locations);
+        void setActionLocations(std::shared_ptr<const std::vector<std::pair<unsigned int, unsigned int>>> action_locations);
 
         Scheduler sched;
 
@@ -117,9 +117,9 @@ namespace grstaps
         std::vector<int> concurrent;
         float longestMP;
 
-        boost::shared_ptr<std::vector<boost::shared_ptr<MotionPlanner>>> m_motion_planners;
+        std::shared_ptr<std::vector<std::shared_ptr<MotionPlanner>>> m_motion_planners;
         const std::vector<unsigned int>* m_starting_locations;
-        boost::shared_ptr<const std::vector<std::pair<unsigned int, unsigned int>>> m_action_locations;
+        std::shared_ptr<const std::vector<std::pair<unsigned int, unsigned int>>> m_action_locations;
 
     };
 }  // namespace grstaps

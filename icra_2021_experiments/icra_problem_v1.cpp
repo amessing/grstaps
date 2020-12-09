@@ -226,7 +226,7 @@ namespace grstaps::icra2021
             const unsigned int num_aerial = config["num_robots"]["aerial"];
             for(unsigned int i = 0; i < num_aerial; ++i)
             {
-                traits[0] = 50;   // Speed (m/s)
+                traits[0] = 1;   // Speed (m/s)
                 traits[1] = 1;    // MP
                 traits[2] = 2.5;  // Payload (lbs)
 
@@ -239,7 +239,7 @@ namespace grstaps::icra2021
             const unsigned int num_ground = config["num_robots"]["ground"];
             for(unsigned int i = 0; i < num_ground; ++i)
             {
-                traits[0] = 25;  // Speed (m/s)
+                traits[0] = 0.5;  // Speed (m/s)
                 traits[1] = 0;   // MP
                 traits[2] = 5;   // Payload (lbs)
 
@@ -252,7 +252,7 @@ namespace grstaps::icra2021
             const unsigned int num_utility = config["num_robots"]["utility"];
             for(unsigned int i = 0; i < num_utility; ++i)
             {
-                traits[0] = 37.5;  // Speed (m/s)
+                traits[0] = 0.75;  // Speed (m/s)
                 traits[1] = 0;   // MP
                 traits[2] = 3.75;   // Payload (lbs)
 

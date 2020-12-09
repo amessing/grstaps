@@ -28,9 +28,7 @@
 
 #include "grstaps/Graph/Edge.h"
 #include <../lib/unordered_map/robin_hood.h>
-#include <boost/make_shared.hpp>
-#include <boost/shared_ptr.hpp>
-#include <boost/weak_ptr.hpp>
+
 
 // Explicitly call out types we are using, instead of "using namespace"
 // due to conflicts between boost and std smart pointer types
@@ -44,13 +42,13 @@ namespace grstaps
     class Edge;
 
     template <typename Data>
-    using edgePtr = typename boost::shared_ptr<Edge<Data>>;
+    using edgePtr = typename std::shared_ptr<Edge<Data>>;
 
     template <typename Data>
-    using edgeWeakPtr = typename boost::weak_ptr<Edge<Data>>;
+    using edgeWeakPtr = typename std::weak_ptr<Edge<Data>>;
 
     template <typename Data>
-    using nodePtr = typename boost::shared_ptr<Node<Data>>;
+    using nodePtr = typename std::shared_ptr<Node<Data>>;
 
     template <typename Data>
     class Node  // this file
@@ -180,7 +178,7 @@ namespace grstaps
          *
          * \returns a pointer to the parent node
          */
-        boost::weak_ptr<Node>& getParentNode(const std::string) const;
+        std::weak_ptr<Node>& getParentNode(const std::string) const;
 
         /**
          *
@@ -199,7 +197,7 @@ namespace grstaps
          *
          * \returns a pointer to the child node
          */
-        boost::weak_ptr<Node>& getChildNode(const std::string) const;
+        std::weak_ptr<Node>& getChildNode(const std::string) const;
 
         /**
          *
