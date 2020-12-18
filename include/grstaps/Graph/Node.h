@@ -86,7 +86,7 @@ namespace grstaps
          */
         string getNodeID() const;
 
-        /**
+        /**cout << nodeToAdd->getID();
          *
          * Setter Current Path cost to node
          *

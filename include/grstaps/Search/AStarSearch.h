@@ -46,26 +46,13 @@ namespace grstaps
         AStarSearch(Graph<Data> &, nodePtr<Data> &);
 
         /**
-         * Constructor
-         *
-         *  \param the search problem you are going to copy from
-         *  \param id of new action
-         *  \param traitRequirements of the new action
-         *  \param the nonCumTraits requirements
-         *
-         */
-        // AStarSearch(AStarSearch<TaskAllocation> &p2, short newActionDuration, vector<float>& traitRequirements,
-        // vector<float>& nonCumTraits, NodeExpander<TaskAllocation>* expander, vector<vector<int>>*
-        // orderingConstraints);
-
-        /**
          * Copy Constructor
          *
          * \param the search problem you are going to copy from
          * \param a node expander
          *
          */
-        AStarSearch(AStarSearch<Data> &, NodeExpander<TaskAllocation> *);
+        AStarSearch(AStarSearch<Data> &p2, std::shared_ptr<const NodeExpander<TaskAllocation>> expander, const vector<float>& actionRequirements, const vector<float>& nonCumActionRequirements, float goalDistAdd, const float& newActionDuration, vector<vector<int>>* orderingCon);
 
         /**
          * Search through the graph and find a node
@@ -135,27 +122,33 @@ namespace grstaps
 
 
     template <class Data>
-    AStarSearch<Data>::AStarSearch(AStarSearch<Data> &p2, NodeExpander<TaskAllocation> *expander)
+    AStarSearch<Data>::AStarSearch(AStarSearch<Data> &p2, std::shared_ptr<const NodeExpander<TaskAllocation>> expander, const vector<float>& actionRequirements, const vector<float>& nonCumActionRequirements, float goalDistAdd, const float& newActionDuration, vector<vector<int>>* orderingCon)
         : SearchBase<Data>()
     {
         this->graph = Graph<Data>();
+        nodePtr<Data> nodeToAdd = nodePtr<Data>(new Node<Data>(*p2.graph.findNode(p2.currentNode->getNodeID())));
+        this->graph.addNode(nodeToAdd);
+        nodeToAdd->getData().addAction(actionRequirements, nonCumActionRequirements, goalDistAdd, newActionDuration, orderingCon, true);
+        nodeToAdd->setID(nodeToAdd->getData().getID());
+        float heur = (*expander->heuristicFunc)(this->graph, p2.graph.findNode(p2.currentNode->getNodeID())->getData(), nodeToAdd->getData());
+        //float cost = (*expander->heuristicFunc)(this->graph, , nodeToAdd->getData());
+        nodeToAdd->setHeuristic(heur);
+        nodeToAdd->setPathCost(heur);
+        frontier.push(nodeToAdd);
+        currentNode = this->graph.findNode(p2.currentNode->getNodeID());
 
         for(auto itr = p2.frontier.begin(); itr != p2.frontier.end(); ++itr)
         {
-            nodePtr<Data> nodeToAdd = nodePtr<Data>(new Node<Data>(itr));
+            nodePtr<Data> nodeToAdd = nodePtr<Data>(new Node<Data>(**itr));
             this->graph.addNode(nodeToAdd);
+            nodeToAdd->getData().addAction(actionRequirements, nonCumActionRequirements, goalDistAdd, newActionDuration, orderingCon);
+            nodeToAdd->setID(nodeToAdd->getData().getID());
+            float heur = (*expander->heuristicFunc)(this->graph, p2.graph.findNode(p2.currentNode->getNodeID())->getData(), nodeToAdd->getData());
+            //float cost = (*expander->heuristicFunc)(graph, data, nodeToAdd->getData());
+            nodeToAdd->setHeuristic(heur);
+            nodeToAdd->setPathCost(heur);
             frontier.push(nodeToAdd);
         }
-
-        for(auto itr = p2.closedList.begin(); itr != p2.closedList.end(); ++itr)
-        {
-            nodePtr<Data> nodeToAdd = nodePtr<Data>(new Node<Data>(itr));
-            this->graph.addNode(nodeToAdd);
-            closedList.push(nodeToAdd);
-        }
-
-        currentNode          = this->graph.findNode(p2.currentNode->getNodeID());
-        this->initialNodePtr = this->graph.findNode(p2.currentNode->getNodeID());
     }
 
     template <class Data>

@@ -318,7 +318,8 @@ namespace grstaps
         [[maybe_unused]] void addAction(const vector<float>&, const vector<float>&,
                        float,
                        const float&         = -1,
-                       vector<vector<int>>* = nullptr);
+                       vector<vector<int>>* = nullptr,
+                                        bool editParams = false);
 
 
         std::shared_ptr<taskAllocationSearchParams> params;

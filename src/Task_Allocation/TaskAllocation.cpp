@@ -374,16 +374,24 @@ namespace grstaps
                                    const vector<float>& nonCumActionRequirements,
                                    float goalDistAdd,
                                    const float& newActionDuration,
-                                   vector<vector<int>>* orderingCon)
+                                   vector<vector<int>>* orderingCon,
+                                                    bool editParams)
     {
-        params->goalTraitDistribution->push_back(actionRequirements);
-        params->actionNoncumulativeTraitValue->push_back(nonCumActionRequirements);
-        allocationTraitDistribution.emplace_back(params->speciesTraitDistribution->size(), 0);
-        if(newActionDuration <= 0)
+        if(editParams)
         {
-            params->actionDurations->push_back(newActionDuration);
-            params->orderingConstraints->insert(params->orderingConstraints->end(), orderingCon->begin(), orderingCon->end());
+            params->goalTraitDistribution->push_back(actionRequirements);
+            params->actionNoncumulativeTraitValue->push_back(nonCumActionRequirements);
+            params->actionDurations->emplace_back(newActionDuration);
+
+            if(newActionDuration <= 0)
+            {
+                params->actionDurations->push_back(newActionDuration);
+                params->orderingConstraints->insert(
+                    params->orderingConstraints->end(), orderingCon->begin(), orderingCon->end());
+            }
         }
+        requirementsRemaining.emplace_back(actionRequirements);
+        allocationTraitDistribution.emplace_back(params->speciesTraitDistribution->size(), 0);
 
         vector<int> emptyVect(params->speciesTraitDistribution->size(), 0.0);
         allocation.insert(allocation.end(), emptyVect.begin(), emptyVect.end());

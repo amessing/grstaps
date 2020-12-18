@@ -140,16 +140,17 @@ namespace grstaps
                 results->printResults();
             }
 
-            /*
-            vector<float> newAction{0,0, 0, 1,0,0,0,0,0,0};
-            vector<float> newNonCum{0,0, 0, 1,0,0,0,0,0,0};
+
+            vector<float> newAction{1};
+            vector<float> newNonCum{0};
+            vector<vector<int>> newOrderingCon;
             string newId = "Action2";
-            AStarSearch<TaskAllocation> searcherCopy(searcher, 10, newAction, newNonCum, expander, &orderingCon);
+            AStarSearch<TaskAllocation> searcherCopy(searcher, expander, newAction, newNonCum, 1, 1, &newOrderingCon);
             searcherCopy.search(isGoal, expander, package);
             results = static_cast<AllocationResultsPackager *>(package);
             cout << "Copy Node" << endl;
             results->printResults();
-             */
+
 
             delete package;
         }
