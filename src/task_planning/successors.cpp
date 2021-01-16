@@ -382,7 +382,7 @@ namespace grstaps
         if(supportedAction(a))
         {
             // Check if the (non-numeric) action precondtions can be supported by the steps in the current base plan
-            Logger::debug("Action {} supported", a->name);
+            //Logger::debug("Action {} supported", a->name);
             PlanBuilder pb(a, &linearizer, newStep);
             fullActionSupportCheck(&pb);
         }
@@ -574,7 +574,7 @@ namespace grstaps
     // with the new action and causal links added in the base plan should be checked and solved
     void Successors::reuseAction(Plan* plan)
     {
-        Logger::debug("Action {} supported (brother plan)", plan->action->name);
+        //Logger::debug("Action {} supported (brother plan)", plan->action->name);
         PlanBuilder pb(plan->action, &linearizer, newStep);
         TTimePoint startNewStep = stepToStartPoint(newStep), p2;
         // std::cout << startNewStep << std::endl;
@@ -587,11 +587,13 @@ namespace grstaps
             {
                 p2++;
             }  // at-end
-            Logger::debug("CL: {} ---> {} ({},{})",
+
+            /*Logger::debug("CL: {} ---> {} ({},{})",
                           cl.firstPoint(),
                           p2,
                           task->variables[cl.getVar()].name,
                           task->values[cl.getValue()].name);
+                          */
             if(!pb.addLink(cl.varValue, cl.firstPoint(), p2))
                 return;
             numCl++;
@@ -616,7 +618,7 @@ namespace grstaps
             numOrd++;
             // matrix[p1][p2] = iteration;
             // pb.orderings.push_back(Successors::getOrdering(p1, p2));
-            Logger::debug("Ord: {} ---> {}", p1, p2);
+            //Logger::debug("Ord: {} ---> {}", p1, p2);
         }  // Action, causal links and orderings added. Now check if there are threats
         checkTheatsBetweenCausalLinkInBasePlanWithNewAction(&pb);
         for(int i = 0; i < numCl; i++)
@@ -709,14 +711,14 @@ namespace grstaps
                 {
                     var = cl.getVar();
                     v   = cl.getValue();
-                    Logger::debug(
-                        " - Threat {} -- {},{} --> {}", p1, task->variables[var].name, task->values[v].name, p2);
+                    //Logger::debug(
+                    //    " - Threat {} -- {},{} --> {}", p1, task->variables[var].name, task->values[v].name, p2);
                     for(unsigned int j = 0; j < startEff.size(); j++)
                     {
                         if(startEff[j].var == var && startEff[j].value != v)
                         {
                             threats.emplace_back(p1, p2, pc, var);
-                            Logger::debug("   Threat found");
+                            //Logger::debug("   Threat found");
                             break;
                         }
                     }
@@ -726,7 +728,7 @@ namespace grstaps
                         if(endEff[j].var == var && endEff[j].value != v)
                         {
                             threats.emplace_back(p1, p2, pc, var);
-                            Logger::debug("   Threat found");
+                            //Logger::debug("   Threat found");
                             break;
                         }
                     }
@@ -747,7 +749,7 @@ namespace grstaps
             }*/
 
             VarChange& vc = varChanges[var];
-            Logger::debug("New cl: {} -> {}", p1, p2);
+            //Logger::debug("New cl: {} -> {}", p1, p2);
             if(linearizer.checkIteration(vc.iteration))
             {
                 for(unsigned int j = 0; j < vc.timePoints.size(); j++)
@@ -755,10 +757,10 @@ namespace grstaps
                     if(vc.values[j] != v)
                     {
                         pc = vc.timePoints[j];
-                        Logger::debug("Dif. value in time point {}", pc);
+                        //Logger::debug("Dif. value in time point {}", pc);
                         if(!linearizer.existOrder(pc, p1) && !linearizer.existOrder(p2, pc))
                         {
-                            Logger::debug("Threat by {}", pc);
+                            //Logger::debug("Threat by {}", pc);
                             threats.emplace_back(p1, p2, pc, var);
                         } /*
                      else {
@@ -794,7 +796,7 @@ namespace grstaps
                     if(!visitedAction(req[j]))
                     {
                         setVisitedAction(req[j]);
-                        Logger::debug("Action {} supported by at-start", req[j]->name);
+                        //Logger::debug("Action {} supported by at-start", req[j]->name);
                         PlanBuilder pb(req[j], &linearizer, newStep);
                         unsigned int n = addActionSupport(&pb, var, v, startTimeLastAction, startTimeNewAction);
                         fullActionSupportCheck(&pb);
@@ -815,7 +817,7 @@ namespace grstaps
                     if(!visitedAction(req[j]))
                     {
                         setVisitedAction(req[j]);
-                        Logger::debug("Action {} supported by at-end", req[j]->name);
+                        //Logger::debug("Action {} supported by at-end", req[j]->name);
                         PlanBuilder pb(req[j], &linearizer, newStep);
                         unsigned int n = addActionSupport(&pb, var, v, startTimeLastAction + 1, startTimeNewAction);
                         fullActionSupportCheck(&pb);

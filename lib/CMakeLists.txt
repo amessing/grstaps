@@ -43,5 +43,7 @@ if(NOT TARGET spdlog)
     add_subdirectory(spdlog)
 endif(NOT TARGET spdlog)
 
+add_subdirectory(earcut.hpp)
+
 # Motion Planning
 find_package(ompl 1.4 REQUIRED)

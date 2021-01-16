@@ -49,7 +49,7 @@ namespace grstaps
         for(unsigned int i = 0; i < goals->size(); i++)
         {
             hValue[i] = rpg.evaluate(goals->at(i), false);
-            // cout << task->values[SASTask::getValueIndex(goals->at(i))].name << ", h = " << hValue[i] << endl;
+            //std::cout << task->values[SASTask::getValueIndex(goals->at(i))].name << ", h = " << hValue[i] << std::endl;
         }
         for(unsigned int i = 0; i < (unsigned int)task->numGoalsInPlateau; i++)
         {

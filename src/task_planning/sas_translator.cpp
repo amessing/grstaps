@@ -565,7 +565,7 @@ namespace grstaps
             negatedLiteral[i] = false;
         for(unsigned int i = 0; i < numActions; i++)
             checkNegatedPreconditionLiterals(&(gTask->actions[i]));
-        LiteralTranslation trans(numVars);  // Object for the traslation of literals to SAS variables
+        LiteralTranslation trans(numVars);  // Object for the translation of literals to SAS variables
         createNumericAndFiniteDomainVariables(sTask, &trans);
         if(!onlyGenerateMutex)
         {
@@ -1147,7 +1147,7 @@ namespace grstaps
         return c;
     }
 
-    // Copies the condtion, replacing the literals by the SAS variables
+    // Copies the condition, replacing the literals by the SAS variables
     void SASTranslator::generateCondition(GroundedCondition* cond,
                                           SASTask* sTask,
                                           LiteralTranslation* trans,
@@ -1167,7 +1167,7 @@ namespace grstaps
                     conditionSet->emplace_back(sasVar, sasValue);
                 }
                 else
-                {  // Negated literal precondtion
+                {  // Negated literal precondition
                     conditionSet->emplace_back(sasVar, sTask->variables[sasVar].getOppositeValue(sasValue));
                 }
             }
@@ -1205,7 +1205,8 @@ namespace grstaps
                 {  // Delete effect
                     if(!modifiedVariable(sasVar, effects, effIndex, trans))
                     {
-                        sasValue = SASTask::OBJECT_UNDEFINED;
+                        sasValue = SASTask::OBJECT_FALSE;
+                        //sasValue = SASTask::OBJECT_UNDEFINED;
                         conditionSet->emplace_back(sasVar, sasValue);
                         SASVariable& v = sTask->variables[sasVar];
                         if(findInVector(sasValue, &v.possibleValues) == -1)

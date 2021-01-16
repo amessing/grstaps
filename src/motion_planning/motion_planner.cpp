@@ -117,6 +117,12 @@ namespace grstaps
         waypointQuery(from, to, problem);
 
         ob::PathPtr path               = problem->getSolutionPath();
+        if(!path)
+        {
+            auto val = std::make_tuple(false, -1, std::vector<std::pair<float, float>>());
+            m_memory[id] = val;
+            return val;
+        }
         auto path_geometric            = path->as<og::PathGeometric>();
         std::vector<ob::State*> states = path_geometric->getStates();
 
