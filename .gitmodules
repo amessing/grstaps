@@ -23,3 +23,9 @@
 [submodule "lib/json"]
 	path = lib/json
 	url = https://github.com/amessing/json.git
+[submodule "lib/PlayRho"]
+	path = lib/PlayRho
+	url = git@github.com:amessing/PlayRho.git
+[submodule "lib/earcut.hpp"]
+	path = lib/earcut.hpp
+	url = git@github.com:mapbox/earcut.hpp.git

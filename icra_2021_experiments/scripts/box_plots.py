@@ -1,12 +1,12 @@
-import copy
 import matplotlib.pyplot as plt
-import matplotlib.cm as cm
 import numpy as np
 from scrape import Scrape
+import random
 
-ALPHA_LIST = ["0.0", "0.25", "0.5", "0.75", "1.0"]
-ALPHA_S_LIST = ["0.0", "0.25", "0.5", "0.75", "1.0", "s"]
-ALPHA_S_SHORT_LIST = ["0.0", "0.25", "0.75", "1.0", "s"]
+ALPHA_SHORT_LIST = ["0.00", "0.25", "0.75", "1.00"]
+ALPHA_LIST = ["0.00", "0.25", "0.50", "0.75", "1.00"]
+ALPHA_S_LIST = ["0.00", "0.25", "0.50", "0.75", "1.00", "s"]
+ALPHA_S_SHORT_LIST = ["0.00", "0.25", "0.75", "1.00", "s"]
 METRIC_LIST = ['makespan', 'compute_time', 'nodes_expanded', 'nodes_visited']
 METRIC_LABELS = {
     'makespan': 'Makespan',
@@ -62,26 +62,47 @@ class Display:
         if len(ys) != len(titles):
             raise Exception("Help")
 
+        colors = ['pink', 'lightgreen', 'lightblue', 'gold']
+
         self.figs, axs = plt.subplots(nrows=1, ncols=len(ys))
         for chart_nr, y in enumerate(ys):
             # Plot
-            axs[chart_nr].boxplot(y,
+            box = axs[chart_nr].boxplot(y,
                                   labels=labels,
                                   showfliers=False,
                                   meanline=True,
-                                  showmeans=True)
+                                  showmeans=True,
+                                  patch_artist=True,
+                                  medianprops={'linewidth': 0},
+                                  meanprops={'linestyle':'-', 'color': 'red'})
+
+            for patch, color in zip(box['boxes'], colors):
+                patch.set_facecolor(color)
+
+
+            # Statistical Significance
+            # x1 = 1
+            # x2 = len(labels)
+            # y1 = max_y * 1.1
+            # y2 = max_y * 1.5
+            # axs[chart_nr].plot([x1, x1, x2, x2], [y1, y2, y2, y1], linewidth=1.5, c='k')
+            # axs[chart_nr].text((x1 + x2) / 2, y2, "*", ha='center', va='bottom', color='k')
 
             # Title
             axs[chart_nr].set_title(titles[chart_nr])
 
             # Y axis
-            axs[chart_nr].set_ylim((min_y * 1.1, max_y * 1.1))
+            scale = 20
+            axs[chart_nr].set_ylim((min_y * scale, max_y * scale))
             axs[chart_nr].set_yscale('symlog')
             if merge:
                 if chart_nr > 0:
                     axs[chart_nr].set_yticks([])
                 else:
                     axs[chart_nr].set_ylabel("% Difference")
+                    yticks = axs[chart_nr].get_yticks()
+                    yticks[4] = None
+                    axs[chart_nr].set_yticks(yticks)
             else:
                 axs[chart_nr].set_ylabel("% Difference")
 
@@ -90,39 +111,12 @@ class Display:
                 if len(rotate) != 2:
                     raise Exception("help")
                 axs[chart_nr].set_xticklabels(labels, rotation=rotate[0], ha=rotate[1])
-            axs[chart_nr].axhline(0.0, 0, len(labels), color='k')
+            axs[chart_nr].set_xlabel('\u03B1')
+
+            axs[chart_nr].axhline(0.0, color='gray', linestyle='--', linewidth=1)
+
 
         self.setSize(metric=metric, merge=merge)
-
-    def runAlphas(self, merge=True):
-        yss = []
-        min_y = 0
-        max_y = 0
-        for alpha in ALPHA_S_SHORT_LIST:
-            ys = []
-            for metric in METRIC_LIST:
-                ym = getattr(results[alpha], metric)
-                compressed_y = [i for i in ym if i is not None]
-                if len(compressed_y) == 0:
-                    raise Exception("Help")
-
-                filtered = compressed_y[~is_outlier(compressed_y)]
-
-                ys.append(filtered)
-                max_y = max(max_y, max(ys[-1]))
-                min_y = min(min_y, min(ys[-1]))
-            yss.append(ys)
-        labels = []
-        for metric in METRIC_LIST:
-            labels.append(METRIC_LABELS[metric])
-        self.__runInteral(ys=yss,
-                          min_y=min_y,
-                          max_y=max_y,
-                          titles=ALPHA_S_SHORT_LIST,
-                          labels=labels,
-                          rotate=[45, 'right'],
-                          metric=False,
-                          merge=merge)
 
     def runMetric(self, merge=True):
         yss = []
@@ -130,18 +124,19 @@ class Display:
         max_y = 0
         for metric in METRIC_LIST:
             ys = []
-            for alpha in ALPHA_S_SHORT_LIST:
+            for alpha in ALPHA_SHORT_LIST:
                 ym = getattr(results[alpha], metric)
                 filtered = np.array([i for i in ym if i is not None])
                 # if len(compressed_y) == 0:
                 #     raise Exception("Help")
 
-                #filtered = compressed_y[~is_outlier(compressed_y)]
+                filtered = filtered[~is_outlier(filtered)]
 
                 ys.append(filtered)
                 max_y = max(max_y, max(ys[-1]))
                 min_y = min(min_y, min(ys[-1]))
             yss.append(ys)
+
         titles = []
         for metric in METRIC_LIST:
             titles.append(METRIC_TITLES[metric])
@@ -149,18 +144,18 @@ class Display:
                           min_y=min_y,
                           max_y=max_y,
                           titles=titles,
-                          labels=ALPHA_S_SHORT_LIST,
+                          labels=ALPHA_SHORT_LIST,
                           rotate=[90, 'center'],
                           metric=True,
                           merge=merge)
 
     def setSize(self, width=1.0, height=0.25, merge=True, metric=True):
         margins = {
-            "left": 0.11 / width,
+            "left": 0.05 / width,
             "right": 1.0 - .2 / width if metric else 1.0 - .025 / width,
             "wspace": 0.00 if merge else 0.075 / width,
             "bottom": 0.2 / height if metric else 0.115 / height,
-            "top": 1.0 - 0.0375 / height
+            "top": 1.0 - 0.025 / height
         }
         width *= 7
         height *= 9
@@ -177,32 +172,33 @@ class Display:
 
 
 def normalize(res):
-    num = len(res['0.0'].makespan)
+    num = len(res['0.00'].makespan)
     for i in range(num):
         for m in METRIC_LIST:
             # Get baseline
-            val = getattr(res['0.5'], m)[i]
+            val = getattr(res['0.50'], m)[i]
             if val is None:
                 print("{} {}".format(i, m))
-            for alpha in ALPHA_LIST:
+                raise Exception("help")
+            for alpha in ALPHA_S_SHORT_LIST:
                 # Normalize on baseline
                 val2 = getattr(res[alpha], m)[i]
                 if val2 is None:
                     continue
 
                 val2 = (val2 - val) / val * 100
-                getattr(res[alpha], m)[i] = val2
+                tmp = getattr(res[alpha], m)
+                tmp[i] = val2
+                setattr(res[alpha], m, tmp)
     return res
 
-
 if __name__ == '__main__':
-    results = Scrape().parseResults('../run1')
+    random.seed(1)
+    results = Scrape().parseAllResults('../run2')
     results = normalize(results)
 
     # Metric
     display = Display(results)
     display.runMetric()
     display.show()
-    display.save('../run1/charts/box_metric_unfiltered_v3')
-
-    # Alpha
+    display.save('../run2/charts/run2_box_alpha_filtered')

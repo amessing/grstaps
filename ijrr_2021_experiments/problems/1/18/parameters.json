@@ -1,0 +1,13 @@
+{
+    "num_ambulances": 2,
+    "num_fire_trucks_ground": 2,
+    "num_fire_trucks_aerial": 2,
+    "num_cranes_ground": 2,
+    "num_cranes_aerial": 2,
+    "num_survivors": 2,
+    "percent_survivors_on_street": 0.5,
+    "num_fires": 2,
+    "max_water": 3,
+    "num_rubble": 2,
+    "percent_rubble_on_street": 0.5
+}

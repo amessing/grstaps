@@ -6,8 +6,8 @@ namespace grstaps
     struct PlannerParameters
     {
         float total_time;
-        char *domainFileName;
-        char *problemFileName;
+        const char *domainFileName;
+        const char *problemFileName;
         char *outputFileName;
         bool generateGroundedDomain;
         bool keepStaticData;

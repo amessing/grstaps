@@ -24,10 +24,10 @@ namespace grstaps
 {
     namespace ob = ompl::base;
 
-    ValidityChecker::ValidityChecker(const std::vector<b2PolygonShape>& obstacles,
+    ValidityChecker::ValidityChecker(const std::vector<b2PolygonShape>& internals,
                                      const ob::SpaceInformationPtr& space_information)
         : ob::StateValidityChecker(space_information)
-        , m_obstacles(obstacles)
+        , m_internals(internals)
     {}
 
     bool ValidityChecker::isValid(const ob::State* state) const
@@ -38,13 +38,13 @@ namespace grstaps
         const auto* state_2d = state->as<ob::RealVectorStateSpace::StateType>();
         b2Vec2 point(state_2d->values[0], state_2d->values[1]);
 
-        for(const b2PolygonShape& obstacle: m_obstacles)
+        for(const b2PolygonShape& internal: m_internals)
         {
-            if(obstacle.TestPoint(transform, point))
+            if(internal.TestPoint(transform, point))
             {
-                return false;
+                return true;
             }
         }
-        return true;
+        return false;
     }
 }  // namespace grstaps

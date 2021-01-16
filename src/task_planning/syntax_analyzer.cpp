@@ -60,7 +60,7 @@ namespace grstaps
     /********************************************************/
 
     // Creates a new syntactic analyzer for parsing a given file
-    SyntaxAnalyzer::SyntaxAnalyzer(char* fileName)
+    SyntaxAnalyzer::SyntaxAnalyzer(const char* fileName)
     {
         this->fileName = fileName;
         std::ifstream in(fileName);

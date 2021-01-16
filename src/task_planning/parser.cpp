@@ -22,7 +22,7 @@ namespace grstaps
     // <domain> ::= (define (domain <name>) [<require-def>] [<types-def>]:typing
     //  [<constants-def>] [<predicates-def>] [<functions-def>]:fluents
     //  [<constraints>] <structure-def>*)
-    ParsedTask* Parser::parseDomain(char* domainFileName)
+    ParsedTask* Parser::parseDomain(const char* domainFileName)
     {
         task = new ParsedTask();
         syn  = new SyntaxAnalyzer(domainFileName);
@@ -90,7 +90,7 @@ namespace grstaps
     //              [<constraints>]:constraints
     //              [<metric-spec>]:numeric-fluents
     //              [<length-spec>])
-    ParsedTask* Parser::parseProblem(char* problemFileName)
+    ParsedTask* Parser::parseProblem(const char* problemFileName)
     {
         task->metricType     = MT_NONE;
         task->serialLength   = -1;
