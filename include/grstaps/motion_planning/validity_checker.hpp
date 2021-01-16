@@ -36,7 +36,7 @@ namespace grstaps
         /**
          * Constructor
          */
-        ValidityChecker(const std::vector<b2PolygonShape>& obstacles,
+        ValidityChecker(const std::vector<b2PolygonShape>& internals,
                         const ompl::base::SpaceInformationPtr& space_information);
 
         /**
@@ -45,7 +45,7 @@ namespace grstaps
         virtual bool isValid(const ompl::base::State* state) const override;
 
     private:
-        std::vector<b2PolygonShape> m_obstacles;
+        std::vector<b2PolygonShape> m_internals;
     };
 }  // namespace grstaps
 

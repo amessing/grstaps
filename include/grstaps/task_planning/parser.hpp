@@ -59,8 +59,8 @@ namespace grstaps
        public:
         Parser();
         ~Parser();
-        ParsedTask *parseDomain(char *domainFileName);
-        ParsedTask *parseProblem(char *problemFileName);
+        ParsedTask *parseDomain(const char *domainFileName);
+        ParsedTask *parseProblem(const char *problemFileName);
     };
 }  // namespace grstaps
 #endif  // GRSTAPS_PARSER_HPP

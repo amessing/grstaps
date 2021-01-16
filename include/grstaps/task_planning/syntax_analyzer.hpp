@@ -247,7 +247,7 @@ namespace grstaps
     class SyntaxAnalyzer
     {
        private:
-        char* fileName;
+        const char* fileName;
         char* buffer;
         int lineNumber;
         int position;
@@ -260,7 +260,7 @@ namespace grstaps
 
        public:
         int tokenIndex;
-        SyntaxAnalyzer(char* fileName);
+        SyntaxAnalyzer(const char* fileName);
         ~SyntaxAnalyzer();
         Token* nextToken();
         Token* readSymbol(Symbol s);

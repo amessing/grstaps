@@ -1,22 +1,21 @@
 #include "grstaps/task_planning/sas_task.hpp"
-
 #include <cassert>
 #include <iostream>
 
 namespace grstaps
 {
     /********************************************************/
-/* CLASS: SASValue                                   */
-/********************************************************/
+    /* CLASS: SASValue                                   */
+    /********************************************************/
 
     std::string SASValue::toString()
     {
         return std::to_string(index) + ":" + name;
     }
 
-/********************************************************/
-/* CLASS: SASVariable                                   */
-/********************************************************/
+    /********************************************************/
+    /* CLASS: SASVariable                                   */
+    /********************************************************/
 
     void SASVariable::addPossibleValue(unsigned int value)
     {
@@ -78,11 +77,15 @@ namespace grstaps
         for(unsigned int i = 0; i < value.size(); i++)
         {
             if(i > 0)
-            { s += " "; }
+            {
+                s += " ";
+            }
             s += "(at " + std::to_string(time[i]) + " (= " + name + " " + values[value[i]].name + "))";
         }
         if(value.size() == 0)
-        { s = "Uninitialized: " + name; }
+        {
+            s = "Uninitialized: " + name;
+        }
         return s;
     }
 
@@ -94,9 +97,13 @@ namespace grstaps
             assert(false);
         }
         if(possibleValues[0] == v)
-        { return possibleValues[1]; }
+        {
+            return possibleValues[1];
+        }
         if(possibleValues[1] == v)
-        { return possibleValues[0]; }
+        {
+            return possibleValues[0];
+        }
         std::cout << "Invalid value " << v << " for variable " << name << std::endl;
         assert(false);
         return 0;
@@ -107,7 +114,9 @@ namespace grstaps
         for(unsigned int i = 0; i < time.size(); i++)
         {
             if(time[i] == 0)
-            { return value[i]; }
+            {
+                return value[i];
+            }
         }
         return MAX_INT32;
     }
@@ -124,9 +133,9 @@ namespace grstaps
         return -1;
     }
 
-/********************************************************/
-/* CLASS: NumericVariable                               */
-/********************************************************/
+    /********************************************************/
+    /* CLASS: NumericVariable                               */
+    /********************************************************/
 
     void NumericVariable::addInitialValue(float value, float time)
     {
@@ -135,7 +144,9 @@ namespace grstaps
             if(time == this->time[i])
             {
                 if(this->value[i] == value)
-                { break; }
+                {
+                    break;
+                }
                 std::cout << "Contradictory value " << value << " in time " << time << " for variable " << name
                           << std::endl;
                 assert(false);
@@ -156,11 +167,15 @@ namespace grstaps
         for(unsigned int i = 0; i < value.size(); i++)
         {
             if(i > 0)
-            { s += " "; }
+            {
+                s += " ";
+            }
             s += "(at " + std::to_string(time[i]) + " (= " + name + " " + std::to_string(value[i]) + "))";
         }
         if(value.size() == 0)
-        { s = "Uninitialized: " + name; }
+        {
+            s = "Uninitialized: " + name;
+        }
         return s;
     }
 
@@ -169,14 +184,16 @@ namespace grstaps
         for(unsigned int i = 0; i < time.size(); i++)
         {
             if(time[i] == 0)
-            { return value[i]; }
+            {
+                return value[i];
+            }
         }
         return 0.0f;
     }
 
-/********************************************************/
-/* CLASS: SASNumericExpression                          */
-/********************************************************/
+    /********************************************************/
+    /* CLASS: SASNumericExpression                          */
+    /********************************************************/
 
     std::string SASNumericExpression::toString(std::vector<NumericVariable>* numVariables)
     {
@@ -201,9 +218,13 @@ namespace grstaps
                 break;
             case '#':
                 if(terms.size() == 0)
-                { s = "#t"; }
+                {
+                    s = "#t";
+                }
                 else
-                { s = "(* #t " + terms[0].toString(numVariables) + ")"; }
+                {
+                    s = "(* #t " + terms[0].toString(numVariables) + ")";
+                }
                 break;
             default:
                 s = "?duration";
@@ -211,9 +232,9 @@ namespace grstaps
         return s;
     }
 
-/********************************************************/
-/* CLASS: SASDuration                                   */
-/********************************************************/
+    /********************************************************/
+    /* CLASS: SASDuration                                   */
+    /********************************************************/
 
     std::string SASDuration::toString(std::vector<NumericVariable>* numVariables)
     {
@@ -221,20 +242,20 @@ namespace grstaps
                exp.toString(numVariables) + ")";
     }
 
-/********************************************************/
-/* CLASS: SASCondition                                  */
-/********************************************************/
+    /********************************************************/
+    /* CLASS: SASCondition                                  */
+    /********************************************************/
 
     SASCondition::SASCondition(unsigned int var, unsigned int value)
     {
-        this->var = var;
-        this->value = value;
+        this->var        = var;
+        this->value      = value;
         this->isModified = false;
     }
 
-/********************************************************/
-/* CLASS: SASNumericCondition                           */
-/********************************************************/
+    /********************************************************/
+    /* CLASS: SASNumericCondition                           */
+    /********************************************************/
 
     std::string SASNumericCondition::toString(std::vector<NumericVariable>* numVariables)
     {
@@ -246,9 +267,9 @@ namespace grstaps
         return s + ")";
     }
 
-/********************************************************/
-/* CLASS: SASNumericEffect                              */
-/********************************************************/
+    /********************************************************/
+    /* CLASS: SASNumericEffect                              */
+    /********************************************************/
 
     std::string SASNumericEffect::toString(std::vector<NumericVariable>* numVariables)
     {
@@ -256,18 +277,18 @@ namespace grstaps
                exp.toString(numVariables) + ")";
     }
 
-/********************************************************/
-/* CLASS: SASTask                                       */
-/********************************************************/
+    /********************************************************/
+    /* CLASS: SASTask                                       */
+    /********************************************************/
 
-// Constructor
+    // Constructor
     SASTask::SASTask()
     {
         createNewValue("<true>", FICTITIOUS_FUNCTION);
         createNewValue("<false>", FICTITIOUS_FUNCTION);
         createNewValue("<undefined>", FICTITIOUS_FUNCTION);
-        requirers = nullptr;
-        producers = nullptr;
+        requirers         = nullptr;
+        producers         = nullptr;
         numGoalsInPlateau = 1;
     }
 
@@ -292,19 +313,21 @@ namespace grstaps
         delete[] initialState;
         delete[] numInitialState;
         if(staticNumFunctions != nullptr)
-        { delete[] staticNumFunctions; }
+        {
+            delete[] staticNumFunctions;
+        }
     }
 
-// Adds a mutex relationship between (var1, value1) and (var2, value2)
+    // Adds a mutex relationship between (var1, value1) and (var2, value2)
     void SASTask::addMutex(unsigned int var1, unsigned int value1, unsigned int var2, unsigned int value2)
     {
         mutex[getMutexCode(var1, value1, var2, value2)] = true;
         mutex[getMutexCode(var2, value2, var1, value1)] = true;
-        //cout << "Mutex added: " << variables[var1].name << "=" << values[value1].name << " and " <<
+        // cout << "Mutex added: " << variables[var1].name << "=" << values[value1].name << " and " <<
         //	variables[var2].name << "=" << values[value2].name << endl;
     }
 
-// Checks if (var1, value1) and (var2, value2) are mutex
+    // Checks if (var1, value1) and (var2, value2) are mutex
     bool SASTask::isMutex(unsigned int var1, unsigned int value1, unsigned int var2, unsigned int value2)
     {
         return mutex.find(getMutexCode(var1, value1, var2, value2)) != mutex.end();
@@ -318,95 +341,101 @@ namespace grstaps
     bool SASTask::isPermanentMutex(SASAction* a1, SASAction* a2)
     {
         uint64_t n = a1->index;
-        n = (n << 32) + a2->index;
+        n          = (n << 32) + a2->index;
         return permanentMutexActions.find(n) != permanentMutexActions.end();
     }
 
-// Adds a new variable
+    // Adds a new variable
     SASVariable* SASTask::createNewVariable()
     {
         variables.emplace_back();
         SASVariable* v = &(variables.back());
-        v->index = variables.size() - 1;
-        v->name = "var" + std::to_string(v->index);
+        v->index       = variables.size() - 1;
+        v->name        = "var" + std::to_string(v->index);
         return v;
     }
 
-// Adds a new variable
+    // Adds a new variable
     SASVariable* SASTask::createNewVariable(std::string name)
     {
         variables.emplace_back();
         SASVariable* v = &(variables.back());
-        v->index = variables.size() - 1;
-        v->name = name;
+        v->index       = variables.size() - 1;
+        v->name        = name;
         return v;
     }
 
-// Adds a new value
+    // Adds a new value
     unsigned int SASTask::createNewValue(std::string name, unsigned int fncIndex)
     {
-        //if (fncIndex == FICTITIOUS_FUNCTION) cout << "NEW VALUE: " << name << endl;
+        // if (fncIndex == FICTITIOUS_FUNCTION) cout << "NEW VALUE: " << name << endl;
         std::unordered_map<std::string, unsigned int>::const_iterator it = valuesByName.find(name);
         if(it != valuesByName.end())
-        { return it->second; }
+        {
+            return it->second;
+        }
         values.emplace_back();
-        SASValue* v = &(values.back());
-        v->index = values.size() - 1;
-        v->fncIndex = fncIndex;
-        v->name = name;
+        SASValue* v           = &(values.back());
+        v->index              = values.size() - 1;
+        v->fncIndex           = fncIndex;
+        v->name               = name;
         valuesByName[v->name] = v->index;
         return v->index;
     }
 
-// Adds a new value if it does not exist yet
+    // Adds a new value if it does not exist yet
     unsigned int SASTask::findOrCreateNewValue(std::string name, unsigned int fncIndex)
     {
         std::unordered_map<std::string, unsigned int>::const_iterator value = valuesByName.find(name);
         if(value == valuesByName.end())
-        { return createNewValue(name, fncIndex); }
+        {
+            return createNewValue(name, fncIndex);
+        }
         else
-        { return value->second; }
+        {
+            return value->second;
+        }
     }
 
-// Return the index of a value through its name
+    // Return the index of a value through its name
     unsigned int SASTask::getValueByName(const std::string& name)
     {
         return valuesByName[name];
     }
 
-// Adds a new numeric variable
+    // Adds a new numeric variable
     NumericVariable* SASTask::createNewNumericVariable(std::string name)
     {
         numVariables.emplace_back();
         NumericVariable* v = &(numVariables.back());
-        v->index = numVariables.size() - 1;
-        v->name = name;
+        v->index           = numVariables.size() - 1;
+        v->name            = name;
         return v;
     }
 
-// Adds a new action
+    // Adds a new action
     SASAction* SASTask::createNewAction(std::string name)
     {
         actions.emplace_back();
         SASAction* a = &(actions.back());
-        a->index = actions.size() - 1;
-        a->name = name;
-        a->isGoal = false;
+        a->index     = actions.size() - 1;
+        a->name      = name;
+        a->isGoal    = false;
         return a;
     }
 
-// Adds a new goal
+    // Adds a new goal
     SASAction* SASTask::createNewGoal()
     {
         goals.emplace_back();
         SASAction* a = &(goals.back());
-        a->index = goals.size() - 1;
-        a->name = "<goal>";
-        a->isGoal = true;
+        a->index     = goals.size() - 1;
+        a->name      = "<goal>";
+        a->isGoal    = true;
         return a;
     }
 
-// Computes the initial state
+    // Computes the initial state
     void SASTask::computeInitialState()
     {
         initialState = new TValue[variables.size()];
@@ -421,10 +450,10 @@ namespace grstaps
         }
     }
 
-// Computes the list of actions that requires a (= var value)
+    // Computes the list of actions that requires a (= var value)
     void SASTask::computeRequirers()
     {
-        requirers = new std::vector<SASAction*>* [variables.size()];
+        requirers = new std::vector<SASAction*>*[variables.size()];
         for(unsigned int i = 0; i < variables.size(); i++)
         {
             requirers[i] = new std::vector<SASAction*>[values.size()];
@@ -452,22 +481,24 @@ namespace grstaps
         }
     }
 
-// Adds a requirer, checking for no duplicates
+    // Adds a requirer, checking for no duplicates
     void SASTask::addToRequirers(TVariable v, TValue val, SASAction* a)
     {
         std::vector<SASAction*>& req = requirers[v][val];
         for(unsigned int i = 0; i < req.size(); i++)
         {
             if(req[i] == a)
-            { return; }
+            {
+                return;
+            }
         }
         req.push_back(a);
     }
 
-// Computes the list of actions that produces (= var value)
+    // Computes the list of actions that produces (= var value)
     void SASTask::computeProducers()
     {
-        producers = new std::vector<SASAction*>* [variables.size()];
+        producers = new std::vector<SASAction*>*[variables.size()];
         for(unsigned int i = 0; i < variables.size(); i++)
         {
             producers[i] = new std::vector<SASAction*>[values.size()];
@@ -495,9 +526,9 @@ namespace grstaps
         for(; got != mutex.end(); ++got)
         {
             uint64_t n = got->first;
-            vv2 = n & 0xFFFFFFFF;
-            vv1 = (uint32_t)(n >> 32);
-            it = mutexWithVarValue.find(vv1);
+            vv2        = n & 0xFFFFFFFF;
+            vv1        = (uint32_t)(n >> 32);
+            it         = mutexWithVarValue.find(vv1);
             if(it == mutexWithVarValue.end())
             {
                 std::vector<uint32_t>* item = new std::vector<uint32_t>();
@@ -531,31 +562,34 @@ namespace grstaps
         cout << "Checking if " << variables[getVariableIndex(vv)].name << "=" <<
                 values[getValueIndex(vv)].name << " is permanent mutex with:" << endl;
         for (std::unordered_map<TVarValue,bool>::const_iterator itg = goals->begin(); itg != goals->end(); ++itg)
-            cout << " " << variables[getVariableIndex(itg->first)].name << "=" << values[getValueIndex(itg->first)].name << endl;
+            cout << " " << variables[getVariableIndex(itg->first)].name << "=" << values[getValueIndex(itg->first)].name
+        << endl;
         */
         unsigned int numActions = actions.size();
         bool visited[numActions];
         for(unsigned int i = 0; i < numActions; i++)
-        { visited[i] = false; }
+        {
+            visited[i] = false;
+        }
         std::vector<TVarValue> state;
         std::unordered_map<TVarValue, bool> visitedVarValue;
         state.push_back(vv);
         visitedVarValue[vv] = true;
-        unsigned int start = 0;
+        unsigned int start  = 0;
         while(start < state.size() && !goals->empty())
         {
-            TVariable v = getVariableIndex(state[start]);
+            TVariable v  = getVariableIndex(state[start]);
             TValue value = getValueIndex(state[start]);
             start++;
             std::vector<SASAction*>& req = requirers[v][value];
-            //cout << variables[v].name << "=" << values[value].name << endl;
+            // cout << variables[v].name << "=" << values[value].name << endl;
             for(unsigned int i = 0; i < req.size(); i++)
             {
                 SASAction* a = req[i];
                 if(!visited[a->index])
                 {
                     visited[a->index] = true;
-                    //cout << " - " << a->name << endl;
+                    // cout << " - " << a->name << endl;
                     for(unsigned int j = 0; j < a->startEff.size(); j++)
                     {
                         checkEffectReached(&(a->startEff[j]), goals, &visitedVarValue, &state);
@@ -571,13 +605,13 @@ namespace grstaps
 
     void SASTask::computePermanentMutex()
     {
-        //clock_t tini = clock();
+        // clock_t tini = clock();
         computeMutexWithVarValues();
         std::unordered_map<uint32_t, std::vector<uint32_t>*>::const_iterator it;
         std::unordered_map<uint32_t, bool>::const_iterator ug;
         for(it = mutexWithVarValue.begin(); it != mutexWithVarValue.end(); ++it)
         {
-            //cout << it->second->size() << endl;
+            // cout << it->second->size() << endl;
             std::unordered_map<uint32_t, bool> goals;
             for(unsigned int i = 0; i < it->second->size(); i++)
             {
@@ -586,7 +620,7 @@ namespace grstaps
             checkReachability(it->first, &goals);
             for(ug = goals.begin(); ug != goals.end(); ++ug)
             {
-                TMutex code = (((TMutex)it->first) << 32) + ug->first;
+                TMutex code          = (((TMutex)it->first) << 32) + ug->first;
                 permanentMutex[code] = true;
             }
         }
@@ -600,18 +634,18 @@ namespace grstaps
                 {
                     if(checkActionMutex(a1, &(actions[j])))
                     {
-                        //cout << a1->name << " <- mutex -> " << actions[j].name << endl;
-                        uint64_t n = a1->index;
-                        n = (n << 32) + actions[j].index;
+                        // cout << a1->name << " <- mutex -> " << actions[j].name << endl;
+                        uint64_t n               = a1->index;
+                        n                        = (n << 32) + actions[j].index;
                         permanentMutexActions[n] = true;
-                        n = actions[j].index;
-                        n = (n << 32) + a1->index;
+                        n                        = actions[j].index;
+                        n                        = (n << 32) + a1->index;
                         permanentMutexActions[n] = true;
                     }
                 }
             }
         }
-        //cout << (float) (((int) (1000 * (clock() - tini)/(float) CLOCKS_PER_SEC))/1000.0) << " sec." << endl;
+        // cout << (float) (((int) (1000 * (clock() - tini)/(float) CLOCKS_PER_SEC))/1000.0) << " sec." << endl;
     }
 
     bool SASTask::checkActionMutex(SASAction* a1, SASAction* a2)
@@ -623,80 +657,96 @@ namespace grstaps
     {
         for(unsigned int i = 0; i < a1->startEff.size(); i++)
         {
-            TVariable v1 = a1->startEff[i].var;
+            TVariable v1  = a1->startEff[i].var;
             TValue value1 = a1->startEff[i].value;
             for(unsigned int j = 0; j < a2->startCond.size(); j++)
             {
-                TVariable v2 = a2->startCond[j].var;
+                TVariable v2  = a2->startCond[j].var;
                 TValue value2 = a2->startCond[j].value;
                 if(isPermanentMutex(v1, value1, v2, value2))
-                { return true; }
+                {
+                    return true;
+                }
             }
             for(unsigned int j = 0; j < a2->overCond.size(); j++)
             {
-                TVariable v2 = a2->overCond[j].var;
+                TVariable v2  = a2->overCond[j].var;
                 TValue value2 = a2->overCond[j].value;
                 if(isPermanentMutex(v1, value1, v2, value2))
-                { return true; }
+                {
+                    return true;
+                }
             }
             for(unsigned int j = 0; j < a2->endCond.size(); j++)
             {
-                TVariable v2 = a2->endCond[j].var;
+                TVariable v2  = a2->endCond[j].var;
                 TValue value2 = a2->endCond[j].value;
                 if(isPermanentMutex(v1, value1, v2, value2))
-                { return true; }
+                {
+                    return true;
+                }
             }
         }
         for(unsigned int i = 0; i < a1->endEff.size(); i++)
         {
-            TVariable v1 = a1->endEff[i].var;
+            TVariable v1  = a1->endEff[i].var;
             TValue value1 = a1->endEff[i].value;
             for(unsigned int j = 0; j < a2->startCond.size(); j++)
             {
-                TVariable v2 = a2->startCond[j].var;
+                TVariable v2  = a2->startCond[j].var;
                 TValue value2 = a2->startCond[j].value;
                 if(isPermanentMutex(v1, value1, v2, value2))
-                { return true; }
+                {
+                    return true;
+                }
             }
             for(unsigned int j = 0; j < a2->overCond.size(); j++)
             {
-                TVariable v2 = a2->overCond[j].var;
+                TVariable v2  = a2->overCond[j].var;
                 TValue value2 = a2->overCond[j].value;
                 if(isPermanentMutex(v1, value1, v2, value2))
-                { return true; }
+                {
+                    return true;
+                }
             }
             for(unsigned int j = 0; j < a2->endCond.size(); j++)
             {
-                TVariable v2 = a2->endCond[j].var;
+                TVariable v2  = a2->endCond[j].var;
                 TValue value2 = a2->endCond[j].value;
                 if(isPermanentMutex(v1, value1, v2, value2))
-                { return true; }
+                {
+                    return true;
+                }
             }
         }
         return false;
     }
 
-// Adds a producer, checking for no duplicates
+    // Adds a producer, checking for no duplicates
     void SASTask::addToProducers(TVariable v, TValue val, SASAction* a)
     {
         std::vector<SASAction*>& prod = producers[v][val];
         for(unsigned int i = 0; i < prod.size(); i++)
         {
             if(prod[i] == a)
-            { return; }
+            {
+                return;
+            }
         }
         prod.push_back(a);
     }
 
-// Computes the cost of the actions according to the metric (if possible)
-// The cost of an action cannot be computed in the following cases:
-// * The duration of the action depends on the state (numeric value of one or more variables) and the metric depends on the plan duration.
-// * A numeric variable (e.g. fuel-used) is modified through the action, and this change of value depends on the value of another numeric
-//   variable in the state (e.g. temperature), and the numeric variable (fuel-used) is used in the metric.
+    // Computes the cost of the actions according to the metric (if possible)
+    // The cost of an action cannot be computed in the following cases:
+    // * The duration of the action depends on the state (numeric value of one or more variables) and the metric depends
+    // on the plan duration.
+    // * A numeric variable (e.g. fuel-used) is modified through the action, and this change of value depends on the
+    // value of another numeric
+    //   variable in the state (e.g. temperature), and the numeric variable (fuel-used) is used in the metric.
     void SASTask::computeInitialActionsCost(bool keepStaticData)
     {
         if(keepStaticData)
-        {    // Static functions have not been deleted, so it is necessary to check which ones are static
+        {  // Static functions have not been deleted, so it is necessary to check which ones are static
             staticNumFunctions = new bool[numVariables.size()];
             for(unsigned int i = 0; i < numVariables.size(); i++)
             {
@@ -724,13 +774,15 @@ namespace grstaps
         {
             variablesOnMetric[i] = false;
         }
-        variableCosts = false;
+        variableCosts           = false;
         metricDependsOnDuration = checkVariablesUsedInMetric(&metric, variablesOnMetric);
         for(unsigned int i = 0; i < actions.size(); i++)
         {
             computeActionCost(&actions[i], variablesOnMetric);
             if(!actions[i].fixedCost)
-            { variableCosts = true; }
+            {
+                variableCosts = true;
+            }
         }
         for(unsigned int i = 0; i < goals.size(); i++)
         {
@@ -739,8 +791,8 @@ namespace grstaps
         delete[] variablesOnMetric;
     }
 
-// Check the numeric variables used in the metric function
-// Return true if the metric depends on the plan duration
+    // Check the numeric variables used in the metric function
+    // Return true if the metric depends on the plan duration
     bool SASTask::checkVariablesUsedInMetric(SASMetric* m, bool* variablesOnMetric)
     {
         bool metricDependsOnDuration = false;
@@ -770,11 +822,13 @@ namespace grstaps
         return metricDependsOnDuration;
     }
 
-// Computes the cost of the action according to the metric (if possible)
-// The cost of an action cannot be computed in the following cases:
-// * The duration of the action depends on the state (numeric value of one or more variables) and the metric depends on the plan duration.
-// * A numeric variable (e.g. fuel-used) is modified through the action, and this change of value depends on the value of another numeric
-//   variable in the state (e.g. temperature), and the numeric variable (fuel-used) is used in the metric.
+    // Computes the cost of the action according to the metric (if possible)
+    // The cost of an action cannot be computed in the following cases:
+    // * The duration of the action depends on the state (numeric value of one or more variables) and the metric depends
+    // on the plan duration.
+    // * A numeric variable (e.g. fuel-used) is modified through the action, and this change of value depends on the
+    // value of another numeric
+    //   variable in the state (e.g. temperature), and the numeric variable (fuel-used) is used in the metric.
     void SASTask::computeActionCost(SASAction* a, bool* variablesOnMetric)
     {
         a->fixedDuration = true;
@@ -791,7 +845,7 @@ namespace grstaps
             for(unsigned int i = 0; i < a->duration.size(); i++)
             {
                 a->fixedDurationValue.push_back(computeFixedExpression(&(a->duration[i].exp)));
-                //cout << "Duration of " << a->name << " is " << a->fixedDurationValue[i] << endl;
+                // cout << "Duration of " << a->name << " is " << a->fixedDurationValue[i] << endl;
             }
         }
         a->fixedCost = a->fixedDuration || !metricDependsOnDuration;
@@ -818,18 +872,17 @@ namespace grstaps
                 if(a->fixedCost)
                 {
                     a->fixedCostValue = computeActionCost(a, numInitialState, 0);
-                    //cout << " * Fixed cost is " << a->fixedCostValue << endl;
+                    // cout << " * Fixed cost is " << a->fixedCostValue << endl;
                 }
             }
         }
     }
 
-// Computes the cost of aplying an action in a given state
+    // Computes the cost of aplying an action in a given state
     float SASTask::computeActionCost(SASAction* a, float* numState, float makespan)
     {
-        float startMetricValue = evaluateMetric(&metric,
-                                                numState,
-                                                makespan), endMetricValue, dur = a->fixedDurationValue[0];
+        float startMetricValue = evaluateMetric(&metric, numState, makespan), endMetricValue,
+              dur              = a->fixedDurationValue[0];
         if(a->startNumEff.empty() && a->endNumEff.empty())
         {
             endMetricValue = evaluateMetric(&metric, numState, makespan + dur);
@@ -837,7 +890,7 @@ namespace grstaps
         else
         {
             unsigned int numV = numVariables.size();
-            float* newState = new float[numV];
+            float* newState   = new float[numV];
             for(unsigned int i = 0; i < numV; i++)
             {
                 newState[i] = numState[i];
@@ -856,7 +909,7 @@ namespace grstaps
         return endMetricValue - startMetricValue;
     }
 
-// Updates the numeric state through the given action effect
+    // Updates the numeric state through the given action effect
     void SASTask::updateNumericState(float* s, SASNumericEffect* e, float duration)
     {
         float v = evaluateNumericExpression(&(e->exp), s, duration);
@@ -881,7 +934,7 @@ namespace grstaps
         }
     }
 
-// Computes the duration of an action
+    // Computes the duration of an action
     float SASTask::getActionDuration(SASAction* a, float* s) const
     {
         if(a->duration.size() > 1)
@@ -916,12 +969,12 @@ namespace grstaps
         }
     }
 
-// Checks if a numeric condition holds in the given numeric state
+    // Checks if a numeric condition holds in the given numeric state
     bool SASTask::holdsNumericCondition(SASNumericCondition& cond, float* s, float duration) const
     {
         float v1 = evaluateNumericExpression(&(cond.terms[0]), s, duration);
         float v2 = evaluateNumericExpression(&(cond.terms[1]), s, duration);
-        //cout << "Condition: " << v1 << " " << cond.comp << " " << v2 << endl;
+        // cout << "Condition: " << v1 << " " << cond.comp << " " << v2 << endl;
         switch(cond.comp)
         {
             case '=':
@@ -940,14 +993,14 @@ namespace grstaps
         return false;
     }
 
-// Evaluates a numeric expression in a given state and with the given action duration
+    // Evaluates a numeric expression in a given state and with the given action duration
     float SASTask::evaluateNumericExpression(const SASNumericExpression* e, float* s, float duration) const
     {
-        if(e->type == 'N') // NUMBER
+        if(e->type == 'N')  // NUMBER
         {
             return e->value;
         }
-        if(e->type == 'V') // VAR
+        if(e->type == 'V')  // VAR
         {
             return s[e->var];
         }
@@ -967,22 +1020,22 @@ namespace grstaps
             {
                 case '+':
                     res += evaluateNumericExpression(&(e->terms[i]), s, duration);
-                    break;    // SUM
+                    break;  // SUM
                 case '-':
                     res -= evaluateNumericExpression(&(e->terms[i]), s, duration);
-                    break;    // SUB
+                    break;  // SUB
                 case '*':
                     res *= evaluateNumericExpression(&(e->terms[i]), s, duration);
-                    break;    // MUL
+                    break;  // MUL
                 case '/':
                     res /= evaluateNumericExpression(&(e->terms[i]), s, duration);
-                    break;    // DIV
+                    break;  // DIV
             }
         }
         return res;
     }
 
-// Calculates the metric cost in the given state and with the given plan duration
+    // Calculates the metric cost in the given state and with the given plan duration
     float SASTask::evaluateMetric(SASMetric* m, float* numState, float makespan)
     {
         switch(m->type)
@@ -998,8 +1051,7 @@ namespace grstaps
             case '+':
             case '-':
             case '*':
-            case '/':
-            {
+            case '/': {
                 float v = evaluateMetric(&(m->terms[0]), numState, makespan);
                 if(m->terms.size() == 1)
                 {
@@ -1030,14 +1082,14 @@ namespace grstaps
                     return v;
                 }
             }
-                break;
+            break;
             default:
                 std::cout << "Metric type not supported yet. Method SASTask::evaluateMetric." << std::endl;
                 exit(1);
         }
     }
 
-// Computes the value of a non-variable expression (that doesn't depend on the value of numeric variables)
+    // Computes the value of a non-variable expression (that doesn't depend on the value of numeric variables)
     float SASTask::computeFixedExpression(SASNumericExpression* e)
     {
         float res = 0;
@@ -1054,7 +1106,9 @@ namespace grstaps
                 if(e->terms.size() == 1)
                 {
                     if(e->type == '-')
-                    { res = -res; }
+                    {
+                        res = -res;
+                    }
                 }
                 else
                 {
@@ -1088,7 +1142,7 @@ namespace grstaps
         return res;
     }
 
-// Checks if the given expression depends on the state
+    // Checks if the given expression depends on the state
     bool SASTask::checkVariableExpression(SASNumericExpression* e, bool* variablesOnMetric)
     {
         switch(e->type)
@@ -1096,15 +1150,15 @@ namespace grstaps
             case 'V':
                 if(staticNumFunctions != nullptr && staticNumFunctions[e->var])
                 {
-                    return false;                        // Variable is static -> does not depend on the state
+                    return false;  // Variable is static -> does not depend on the state
                 }
                 if(variablesOnMetric == nullptr)
-                {        // Not necessary to check if the variable is used in the metric
+                {  // Not necessary to check if the variable is used in the metric
                     return true;
                 }
                 else
                 {
-                    return variablesOnMetric[e->var];    // Only if the variable is used in the metric
+                    return variablesOnMetric[e->var];  // Only if the variable is used in the metric
                 }
                 break;
             case '+':
@@ -1124,7 +1178,7 @@ namespace grstaps
         }
     }
 
-// Returns a std::string representation of this task
+    // Returns a std::string representation of this task
     std::string SASTask::toString()
     {
         std::string s = "OBJECTS:\n";
@@ -1167,15 +1221,19 @@ namespace grstaps
         {
             s += "METRIC:\n";
             if(metricType == '<')
-            { s += "MINIMIZE "; }
+            {
+                s += "MINIMIZE ";
+            }
             else
-            { s += "MAXIMIZE "; }
+            {
+                s += "MAXIMIZE ";
+            }
             s += toStringMetric(&metric);
         }
         return s;
     }
 
-// Returns a std::string representation of this action
+    // Returns a std::string representation of this action
     std::string SASTask::toStringAction(SASAction& a)
     {
         std::string s = "ACTION " + a.name + "\n";
@@ -1230,24 +1288,26 @@ namespace grstaps
         return s;
     }
 
-// Returns a std::string representation of this condition
+    // Returns a std::string representation of this condition
     std::string SASTask::toStringCondition(SASCondition& c)
     {
         return "(= " + variables[c.var].name + " " + values[c.value].name + ")";
     }
 
-// Returns a std::string representation of this preference
+    // Returns a std::string representation of this preference
     std::string SASTask::toStringPreference(SASPreference* pref)
     {
         return "preference " + preferenceNames[pref->index] + " " + toStringGoalDescription(&(pref->preference));
     }
 
-// Returns a std::string representation of this goal description
+    // Returns a std::string representation of this goal description
     std::string SASTask::toStringGoalDescription(SASGoalDescription* g)
     {
         std::string s = "(" + toStringTime(g->time);
         if(g->time != 'N')
-        { s += " ("; }
+        {
+            s += " (";
+        }
         switch(g->type)
         {
             case 'V':
@@ -1257,11 +1317,17 @@ namespace grstaps
             case '|':
             case '!':
                 if(g->type == '&')
-                { s += "and"; }
+                {
+                    s += "and";
+                }
                 else if(g->type == '|')
-                { s += "or"; }
+                {
+                    s += "or";
+                }
                 else
-                { s += "not"; }
+                {
+                    s += "not";
+                }
                 for(unsigned int i = 0; i < g->terms.size(); i++)
                 {
                     s += " " + toStringGoalDescription(&(g->terms[i]));
@@ -1275,11 +1341,13 @@ namespace grstaps
                 }
         }
         if(g->time != 'N')
-        { s += ")"; }
+        {
+            s += ")";
+        }
         return s + ")";
     }
 
-// Returns a std::string representation of this constraint
+    // Returns a std::string representation of this constraint
     std::string SASTask::toStringConstraint(SASConstraint* c)
     {
         std::string s = "(";
@@ -1322,9 +1390,8 @@ namespace grstaps
                      toStringGoalDescription(&(c->goal[1]));
                 break;
             case 'T':
-                s +=
-                    "always-within " + std::to_string(c->time[0]) + " " + toStringGoalDescription(&(c->goal[0])) + " " +
-                    toStringGoalDescription(&(c->goal[1]));
+                s += "always-within " + std::to_string(c->time[0]) + " " + toStringGoalDescription(&(c->goal[0])) +
+                     " " + toStringGoalDescription(&(c->goal[1]));
                 break;
             case 'D':
                 s += "hold-during " + std::to_string(c->time[0]) + " " + std::to_string(c->time[1]) + " " +
@@ -1337,7 +1404,7 @@ namespace grstaps
         return s + ")";
     }
 
-// Returns a std::string representation of the metric
+    // Returns a std::string representation of the metric
     std::string SASTask::toStringMetric(SASMetric* m)
     {
         std::string s = "";
@@ -1422,4 +1489,4 @@ namespace grstaps
         goalDeadlines.back().goals.push_back(goal);
     }
 
-}
+}  // namespace grstaps

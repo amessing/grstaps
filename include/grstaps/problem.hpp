@@ -46,7 +46,7 @@ namespace grstaps
         using RequirementsVector = std::vector<float>;
 
         Problem();
-        void init(char* domain, char* problem, const char* parameters);
+        void init(const char* domain, const char* problem, const char* parameters, const char* map_file);
         void configureActions(std::function<void(const std::vector<SASAction>&, Problem*)> configure_function);
         void setLocations(const std::vector<Location>& locations);
         void setActionLocationMap(
@@ -73,6 +73,8 @@ namespace grstaps
         const nlohmann::json& config() const;
         SASTask* task();
 
+        void writeMap(const std::string& folder);
+
         robin_hood::unordered_map<std::string, int> actionToRequirements;  //!< Unordered_map to the graphs edges
 
         std::vector<RequirementsVector> actionRequirements;
@@ -84,13 +86,15 @@ namespace grstaps
         float mp_min;
 
        protected:
+        std::vector<b2PolygonShape> convertBuildingsAndStreetsToPolygons(const nlohmann::json& buildings, const nlohmann::json& streets);
+
         std::vector<Location> m_locations;  //!< coordinates and name of location
         std::map<std::string, std::pair<unsigned int, unsigned int>>
             m_action_location_map;                       // mapping of actions to their start and end locations
         std::vector<TraitVector> m_robot_traits;         //!< List of vectors of robot traits
         std::vector<unsigned int> m_starting_locations;  //!< List of the starting location of the robots
         SASTask* m_task;                                 // A SAS Task for the Task planner
-        std::vector<std::vector<b2PolygonShape>> m_obstacles;         //!< Obstacles in the map
+        std::vector<std::vector<b2PolygonShape>> m_map;         //!< Obstacles in the map
         nlohmann::json m_config;
     };
 }  // namespace grstaps
