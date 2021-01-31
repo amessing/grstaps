@@ -76,4 +76,4 @@ namespace grstaps
     };
 }
 
-#endif GRSTAPS_SOLVER_BASE_HPP
+#endif // GRSTAPS_SOLVER_BASE_HPP

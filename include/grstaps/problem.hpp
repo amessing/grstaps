@@ -26,6 +26,7 @@
 // external
 #include <../lib/unordered_map/robin_hood.h>
 #include <box2d/b2_polygon_shape.h>
+#include <clipper/clipper.hpp>
 #include <nlohmann/json.hpp>
 
 // local
@@ -69,6 +70,7 @@ namespace grstaps
         const TraitVector& robotTrait(uint i) const;
         const SASTask* task() const;
         const std::vector<std::vector<b2PolygonShape>> obstacles() const;
+        const std::vector<ClipperLib2::Paths>& map() const;
         const std::vector<unsigned int>& startingLocations() const;
         const nlohmann::json& config() const;
         SASTask* task();
@@ -86,7 +88,8 @@ namespace grstaps
         float mp_min;
 
        protected:
-        std::vector<b2PolygonShape> convertBuildingsAndStreetsToPolygons(const nlohmann::json& buildings, const nlohmann::json& streets);
+        std::vector<b2PolygonShape> convertBuildingsAndStreetsToPolygons1(const nlohmann::json& buildings, const nlohmann::json& streets);
+        ClipperLib2::Paths convertBuildingsAndStreetsToPolygons2(const nlohmann::json& buildings, const nlohmann::json& streets);
 
         std::vector<Location> m_locations;  //!< coordinates and name of location
         std::map<std::string, std::pair<unsigned int, unsigned int>>
@@ -94,7 +97,8 @@ namespace grstaps
         std::vector<TraitVector> m_robot_traits;         //!< List of vectors of robot traits
         std::vector<unsigned int> m_starting_locations;  //!< List of the starting location of the robots
         SASTask* m_task;                                 // A SAS Task for the Task planner
-        std::vector<std::vector<b2PolygonShape>> m_map;         //!< Obstacles in the map
+        std::vector<std::vector<b2PolygonShape>> m_map1;         //!< Obstacles in the map
+        std::vector<ClipperLib2::Paths> m_map2;
         nlohmann::json m_config;
     };
 }  // namespace grstaps

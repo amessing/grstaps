@@ -271,10 +271,16 @@ class ProblemGenerator:
             'robot_traits': [],
             'robot_start_locations': [],
             # Trait Requirements
-            'moveSurvivor_trait_requirements':      [0, 0.1, 5, 0, 0],
-            'exstinguishFire_trait_requirements':   [0, 0.1, 0, 1, 0],
-            'clearRubble_trait_requirements':       [0, 0.1, 2, 0, 1],
-            'repairBuilding_trait_requirements':    [0, 0.1, 0, 0, 9],
+            'moveSurvivor_trait_requirements':       [0, 0.1, 5, 0, 0],
+            'exstinguishFire_trait_requirements':    [0, 0.1, 0, 1, 0],
+            'exstinguishFire2_trait_requirements':   [0, 0.1, 0, 1, 0],
+            'exstinguishFire3_trait_requirements':   [0, 0.1, 0, 1, 0],
+            'clearRubble_trait_requirements':        [0, 0.1, 2, 0, 1],
+            'clearRubble2_trait_requirements':       [0, 0.1, 4, 0, 1],
+            'clearRubble3_trait_requirements':       [0, 0.1, 6, 0, 1],
+            'repairBuilding_trait_requirements':     [0, 0.1, 0, 0, 9],
+            'repairBuilding2_trait_requirements':    [0, 0.1, 0, 0, 18],
+            'repairBuilding3_trait_requirements':    [0, 0.1, 0, 0, 27],
             # Grounded Actions
             'grounded_actions': [],
             'actions_trait_requirements': [],
@@ -325,6 +331,14 @@ class ProblemGenerator:
                 config['grounded_actions'].append(f'clearrubble {street.name}')
                 config['actions_trait_requirements'].append(config['clearRubble_trait_requirements'])
                 config['actions_start_end'].append([location_index, location_index])
+
+                config['grounded_actions'].append(f'clearrubble2 {street.name}')
+                config['actions_trait_requirements'].append(config['clearRubble2_trait_requirements'])
+                config['actions_start_end'].append([location_index, location_index])
+
+                config['grounded_actions'].append(f'clearrubble3 {street.name}')
+                config['actions_trait_requirements'].append(config['clearRubble3_trait_requirements'])
+                config['actions_start_end'].append([location_index, location_index])
             location_index += 1
         for building in lm.buildings:
             if building.survivor is not None:
@@ -339,15 +353,47 @@ class ProblemGenerator:
                 config['actions_trait_requirements'].append(config['exstinguishFire_trait_requirements'])
                 config['actions_trait_requirements'][-1][3] = water
                 config['actions_start_end'].append([fire_station_index, location_index])
+
+                # Put out fire 2
+                config['grounded_actions'].append(f'exstinguishfire2 {building.name}')
+                config['actions_trait_requirements'].append(config['exstinguishFire2_trait_requirements'])
+                config['actions_trait_requirements'][-1][3] = water * 2
+                config['actions_start_end'].append([fire_station_index, location_index])
+
+                # Put out fire 3
+                config['grounded_actions'].append(f'exstinguishfire3 {building.name}')
+                config['actions_trait_requirements'].append(config['exstinguishFire3_trait_requirements'])
+                config['actions_trait_requirements'][-1][3] = water * 3
+                config['actions_start_end'].append([fire_station_index, location_index])
             if building.rubble:
                 # Clear rubble
                 config['grounded_actions'].append(f'clearrubble {building.name}')
                 config['actions_trait_requirements'].append(config['clearRubble_trait_requirements'])
                 config['actions_start_end'].append([location_index, location_index])
+
+                # Clear rubble2
+                config['grounded_actions'].append(f'clearrubble2 {building.name}')
+                config['actions_trait_requirements'].append(config['clearRubble2_trait_requirements'])
+                config['actions_start_end'].append([location_index, location_index])
+
+                # Clear rubble3
+                config['grounded_actions'].append(f'clearrubble3 {building.name}')
+                config['actions_trait_requirements'].append(config['clearRubble3_trait_requirements'])
+                config['actions_start_end'].append([location_index, location_index])
             if building.fire or building.rubble:
                 # Repair building
                 config['grounded_actions'].append(f'repairbuilding {building.name}')
                 config['actions_trait_requirements'].append(config['repairBuilding_trait_requirements'])
+                config['actions_start_end'].append([location_index, location_index])
+
+                # Repair building 2
+                config['grounded_actions'].append(f'repairbuilding2 {building.name}')
+                config['actions_trait_requirements'].append(config['repairBuilding2_trait_requirements'])
+                config['actions_start_end'].append([location_index, location_index])
+
+                # Repair building 3
+                config['grounded_actions'].append(f'repairbuilding3 {building.name}')
+                config['actions_trait_requirements'].append(config['repairBuilding3_trait_requirements'])
                 config['actions_start_end'].append([location_index, location_index])
             location_index += 1
         
@@ -365,11 +411,11 @@ def main():
             'num_fire_trucks_aerial': problem_nr + 1,
             'num_cranes_ground': problem_nr + 1,
             'num_cranes_aerial': problem_nr + 1,
-            'num_survivors': 2,
+            'num_survivors': 10,
             'percent_survivors_on_street': 0.5,
-            'num_fires': 2,
+            'num_fires': 5,
             'max_water': 3,
-            'num_rubble': 2,
+            'num_rubble': 5,
             'percent_rubble_on_street': 0.5
         }
 

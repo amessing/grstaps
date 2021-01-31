@@ -59,6 +59,7 @@ CMakeLists.txt.user
 # CLion generated files
 .idea/
 cmake-build-debug/
+cmake-build-release/
 
 # Build folders
 build/

@@ -26,12 +26,14 @@
 
 // external
 #include <box2d/b2_polygon_shape.h>
+#include <clipper/clipper.hpp>
 #include <ompl/base/Planner.h>
 #include <ompl/base/SpaceInformation.h>
 #include <ompl/base/StateSpace.h>
 
 // local
 #include "grstaps/location.hpp"
+#include "grstaps/timer.hpp"
 
 namespace grstaps
 {
@@ -54,6 +56,8 @@ namespace grstaps
          * \param boundary_max The maximum value for the x or y axes
          */
         void setMap(const std::vector<b2PolygonShape>& obstacles, float boundary_min, float boundary_max);
+
+        void setMap(const ClipperLib2::Paths& map, float boundary_min, float boundary_max);
 
         /**
          * Sets how long a query can run
@@ -82,6 +86,9 @@ namespace grstaps
 
         std::tuple<bool, float, std::vector<std::pair<float, float>>> getWaypoints(unsigned int from, unsigned int to);
 
+        //! \returns The total time spent motion planning
+        float getTotalTime() const;
+
         std::vector<Location> m_locations;
        private:
         bool waypointQuery(unsigned int from, unsigned int to, ompl::base::ProblemDefinitionPtr problem_def);
@@ -93,6 +100,7 @@ namespace grstaps
         ompl::base::SpaceInformationPtr
             m_space_information;  //!< Information about the space (includes validity checker)
         std::mutex m_mutex;
+        Timer m_timer;
 
         std::map<std::pair<unsigned int, unsigned int>, std::tuple<bool, float, std::vector<std::pair<float, float>>>> m_memory;
     };

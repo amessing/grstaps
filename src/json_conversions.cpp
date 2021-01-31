@@ -32,3 +32,17 @@ void to_json(nlohmann::json& j, const b2PolygonShape& p)
     }
     j = vertices;
 }
+
+namespace ClipperLib2
+{
+    void from_json(const nlohmann::json& j, ClipperLib2::IntPoint& p)
+    {
+        p.X = j["x"];
+        p.Y = j["y"];
+    }
+    void to_json(nlohmann::json& j, const ClipperLib2::IntPoint& p)
+    {
+        j["x"] = p.X;
+        j["y"] = p.Y;
+    }
+}

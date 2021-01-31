@@ -33,8 +33,7 @@ namespace grstaps
          * \returns the solution if one can be found
          */
         std::shared_ptr<Solution> solve(Problem& problem) override;
-
     };
 }
 
-#endif GRSTAPS_SOLVER_SINGLE_THREADED_HPP
+#endif // GRSTAPS_SOLVER_SINGLE_THREADED_HPP

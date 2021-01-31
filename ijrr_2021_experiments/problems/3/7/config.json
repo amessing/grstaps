@@ -86,7 +86,7 @@
             "is_building": false,
             "survivor": null,
             "fire": false,
-            "rubble": false
+            "rubble": true
         },
         {
             "name": "street8",
@@ -119,7 +119,7 @@
             "is_building": false,
             "survivor": null,
             "fire": false,
-            "rubble": false
+            "rubble": true
         },
         {
             "name": "street11",
@@ -150,7 +150,7 @@
                 "y": 21.625175533840025
             },
             "is_building": false,
-            "survivor": null,
+            "survivor": 1,
             "fire": false,
             "rubble": false
         },
@@ -227,7 +227,7 @@
                 "y": 45.20338983050848
             },
             "is_building": false,
-            "survivor": null,
+            "survivor": 2,
             "fire": false,
             "rubble": false
         },
@@ -458,7 +458,7 @@
                 "y": 56.5018315018315
             },
             "is_building": false,
-            "survivor": null,
+            "survivor": 3,
             "fire": false,
             "rubble": false
         },
@@ -502,7 +502,7 @@
                 "y": 4.856232559042129
             },
             "is_building": false,
-            "survivor": null,
+            "survivor": 4,
             "fire": false,
             "rubble": false
         },
@@ -524,7 +524,7 @@
                 "y": 7.103992834580828
             },
             "is_building": false,
-            "survivor": null,
+            "survivor": 0,
             "fire": false,
             "rubble": false
         },
@@ -601,7 +601,7 @@
                 "y": -0.11095111111111113
             },
             "is_building": false,
-            "survivor": 0,
+            "survivor": null,
             "fire": false,
             "rubble": false
         },
@@ -625,7 +625,7 @@
             "is_building": false,
             "survivor": null,
             "fire": false,
-            "rubble": true
+            "rubble": false
         },
         {
             "name": "street57",
@@ -660,7 +660,7 @@
             "is_building": true,
             "survivor": null,
             "fire": false,
-            "rubble": false
+            "rubble": true
         },
         {
             "name": "building2",
@@ -682,7 +682,7 @@
             "is_building": true,
             "survivor": null,
             "fire": false,
-            "rubble": false
+            "rubble": true
         },
         {
             "name": "building4",
@@ -707,13 +707,24 @@
             "rubble": false
         },
         {
+            "name": "building6",
+            "coord": {
+                "x": 90.0,
+                "y": 31.5
+            },
+            "is_building": true,
+            "survivor": 5,
+            "fire": false,
+            "rubble": false
+        },
+        {
             "name": "building7",
             "coord": {
                 "x": 90.0,
                 "y": 25.5
             },
             "is_building": true,
-            "survivor": 1,
+            "survivor": null,
             "fire": false,
             "rubble": false
         },
@@ -748,7 +759,18 @@
             "is_building": true,
             "survivor": null,
             "fire": false,
-            "rubble": true
+            "rubble": false
+        },
+        {
+            "name": "building11",
+            "coord": {
+                "x": 90.0,
+                "y": 43.5
+            },
+            "is_building": true,
+            "survivor": null,
+            "fire": false,
+            "rubble": false
         },
         {
             "name": "building12",
@@ -768,8 +790,8 @@
                 "y": 80.10144927536231
             },
             "is_building": true,
-            "survivor": null,
-            "fire": false,
+            "survivor": 9,
+            "fire": true,
             "rubble": false
         },
         {
@@ -779,7 +801,7 @@
                 "y": 73.5
             },
             "is_building": true,
-            "survivor": null,
+            "survivor": 8,
             "fire": false,
             "rubble": false
         },
@@ -791,7 +813,7 @@
             },
             "is_building": true,
             "survivor": null,
-            "fire": false,
+            "fire": true,
             "rubble": false
         },
         {
@@ -813,7 +835,7 @@
             },
             "is_building": true,
             "survivor": null,
-            "fire": false,
+            "fire": true,
             "rubble": false
         },
         {
@@ -824,7 +846,7 @@
             },
             "is_building": true,
             "survivor": null,
-            "fire": true,
+            "fire": false,
             "rubble": false
         },
         {
@@ -846,7 +868,7 @@
             },
             "is_building": true,
             "survivor": null,
-            "fire": false,
+            "fire": true,
             "rubble": false
         },
         {
@@ -905,17 +927,6 @@
             "rubble": false
         },
         {
-            "name": "building26",
-            "coord": {
-                "x": 120.72727272727273,
-                "y": 62.72727272727273
-            },
-            "is_building": true,
-            "survivor": null,
-            "fire": false,
-            "rubble": false
-        },
-        {
             "name": "building27",
             "coord": {
                 "x": 101.64623233229862,
@@ -933,8 +944,8 @@
                 "y": 110.99106340489264
             },
             "is_building": true,
-            "survivor": null,
-            "fire": true,
+            "survivor": 6,
+            "fire": false,
             "rubble": false
         },
         {
@@ -960,15 +971,15 @@
             "rubble": false
         },
         {
-            "name": "building32",
+            "name": "building31",
             "coord": {
-                "x": 15.0,
-                "y": -15.0
+                "x": 12.666666666666666,
+                "y": 71.8695652173913
             },
             "is_building": true,
             "survivor": null,
             "fire": false,
-            "rubble": false
+            "rubble": true
         },
         {
             "name": "building33",
@@ -988,7 +999,7 @@
                 "y": 29.999999999999996
             },
             "is_building": true,
-            "survivor": null,
+            "survivor": 7,
             "fire": false,
             "rubble": false
         },
@@ -1000,56 +1011,45 @@
             },
             "is_building": true,
             "survivor": null,
-            "fire": false,
-            "rubble": false
-        },
-        {
-            "name": "building36",
-            "coord": {
-                "x": 40.0,
-                "y": 15.369400192727278
-            },
-            "is_building": true,
-            "survivor": null,
-            "fire": false,
+            "fire": true,
             "rubble": false
         }
     ],
     "hospital": {
         "name": "hospital",
         "coord": {
-            "x": 90.0,
-            "y": 31.5
+            "x": 40.0,
+            "y": 15.369400192727278
         },
         "is_building": true,
         "survivor": null,
         "fire": false,
         "rubble": false,
-        "original_name": "building6"
+        "original_name": "building36"
     },
     "fire_station": {
         "name": "fire_station",
         "coord": {
-            "x": 90.0,
-            "y": 43.5
+            "x": 120.72727272727273,
+            "y": 62.72727272727273
         },
         "is_building": true,
         "survivor": null,
         "fire": false,
         "rubble": false,
-        "original_name": "building11"
+        "original_name": "building26"
     },
     "construction_company": {
         "name": "construction_company",
         "coord": {
-            "x": 12.666666666666666,
-            "y": 71.8695652173913
+            "x": 15.0,
+            "y": -15.0
         },
         "is_building": true,
         "survivor": null,
         "fire": false,
         "rubble": false,
-        "original_name": "building31"
+        "original_name": "building32"
     },
     "ambulance_traits": [
         0,
@@ -1285,13 +1285,41 @@
         0,
         0.1,
         0,
-        2,
+        3,
+        0
+    ],
+    "exstinguishFire2_trait_requirements": [
+        0,
+        0.1,
+        0,
+        6,
+        0
+    ],
+    "exstinguishFire3_trait_requirements": [
+        0,
+        0.1,
+        0,
+        9,
         0
     ],
     "clearRubble_trait_requirements": [
         0,
         0.1,
         2,
+        0,
+        1
+    ],
+    "clearRubble2_trait_requirements": [
+        0,
+        0.1,
+        4,
+        0,
+        1
+    ],
+    "clearRubble3_trait_requirements": [
+        0,
+        0.1,
+        6,
         0,
         1
     ],
@@ -1302,21 +1330,160 @@
         0,
         9
     ],
+    "repairBuilding2_trait_requirements": [
+        0,
+        0.1,
+        0,
+        0,
+        18
+    ],
+    "repairBuilding3_trait_requirements": [
+        0,
+        0.1,
+        0,
+        0,
+        27
+    ],
     "grounded_actions": [
-        "movesurvivortohospital survivor0 street54",
-        "clearrubble street56",
-        "movesurvivortohospital survivor1 building7",
-        "clearrubble building10",
-        "repairbuilding building10",
-        "exstinguishfire building18",
-        "repairbuilding building18",
-        "exstinguishfire building28",
-        "repairbuilding building28"
+        "clearrubble street7",
+        "clearrubble2 street7",
+        "clearrubble3 street7",
+        "clearrubble street10",
+        "clearrubble2 street10",
+        "clearrubble3 street10",
+        "movesurvivortohospital survivor1 street13",
+        "movesurvivortohospital survivor2 street20",
+        "movesurvivortohospital survivor3 street41",
+        "movesurvivortohospital survivor4 street45",
+        "movesurvivortohospital survivor0 street47",
+        "clearrubble building1",
+        "clearrubble2 building1",
+        "clearrubble3 building1",
+        "repairbuilding building1",
+        "repairbuilding2 building1",
+        "repairbuilding3 building1",
+        "clearrubble building3",
+        "clearrubble2 building3",
+        "clearrubble3 building3",
+        "repairbuilding building3",
+        "repairbuilding2 building3",
+        "repairbuilding3 building3",
+        "movesurvivortohospital survivor5 building6",
+        "movesurvivortohospital survivor9 building13",
+        "exstinguishfire building13",
+        "exstinguishfire2 building13",
+        "exstinguishfire3 building13",
+        "repairbuilding building13",
+        "repairbuilding2 building13",
+        "repairbuilding3 building13",
+        "movesurvivortohospital survivor8 building14",
+        "exstinguishfire building15",
+        "exstinguishfire2 building15",
+        "exstinguishfire3 building15",
+        "repairbuilding building15",
+        "repairbuilding2 building15",
+        "repairbuilding3 building15",
+        "exstinguishfire building17",
+        "exstinguishfire2 building17",
+        "exstinguishfire3 building17",
+        "repairbuilding building17",
+        "repairbuilding2 building17",
+        "repairbuilding3 building17",
+        "exstinguishfire building20",
+        "exstinguishfire2 building20",
+        "exstinguishfire3 building20",
+        "repairbuilding building20",
+        "repairbuilding2 building20",
+        "repairbuilding3 building20",
+        "movesurvivortohospital survivor6 building28",
+        "clearrubble building31",
+        "clearrubble2 building31",
+        "clearrubble3 building31",
+        "repairbuilding building31",
+        "repairbuilding2 building31",
+        "repairbuilding3 building31",
+        "movesurvivortohospital survivor7 building34",
+        "exstinguishfire building35",
+        "exstinguishfire2 building35",
+        "exstinguishfire3 building35",
+        "repairbuilding building35",
+        "repairbuilding2 building35",
+        "repairbuilding3 building35"
     ],
     "actions_trait_requirements": [
         [
             0,
             0.1,
+            2,
+            0,
+            1
+        ],
+        [
+            0,
+            0.1,
+            4,
+            0,
+            1
+        ],
+        [
+            0,
+            0.1,
+            6,
+            0,
+            1
+        ],
+        [
+            0,
+            0.1,
+            2,
+            0,
+            1
+        ],
+        [
+            0,
+            0.1,
+            4,
+            0,
+            1
+        ],
+        [
+            0,
+            0.1,
+            6,
+            0,
+            1
+        ],
+        [
+            0,
+            0.1,
+            5,
+            0,
+            0
+        ],
+        [
+            0,
+            0.1,
+            5,
+            0,
+            0
+        ],
+        [
+            0,
+            0.1,
+            5,
+            0,
+            0
+        ],
+        [
+            0,
+            0.1,
+            5,
+            0,
+            0
+        ],
+        [
+            0,
+            0.1,
             5,
             0,
             0
@@ -1331,14 +1498,14 @@
         [
             0,
             0.1,
-            5,
+            4,
             0,
-            0
+            1
         ],
         [
             0,
             0.1,
-            2,
+            6,
             0,
             1
         ],
@@ -1353,7 +1520,91 @@
             0,
             0.1,
             0,
+            0,
+            18
+        ],
+        [
+            0,
+            0.1,
+            0,
+            0,
+            27
+        ],
+        [
+            0,
+            0.1,
             2,
+            0,
+            1
+        ],
+        [
+            0,
+            0.1,
+            4,
+            0,
+            1
+        ],
+        [
+            0,
+            0.1,
+            6,
+            0,
+            1
+        ],
+        [
+            0,
+            0.1,
+            0,
+            0,
+            9
+        ],
+        [
+            0,
+            0.1,
+            0,
+            0,
+            18
+        ],
+        [
+            0,
+            0.1,
+            0,
+            0,
+            27
+        ],
+        [
+            0,
+            0.1,
+            5,
+            0,
+            0
+        ],
+        [
+            0,
+            0.1,
+            5,
+            0,
+            0
+        ],
+        [
+            0,
+            0.1,
+            0,
+            3,
+            0
+        ],
+        [
+            0,
+            0.1,
+            0,
+            6,
+            0
+        ],
+        [
+            0,
+            0.1,
+            0,
+            9,
             0
         ],
         [
@@ -1367,7 +1618,42 @@
             0,
             0.1,
             0,
-            2,
+            0,
+            18
+        ],
+        [
+            0,
+            0.1,
+            0,
+            0,
+            27
+        ],
+        [
+            0,
+            0.1,
+            5,
+            0,
+            0
+        ],
+        [
+            0,
+            0.1,
+            0,
+            3,
+            0
+        ],
+        [
+            0,
+            0.1,
+            0,
+            6,
+            0
+        ],
+        [
+            0,
+            0.1,
+            0,
+            9,
             0
         ],
         [
@@ -1376,44 +1662,460 @@
             0,
             0,
             9
+        ],
+        [
+            0,
+            0.1,
+            0,
+            0,
+            18
+        ],
+        [
+            0,
+            0.1,
+            0,
+            0,
+            27
+        ],
+        [
+            0,
+            0.1,
+            0,
+            3,
+            0
+        ],
+        [
+            0,
+            0.1,
+            0,
+            6,
+            0
+        ],
+        [
+            0,
+            0.1,
+            0,
+            9,
+            0
+        ],
+        [
+            0,
+            0.1,
+            0,
+            0,
+            9
+        ],
+        [
+            0,
+            0.1,
+            0,
+            0,
+            18
+        ],
+        [
+            0,
+            0.1,
+            0,
+            0,
+            27
+        ],
+        [
+            0,
+            0.1,
+            0,
+            3,
+            0
+        ],
+        [
+            0,
+            0.1,
+            0,
+            6,
+            0
+        ],
+        [
+            0,
+            0.1,
+            0,
+            9,
+            0
+        ],
+        [
+            0,
+            0.1,
+            0,
+            0,
+            9
+        ],
+        [
+            0,
+            0.1,
+            0,
+            0,
+            18
+        ],
+        [
+            0,
+            0.1,
+            0,
+            0,
+            27
+        ],
+        [
+            0,
+            0.1,
+            5,
+            0,
+            0
+        ],
+        [
+            0,
+            0.1,
+            2,
+            0,
+            1
+        ],
+        [
+            0,
+            0.1,
+            4,
+            0,
+            1
+        ],
+        [
+            0,
+            0.1,
+            6,
+            0,
+            1
+        ],
+        [
+            0,
+            0.1,
+            0,
+            0,
+            9
+        ],
+        [
+            0,
+            0.1,
+            0,
+            0,
+            18
+        ],
+        [
+            0,
+            0.1,
+            0,
+            0,
+            27
+        ],
+        [
+            0,
+            0.1,
+            5,
+            0,
+            0
+        ],
+        [
+            0,
+            0.1,
+            0,
+            3,
+            0
+        ],
+        [
+            0,
+            0.1,
+            0,
+            6,
+            0
+        ],
+        [
+            0,
+            0.1,
+            0,
+            9,
+            0
+        ],
+        [
+            0,
+            0.1,
+            0,
+            0,
+            9
+        ],
+        [
+            0,
+            0.1,
+            0,
+            0,
+            18
+        ],
+        [
+            0,
+            0.1,
+            0,
+            0,
+            27
         ]
     ],
     "actions_start_end": [
         [
-            54,
+            7,
+            7
+        ],
+        [
+            7,
+            7
+        ],
+        [
+            7,
+            7
+        ],
+        [
+            10,
+            10
+        ],
+        [
+            10,
+            10
+        ],
+        [
+            10,
+            10
+        ],
+        [
+            13,
             92
         ],
         [
-            56,
-            56
+            20,
+            92
+        ],
+        [
+            41,
+            92
+        ],
+        [
+            45,
+            92
+        ],
+        [
+            47,
+            92
+        ],
+        [
+            59,
+            59
+        ],
+        [
+            59,
+            59
+        ],
+        [
+            59,
+            59
+        ],
+        [
+            59,
+            59
+        ],
+        [
+            59,
+            59
+        ],
+        [
+            59,
+            59
+        ],
+        [
+            61,
+            61
+        ],
+        [
+            61,
+            61
+        ],
+        [
+            61,
+            61
+        ],
+        [
+            61,
+            61
+        ],
+        [
+            61,
+            61
+        ],
+        [
+            61,
+            61
         ],
         [
             64,
             92
         ],
         [
-            67,
-            67
-        ],
-        [
-            67,
-            67
+            71,
+            92
         ],
         [
             93,
-            74
-        ],
-        [
-            74,
-            74
+            71
         ],
         [
             93,
-            84
+            71
         ],
         [
-            84,
-            84
+            93,
+            71
+        ],
+        [
+            71,
+            71
+        ],
+        [
+            71,
+            71
+        ],
+        [
+            71,
+            71
+        ],
+        [
+            72,
+            92
+        ],
+        [
+            93,
+            73
+        ],
+        [
+            93,
+            73
+        ],
+        [
+            93,
+            73
+        ],
+        [
+            73,
+            73
+        ],
+        [
+            73,
+            73
+        ],
+        [
+            73,
+            73
+        ],
+        [
+            93,
+            75
+        ],
+        [
+            93,
+            75
+        ],
+        [
+            93,
+            75
+        ],
+        [
+            75,
+            75
+        ],
+        [
+            75,
+            75
+        ],
+        [
+            75,
+            75
+        ],
+        [
+            93,
+            78
+        ],
+        [
+            93,
+            78
+        ],
+        [
+            93,
+            78
+        ],
+        [
+            78,
+            78
+        ],
+        [
+            78,
+            78
+        ],
+        [
+            78,
+            78
+        ],
+        [
+            85,
+            92
+        ],
+        [
+            88,
+            88
+        ],
+        [
+            88,
+            88
+        ],
+        [
+            88,
+            88
+        ],
+        [
+            88,
+            88
+        ],
+        [
+            88,
+            88
+        ],
+        [
+            88,
+            88
+        ],
+        [
+            90,
+            92
+        ],
+        [
+            93,
+            91
+        ],
+        [
+            93,
+            91
+        ],
+        [
+            93,
+            91
+        ],
+        [
+            91,
+            91
+        ],
+        [
+            91,
+            91
+        ],
+        [
+            91,
+            91
         ]
     ]
 }

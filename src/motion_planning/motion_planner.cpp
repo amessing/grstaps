@@ -24,8 +24,9 @@
 #include <ompl/geometric/planners/prm/LazyPRMstar.h>
 
 // local
-#include "grstaps/timer.h"
+#include "grstaps/motion_planning/clipper_validity_checker.hpp"
 #include "grstaps/motion_planning/validity_checker.hpp"
+#include "grstaps/timer.hpp"
 
 namespace grstaps
 {
@@ -54,7 +55,7 @@ namespace grstaps
         m_space_information->setup();
 
         // Create the LazyPRMStar planner
-        m_planner = std::make_shared<og::LazyPRMstar>(m_space_information);
+        m_planner = std::make_shared<og::LazyPRM>(m_space_information);
         m_planner->setup();
 
         m_map_set = true;
@@ -86,11 +87,9 @@ namespace grstaps
     std::pair<bool, float> MotionPlanner::query(unsigned int from, unsigned int to)
     {
         assert(from < m_locations.size() && to < m_locations.size());
-        Timer mpTime;
-        mpTime.start();
+        m_timer.start();
         auto rv = getWaypoints(from, to);
-        mpTime.recordSplit(Timer::SplitType::e_mp);
-        mpTime.stop();
+        m_timer.stop();
         return std::make_pair(std::get<0>(rv), std::get<1>(rv));
     }
 
@@ -161,7 +160,7 @@ namespace grstaps
             std::make_shared<ob::PathLengthOptimizationObjective>(m_space_information));
 
         // Clear the previous problem definition
-        std::dynamic_pointer_cast<og::LazyPRMstar>(m_planner)->clearQuery();
+        std::dynamic_pointer_cast<og::LazyPRM>(m_planner)->clearQuery();
         m_planner->setProblemDefinition(problem_def);
 
         ob::PlannerStatus solved = m_planner->solve(m_query_time);
@@ -170,5 +169,29 @@ namespace grstaps
             return true;
         }
         return false;
+    }
+    void MotionPlanner::setMap(const ClipperLib2::Paths& map, float boundary_min, float boundary_max)
+    {
+        std::lock_guard<std::mutex> lock(m_mutex);
+        // Construct the state space in which we are planning: R^2
+        m_space = std::make_shared<ob::RealVectorStateSpace>(2);
+
+        // Set the boundary [min, max]
+        std::dynamic_pointer_cast<ob::RealVectorStateSpace>(m_space)->setBounds(boundary_min, boundary_max);
+
+        // Create the space information
+        m_space_information = std::make_shared<ob::SpaceInformation>(m_space);
+        m_space_information->setStateValidityChecker(std::make_shared<ClipperValidityChecker>(map, m_space_information));
+        m_space_information->setup();
+
+        // Create the LazyPRMStar planner
+        m_planner = std::make_shared<og::LazyPRMstar>(m_space_information);
+        m_planner->setup();
+
+        m_map_set = true;
+    }
+    float MotionPlanner::getTotalTime() const
+    {
+        return m_timer.get();
     }
 }  // namespace grstaps
