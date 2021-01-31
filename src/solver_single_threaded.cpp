@@ -41,7 +41,7 @@ namespace grstaps
         auto motion_planners = setupMotionPlanners(problem);
 
         // Task Allocation
-        taskAllocationToScheduling taToSched(motion_planners, &problem.startingLocations(),problem.longestPath);
+        taskAllocationToScheduling taToSched(motion_planners, &problem.startingLocations(), problem.longestPath);
         bool usingSpecies = false;
         unsigned int talloc_nodes_expanded = 0;
         unsigned int talloc_nodes_visited  = 0;
@@ -57,41 +57,66 @@ namespace grstaps
         auto numSpec     = boost::make_shared<std::vector<int>>(problem.robotTraits().size(), 1);
         auto robotTraits = &problem.robotTraits();
 
-        Timer planTimer;
-        planTimer.start();
+        Timer tp_timer, ta_timer;
+        tp_timer.start();
+        std::map<Plan*, TaskAllocation> plan_to_ta;
 
         while(!task_planner.emptySearchSpace())
         {
             base = task_planner.poll();
+
+            if(base->isSolution())
+            {
+                tp_timer.stop();
+                delete package;
+
+                float mp_time = 0;
+                for(auto mp: *motion_planners)
+                {
+                    mp_time += mp->getTotalTime();
+                }
+
+                TaskAllocation& ta = plan_to_ta[base];
+
+                nlohmann::json metrics = {
+                    {"makespan", ta.getScheduleTime()},
+                    {"num_actions", (*ta.actionDurations).size()},
+                    {"num_tp_nodes_expanded", tplan_nodes_expanded},
+                    {"num_tp_nodes_visited", tplan_nodes_visited},
+                    {"num_tp_nodes_pruned", tplan_nodes_pruned},
+                    {"num_ta_nodes_expanded", talloc_nodes_expanded},
+                    {"num_ta_nodes_visited", talloc_nodes_visited},
+                    {"tp_timer", tp_timer.get()},
+                    {"ta_timer", ta_timer.get()},
+                    {"mp_timer", mp_time}
+                };
+
+                auto m_solution =
+                    std::make_shared<Solution>(std::shared_ptr<Plan>(base),
+                                               std::make_shared<TaskAllocation>(ta),
+                                               metrics);
+
+                return m_solution;
+            }
+
             ++tplan_nodes_expanded;
-            Logger::debug("Expanding plan: {}", base->id);
             std::vector<Plan*> successors = task_planner.getNextSuccessors(base);
             unsigned int num_children     = successors.size();
-
-            std::vector<std::tuple<Plan*, TaskAllocation>> potential_successors;
-
-            // openmp line
+            std::vector<Plan*> valid_successors;
             for(unsigned int i = 0; i < num_children; ++i)
             {
                 auto orderingCon       = boost::make_shared<std::vector<std::vector<int>>>();
                 auto durations         = boost::make_shared<std::vector<float>>();
                 auto noncumTraitCutoff = boost::make_shared<std::vector<std::vector<float>>>();
                 auto goalDistribution  = boost::make_shared<std::vector<std::vector<float>>>();
-                auto  actionLocations = boost::make_shared<std::vector<std::pair<unsigned int, unsigned int>>>();
+                auto actionLocations   = boost::make_shared<std::vector<std::pair<unsigned int, unsigned int>>>();
 
                 Plan* plan = successors[i];
-                setupTaskAllocationParameters(plan,
-                                              problem,
-                                              orderingCon,
-                                              durations,
-                                              noncumTraitCutoff,
-                                              goalDistribution,
-                                              actionLocations);
+                setupTaskAllocationParameters(
+                    plan, problem, orderingCon, durations, noncumTraitCutoff, goalDistribution, actionLocations);
 
                 taToSched.setActionLocations(actionLocations);
-
-                Timer taTime;
-                taTime.start();
+                ta_timer.start();
                 if(isAllocatable(goalDistribution, robotTraits, noncumTraitCutoff, numSpec))
                 {
                     TaskAllocation ta(usingSpecies,
@@ -114,75 +139,30 @@ namespace grstaps
                     graphAllocateAndSchedule.search(isGoal, expander, package);
                     talloc_nodes_expanded += graphAllocateAndSchedule.nodesExpanded;
                     talloc_nodes_visited += graphAllocateAndSchedule.nodesSearched;
-                    taTime.recordSplit(Timer::SplitType::e_ta);
-                    taTime.stop();
+                    ta_timer.stop();
                 }
                 else
                 {
-                    taTime.recordSplit(Timer::SplitType::e_ta);
-                    taTime.stop();
+                    ta_timer.stop();
                     continue;
                 }
 
                 if(package->foundGoal)
                 {
                     //successors[i]->gc = package->finalNode->getData().taToScheduling.sched.getMakeSpan();
-                    potential_successors.push_back({successors[i], package->finalNode->getData()});
+                    plan_to_ta[successors[i]] = package->finalNode->getData();
+                    valid_successors.push_back(successors[i]);
+                }
+                else
+                {
+                    int breakpoint = -1;
                 }
             }
-
-            std::sort(potential_successors.begin(),
-                      potential_successors.end(),
-                      [](std::tuple<Plan*, TaskAllocation> lhs, std::tuple<Plan*, TaskAllocation> rhs) {
-                        return std::get<0>(lhs)->h > std::get<0>(rhs)->h;
-                      });
-            Logger::debug("TA filtered {} out of {}", num_children - potential_successors.size(), num_children);
-            for(unsigned int i = 0; i < potential_successors.size(); ++i)
-            {
-                auto* potential_plan = std::get<0>(potential_successors[i]);
-                if(potential_plan->isSolution())
-                {
-                    planTimer.recordSplit(Timer::SplitType::e_tp);
-                    planTimer.stop();
-                    delete package;
-                    auto potential_ta = std::get<1>(potential_successors[i]);
-
-
-                    nlohmann::json metrics = {
-                        {"makespan", potential_ta.getScheduleTime()},
-                        {"num_actions", (*potential_ta.actionDurations).size()},
-                        {"num_tp_nodes_expanded", tplan_nodes_expanded},
-                        {"num_tp_nodes_visited", tplan_nodes_visited},
-                        {"num_tp_nodes_pruned", tplan_nodes_pruned},
-                        {"num_ta_nodes_expanded", talloc_nodes_expanded},
-                        {"num_ta_nodes_visited", talloc_nodes_visited},
-                        {"timers", planTimer}
-                    };
-
-                    auto m_solution =
-                        std::make_shared<Solution>(std::shared_ptr<Plan>(potential_plan),
-                                                   std::make_shared<TaskAllocation>(potential_ta),
-                                                   metrics);
-
-                    return m_solution;
-                }
-
-                std::vector<Plan*> valid_successors;
-                for(auto it = potential_successors.begin(), end = potential_successors.end(); it != end; ++it)
-                {
-                    valid_successors.push_back(std::move(std::get<0>(*it)));
-                }
-
-                tplan_nodes_pruned += potential_successors.size() - valid_successors.size();
-                tplan_nodes_visited += valid_successors.size();
-                task_planner.update(base, valid_successors);
-            }
+            tplan_nodes_visited += valid_successors.size();
+            task_planner.update(base, valid_successors);
         }
 
-        planTimer.recordSplit(Timer::SplitType::e_tp);
-        planTimer.stop();
-
-        delete package;
+        tp_timer.stop();
         return nullptr;
     }
 }

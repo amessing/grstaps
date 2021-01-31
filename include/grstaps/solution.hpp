@@ -22,7 +22,7 @@
 #include <memory>
 
 #include <grstaps/Task_Allocation/TaskAllocation.h>
-#include <grstaps/timer.h>
+#include <grstaps/timer.hpp>
 
 // Task Allocation
 namespace grstaps

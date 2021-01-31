@@ -1,25 +1,22 @@
 import json
 from matplotlib import pyplot as plt
+from matplotlib import collections as mc
 
-with open('problems/0/0/map.json') as m:
+with open('updated_map.json') as m:
     m_json = json.load(m)
 
 fig, axs = plt.subplots()
-for poly in m_json['buildings']:
-    xs = []
-    ys = []
-    for point in poly:
-        xs.append(point['x'])
-        ys.append(point['y'])
-        axs.fill(xs, ys, 'b')
-for poly in m_json['roads']:
-    xs = []
-    ys = []
-    for point in poly:
-        xs.append(point['x'])
-        ys.append(point['y'])
-        axs.fill(xs, ys, 'r')
-
+lines = []
+for poly in m_json['map']:
+    for i in range(len(poly) - 1):
+        p0 = (poly[i]['x']  * 1E-6, poly[i]['y'] * 1E-6)
+        p1 = (poly[i + 1]['x'] * 1E-6, poly[i + 1]['y'] * 1E-6)
+        lines.append([p0, p1])
+    p0 = (poly[-1]['x'] * 1E-6, poly[-1]['y'] * 1E-6)
+    p1 = (poly[0]['x'] * 1E-6, poly[0]['y'] * 1E-6)
+    lines.append([p0, p1])
+lc = mc.LineCollection(lines, linewidths=2)
+axs.add_collection(lc)
 
 with open('problems/0/0/config.json') as c:
     config = json.load(c)

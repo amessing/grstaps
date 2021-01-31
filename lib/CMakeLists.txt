@@ -17,6 +17,7 @@ if(BUILD_EXE)
 endif(BUILD_EXE)
 
 # Collsion Checking
+add_subdirectory(clipper)
 if(NOT TARGET box2d)
     set(BOX2D_BUILD_TESTBED OFF CACHE INTERNAL "")
     set(BOX2D_BUILD_UNIT_TESTS OFF CACHE INTERNAL "")

@@ -84,7 +84,7 @@ namespace grstaps
  * Macro for creating a custom exception
  */
 #define EXCEPTION(Err)                                                                                                 \
-    class Err : public grstaps::CustomException                                                                          \
+    class Err : public grstaps::CustomException                                                                        \
     {                                                                                                                  \
        public:                                                                                                         \
         template <typename... Args>                                                                                    \
@@ -93,32 +93,32 @@ namespace grstaps
             int line                    = -1,                                                                          \
             const std::string& message  = "",                                                                          \
             Args&&... args)                                                                                            \
-            : grstaps::CustomException(#Err, function, file, line, message, std::forward<Args>(args)...)                 \
+            : grstaps::CustomException(#Err, function, file, line, message, std::forward<Args>(args)...)               \
         {}                                                                                                             \
                                                                                                                        \
         Err(const std::string& message)                                                                                \
-            : grstaps::CustomException(message)                                                                    \
+            : grstaps::CustomException(message)                                                                        \
         {}                                                                                                             \
     };
 
 #ifdef NDEBUG
-#    define ERROR(message, ...)                                                                                        \
-        std::string formatted_message = fmt::format(message, ##__VA_ARGS__);                                           \
+#    define ERROR(message, ...)                                                                                         \
+        std::string formatted_message = fmt::format(message, ##__VA_ARGS__);                                            \
         grstaps::Logger::error("(<CustomException> in {0:s} at {1:s}:{2:d}) {3:s}", E_INFO, formatted_message);          \
         exit(1);
 #    define CUSTOM_ERROR(Err, message, ...)
-        std::string formatted_message = fmt::format(message, ##__VA_ARGS__);                                           \
+        std::string formatted_message = fmt::format(message, ##__VA_ARGS__);                                            \
         grstaps::Logger::error("(<#Err> in {0:s} at {1:s}:{2:d}) {3:s}", E_INFO, formatted_message);                     \
         exit(1);
 #else
-#    define ERROR(message, ...)                                                                                        \
-        std::string formatted_message = fmt::format(message, ##__VA_ARGS__);                                           \
+#    define ERROR(message, ...)                                                                                         \
+        std::string formatted_message = fmt::format(message, ##__VA_ARGS__);                                            \
         std::string error_message = fmt::format("(<CustomException> in {0:s} at {1:s}:{2:d}) {3:s}", E_INFO, formatted_message); \
         grstaps::Logger::error(error_message);                                                                             \
         throw grstaps::CustomException(error_message);
-#    define CUSTOM_ERROR(Err, message, ...)                                                                            \
-        Err err_(E_INFO, message, ##__VA_ARGS__);                                                                      \
-        grstaps::Logger::error(err_.what());                                                                             \
+#    define CUSTOM_ERROR(Err, message, ...)                                                                             \
+        Err err_(E_INFO, message, ##__VA_ARGS__);                                                                       \
+        grstaps::Logger::error(err_.what());                                                                            \
         throw err_;
 #endif
 

@@ -42,12 +42,12 @@ namespace grstaps
         PlannerParameters parameters;
         parameters.domainFileName  = domain_file;
         parameters.problemFileName = problem_file;
-        {
-            parameters.outputFileName    = "problems/0/0/output";
-            parameters.generateMutexFile = true;
-            parameters.generateTrace = true;
-            parameters.generateGroundedDomain = true;
-        }
+//        {
+//            parameters.outputFileName    = "problems/0/0/output";
+//            parameters.generateMutexFile = true;
+//            parameters.generateTrace = true;
+//            parameters.generateGroundedDomain = true;
+//        }
         m_task = Setup::doPreprocess(&parameters);
 
         std::ifstream ifs(parameters_file);
@@ -58,39 +58,38 @@ namespace grstaps
         nlohmann::json map;
         ifs2 >> map;
 
-        // TODO: convert map to b2PolygonShape
-        std::vector<b2PolygonShape> map_internals = convertBuildingsAndStreetsToPolygons(map["buildings"], map["roads"]);
+        // ground
+        m_map2.push_back(convertBuildingsAndStreetsToPolygons2(map["buildings"], map["roads"]));
+
 
         mp_min = std::numeric_limits<float>::max();
         mp_max = std::numeric_limits<float>::min();
         {
-            b2AABB* box = new b2AABB();
-            b2Transform transform;
-            transform.SetIdentity();
-            for(const b2PolygonShape& poly: map_internals)
+
+            for(const ClipperLib2::Path& poly: m_map2[0])
             {
-                poly.ComputeAABB(box, transform, 0);
-                if(box->lowerBound.x < mp_min)
+                for(const ClipperLib2::IntPoint& point: poly)
                 {
-                    mp_min = box->lowerBound.x;
-                }
-                if(box->lowerBound.y < mp_min)
-                {
-                    mp_min = box->lowerBound.y;
-                }
-                if(box->upperBound.x > mp_max)
-                {
-                    mp_max = box->upperBound.x;
-                }
-                if(box->upperBound.y > mp_max)
-                {
-                    mp_max = box->upperBound.y;
+                    mp_min = std::min<float>(static_cast<float>(std::min(point.X, point.Y)), mp_min);
+                    mp_max = std::max<float>(static_cast<float>(std::max(point.X, point.Y)), mp_max);
                 }
             }
             mp_max += 10;
             mp_min -= 10;
-            delete box;
         }
+
+        // Aerial
+        ClipperLib2::Path boundary = {
+            ClipperLib2::IntPoint(mp_min, mp_min),
+            ClipperLib2::IntPoint(mp_min, mp_max),
+            ClipperLib2::IntPoint(mp_max, mp_max),
+            ClipperLib2::IntPoint(mp_max, mp_min)
+        };
+        if(ClipperLib2::Area(boundary) < 0)
+        {
+            std::reverse(boundary.begin(), boundary.end());
+        }
+        m_map2.push_back({boundary});
 
         // TODO: parse locations
         for(const nlohmann::json& j: config["streets"])
@@ -107,18 +106,14 @@ namespace grstaps
 
         // m_locations = config["locations"].get<std::vector<Location>>();
         m_starting_locations = config["robot_start_locations"].get<std::vector<unsigned int>>();
-        m_map                = std::vector<std::vector<b2PolygonShape>>{
-            map_internals,
-            {}
-        };
 
         m_robot_traits = config["robot_traits"].get<std::vector<TraitVector>>();
         speedIndex = config["speed_index"];
         mpIndex = config["mp_index"];
         config["mp_boundary_min"] = mp_min;
         config["mp_boundary_max"] = mp_max;
-        config["mp_query_time"]= 1.0;
-        config["mp_connection_range"] = 0.1;
+        config["mp_query_time"]= 0.1;
+        config["mp_connection_range"] = 1;
         m_config = config;
         setWorstMP();
 
@@ -136,28 +131,28 @@ namespace grstaps
     void Problem::setWorstMP()
     {
         longestPath = 0;
-        for(int i = 0; i < m_map.size(); i++)
+        for(int i = 0; i < m_map1.size(); i++)
         {
             float currentPath = 0;
-            for(int j = 0; j < m_map[i].size(); j++)
+            for(int j = 0; j < m_map1[i].size(); j++)
             {
                 //std::cout << "New" << std::endl;
-                for(int k = 0; k < (m_map[i][j]).m_count; k++)
+                for(int k = 0; k < (m_map1[i][j]).m_count; k++)
                 {
-                    if(k == ((m_map[i][j]).m_count - 1))
+                    if(k == ((m_map1[i][j]).m_count - 1))
                     {
                         float x_squared =
-                            pow((m_map[i][j]).m_vertices[k].x - ((m_map[i][j]).m_vertices[0].x), 2);
+                            pow((m_map1[i][j]).m_vertices[k].x - ((m_map1[i][j]).m_vertices[0].x), 2);
                         float y_squared =
-                            pow((m_map[i][j]).m_vertices[k].y - ((m_map[i][j]).m_vertices[0].y), 2);
+                            pow((m_map1[i][j]).m_vertices[k].y - ((m_map1[i][j]).m_vertices[0].y), 2);
                         currentPath += sqrt(x_squared + y_squared);
                     }
                     else
                     {
                         float x_squared =
-                            pow((m_map[i][j]).m_vertices[k].x - ((m_map[i][j]).m_vertices[k + 1].x), 2);
+                            pow((m_map1[i][j]).m_vertices[k].x - ((m_map1[i][j]).m_vertices[k + 1].x), 2);
                         float y_squared =
-                            pow((m_map[i][j]).m_vertices[k].y - ((m_map[i][j]).m_vertices[k + 1].y), 2);
+                            pow((m_map1[i][j]).m_vertices[k].y - ((m_map1[i][j]).m_vertices[k + 1].y), 2);
                         currentPath += sqrt(x_squared + y_squared);
                     }
                 }
@@ -227,7 +222,7 @@ namespace grstaps
 
     void Problem::setObstacles(const std::vector<std::vector<b2PolygonShape>>& obstacles)
     {
-        m_map = obstacles;
+        m_map1 = obstacles;
     }
 
     void Problem::setConfig(const nlohmann::json& config)
@@ -276,7 +271,7 @@ namespace grstaps
 
     const std::vector<std::vector<b2PolygonShape>> Problem::obstacles() const
     {
-        return m_map;
+        return m_map1;
     }
 
     const std::vector<unsigned int>& Problem::startingLocations() const
@@ -297,8 +292,54 @@ namespace grstaps
         return (q.y - p.y) * (r.x - q.x) - (q.x - p.x) * (r.y - q.y);
     }
 
-    std::vector<b2PolygonShape> Problem::convertBuildingsAndStreetsToPolygons(const nlohmann::json& buildings, const nlohmann::json& streets)
+    void convertToPaths(ClipperLib2::Paths& rv, const std::vector<std::vector<b2Vec2>>& shapes)
     {
+        for(const std::vector<b2Vec2>& shape: shapes)
+        {
+            ClipperLib2::Path polygon;
+            for(const b2Vec2& point: shape)
+            {
+                polygon.push_back(ClipperLib2::IntPoint(point.x * 1E6, point.y * 1E6));
+            }
+
+            // If "hole" flip it
+            const float area = ClipperLib2::Area(polygon);
+            if(area < 0.0)
+            {
+                std::reverse(polygon.begin(), polygon.end());
+            }
+            rv.push_back(polygon);
+        }
+    }
+
+    ClipperLib2::Paths Problem::convertBuildingsAndStreetsToPolygons2(const nlohmann::json& buildings, const nlohmann::json& streets)
+    {
+        ClipperLib2::Paths rv;
+        convertToPaths(rv, buildings.get<std::vector<std::vector<b2Vec2>>>());
+        convertToPaths(rv, streets.get<std::vector<std::vector<b2Vec2>>>());
+
+        // union/smooth out
+        {
+            ClipperLib2::Clipper clipper;
+            clipper.AddPaths(rv, ClipperLib2::ptSubject, true);
+            clipper.Execute(ClipperLib2::ctUnion,
+                            rv,
+                            ClipperLib2::pftNonZero,
+                            ClipperLib2::pftNonZero);
+
+            ClipperLib2::ClipperOffset clipper_offset;
+            clipper_offset.AddPaths(rv, ClipperLib2::jtMiter, ClipperLib2::etClosedPolygon);
+            clipper_offset.Execute(rv, 1E5);
+            clipper_offset.Clear();
+            clipper_offset.AddPaths(rv, ClipperLib2::jtMiter, ClipperLib2::etClosedPolygon);
+            clipper_offset.Execute(rv, -1E5);
+        }
+
+        return rv;
+    }
+    std::vector<b2PolygonShape> Problem::convertBuildingsAndStreetsToPolygons1(const nlohmann::json& buildings, const nlohmann::json& streets)
+    {
+
         std::vector<b2PolygonShape> rv;
         std::vector<std::vector<b2Vec2>> shapes = buildings.get<std::vector<std::vector<b2Vec2>>>();
 
@@ -367,13 +408,20 @@ namespace grstaps
         }
 
         return rv;
+
     }
     void Problem::writeMap(const std::string& folder)
     {
-        nlohmann::json j = m_map[0];
+        nlohmann::json j;
+        j["map"] = m_map2[0];
+        j["locations"] = m_locations;
 
         std::ofstream output;
         output.open(fmt::format("{}/updated_map.json", folder).c_str());
         output << j.dump(4);
+    }
+    const std::vector<ClipperLib2::Paths>& Problem::map() const
+    {
+        return m_map2;
     }
 }  // namespace grstaps

@@ -42,21 +42,21 @@ namespace grstaps
     boost::shared_ptr<std::vector<boost::shared_ptr<MotionPlanner>>> SolverBase::setupMotionPlanners(
         const Problem &problem)
     {
-        const std::vector<std::vector<b2PolygonShape>>& obstacles =  problem.obstacles();
+        const std::vector<ClipperLib2::Paths>& maps =  problem.map();
         const nlohmann::json& config = problem.config();
 
         auto motion_planners = boost::make_shared<std::vector<boost::shared_ptr<MotionPlanner>>>();
-        motion_planners->reserve(obstacles.size());
+        motion_planners->reserve(maps.size());
 
         const float boundary_min      = config["mp_boundary_min"];
         const float boundary_max      = config["mp_boundary_max"];
         const float query_time        = config["mp_query_time"];
         const float connection_range  = config["mp_connection_range"];
 
-        for(int i = 0; i < obstacles.size(); ++i)
+        for(int i = 0; i < maps.size(); ++i)
         {
             auto motion_planner = boost::make_shared<MotionPlanner>();
-            motion_planner->setMap(obstacles[i], boundary_min, boundary_max);
+            motion_planner->setMap(maps[i], boundary_min, boundary_max);
             motion_planner->setLocations(problem.locations());
             motion_planner->setQueryTime(query_time);
             motion_planner->setConnectionRange(connection_range);

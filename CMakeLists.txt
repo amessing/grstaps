@@ -39,6 +39,7 @@ option(BUILD_IJRR "Build Experiments for IJRR 2021" ON)
 
 # Add external libraries
 add_subdirectory(lib)
+find_package(OpenMP)
 
 # Collect header and source files
 file(GLOB_RECURSE ${PROJECT_NAME}_HEADERS
@@ -55,7 +56,7 @@ list(REMOVE_ITEM ${PROJECT_NAME}_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cp
 add_library(_${PROJECT_NAME} ${${PROJECT_NAME}_HEADERS} ${${PROJECT_NAME}_SOURCES})
 set_target_properties(_${PROJECT_NAME} PROPERTIES CXX_STANDARD 17 CXX_STANDARD_REQUIRED YES)
 target_link_libraries(_${PROJECT_NAME} PRIVATE
-        earcut_hpp box2d fmt nlohmann_json ${OMPL_LIBRARIES} spdlog stdc++fs)
+        OpenMP::OpenMP_CXX polyclipping earcut_hpp box2d fmt nlohmann_json ${OMPL_LIBRARIES} spdlog stdc++fs)
 target_include_directories(_${PROJECT_NAME} PUBLIC include PRIVATE ${OMPL_INCLUDE_DIRS})
 target_compile_options(_${PROJECT_NAME} PRIVATE ${_opts})
 

@@ -102,6 +102,7 @@ namespace grstaps
         std::ofstream output;
         output.open(filepath.c_str());
         output << j.dump(4);
+        output.close();
     }
 
     const Plan& Solution::plan() const

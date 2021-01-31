@@ -6,9 +6,9 @@
 #include <vector>
 
 // GRSTAPS
-#include <grstaps/timer.h>
 #include <grstaps/Search/AStarSearch.h>
 #include <grstaps/Task_Allocation/TaskAllocation.h>
+#include <grstaps/timer.hpp>
 
 // Local
 #include "icra_problem_v1.hpp"

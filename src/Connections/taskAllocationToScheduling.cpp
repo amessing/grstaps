@@ -69,11 +69,11 @@ namespace grstaps
             adjustScheduleNonSpeciesSchedule(allocObject);
 
             float rv = addMotionPlanningNonSpeciesSchedule(allocObject);
-            schedTime.recordSplit(Timer::SplitType::e_s);
+            //schedTime.recordSplit(Timer::SplitType::e_s);
             schedTime.stop();
             return rv;
         }
-        schedTime.recordSplit(Timer::SplitType::e_s);
+        //schedTime.recordSplit(Timer::SplitType::e_s);
         schedTime.stop();
         return -1;
     }
