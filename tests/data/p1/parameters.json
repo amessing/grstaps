@@ -1,29 +1,3 @@
-{
-  "robot_traits" : [
-    [0.25, 1, 0],
-    [0.25, 1, 0],
-    [0.25, 1, 0]],
-  "starting_locations": [
-    0,
-    0,
-    0],
-  "speed_index": 1,
-  "mp_index": 2,
-  "locations": [
-    {
-      "type": "source",
-      "x": 0.5,
-      "y": 0.5
-    },
-    {
-      "type": "target",
-      "x": 1.5,
-      "y": 1.5
-    }
-  ],
-  "mp_boundary_min" : 0,
-  "mp_boundary_max" : 2,
-  "mp_query_time": 0.001,
-  "mp_connection_range": 0.1,
-  "obstacles": [[], []]
-}
+version https://git-lfs.github.com/spec/v1
+oid sha256:55af5edd8d0c8213951b7c641205485eb6a18f7fbd244da5b9fa948fa204195a
+size 452

@@ -1,15 +1,3 @@
-(define (domain p4)
-    (:requirements :typing :strips :durative-actions :equality)
-    (:types box location)
-    (:predicates (loc ?b - box ?l - location))
-    
-    (:durative-action move
-        :parameters (?b - box ?from ?to - location)
-        :duration (= ?duration 1)
-        :condition (and (at start (loc ?b ?from))
-                   )
-        :effect (and (at end (loc ?b ?to))
-                     (at start (not (loc ?b ?from)))
-                )
-    )
-)
+version https://git-lfs.github.com/spec/v1
+oid sha256:7c59c75b4bfe7e700e4709ce055bff135827fb18369e16dd3766280a1ca488a4
+size 468

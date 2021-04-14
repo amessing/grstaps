@@ -1,18 +1,3 @@
-(define (problem p3)
-    (:domain p3)
-    (:objects b1 b2 b3 - box
-              l1 l2 - location)
-    (:init
-        (loc b1 l1)
-        (loc b2 l1)
-        (loc b3 l1)
-    )
-    (:goal
-        (and 
-            (loc b1 l2)
-            (loc b2 l2)
-            (loc b3 l2)
-        )
-    )
-    (:metric minimize (total-time))
-)
+version https://git-lfs.github.com/spec/v1
+oid sha256:b36036ecc973a7c089a0d63167e6adfacd2846675d5cbaff8afa40484d3b8787
+size 327
