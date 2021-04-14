@@ -66,13 +66,14 @@ namespace grstaps
                 for(int j = 0; j < motionPlans[i].size(); ++j)
                 {
                     myfile << "Motion Plan " << i << endl
-                           << "Start: " << motionPlans[i][j].first.first << "End: " << motionPlans[i][j].first.second
+                           << "Action Index: " << std::get<0>(motionPlans[i][j]) << endl
+                           << "Start: " << std::get<1>(motionPlans[i][j]).first << "End: " << std::get<1>(motionPlans[i][j]).second
                            << endl
                            << "Waypoints" << endl;
-                    for(int k = 0; k < motionPlans[i][j].second.size(); ++k)
+                    for(int k = 0; k < std::get<2>(motionPlans[i][j]).size(); ++k)
                     {
-                        myfile << "X: " << motionPlans[i][j].second[k].first
-                               << "Y: " << motionPlans[i][j].second[k].second;
+                        myfile << "X: " << std::get<2>(motionPlans[i][j])[k].first
+                               << "Y: " << std::get<2>(motionPlans[i][j])[k].second;
                     }
                 }
                 myfile << endl;

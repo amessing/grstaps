@@ -67,4 +67,66 @@ namespace grstaps
         linearizer.setInitialState(m_initial_state, m_task);
         return linearizer.planToPDDL(p, m_task);
     }
+    float TaskPlanner::getMakespan(Plan* p)
+    {
+        Linearizer linearizer;
+        linearizer.setInitialState(m_initial_state, m_task);
+        linearizer.setCurrentBasePlan(p);
+        linearizer.setCurrentPlan(p);
+        unsigned int numActions = linearizer.basePlanComponents.size();
+        unsigned int numTimeSteps = numActions << 1;
+        double makespan = 0;
+        TState* state = linearizer.linearize(numActions, numTimeSteps, m_task, nullptr);
+        bool lastActionIsGoal = p->action != nullptr && p->action->isGoal;
+        unsigned int last = lastActionIsGoal ? numActions - 1 : numActions;
+        if (state != nullptr) {
+            for (unsigned int i = 1; i < last; ++i)
+            {
+                SASAction* a = linearizer.getAction(i);
+                double endTime = linearizer.time[i << 1] + linearizer.duration[i];
+                if (endTime > makespan)
+                {
+                    makespan = endTime;
+                }
+            }
+            delete state;
+            delete[] linearizer.time;
+            delete[] linearizer.duration;
+        }
+        return makespan;
+    }
+
+    int TaskPlanner::getPlanActions(Plan* p)
+    {
+        Linearizer linearizer;
+        linearizer.setInitialState(m_initial_state, m_task);
+        linearizer.setCurrentBasePlan(p);
+        linearizer.setCurrentPlan(p);
+        unsigned int numActions = linearizer.basePlanComponents.size();
+        unsigned int numTimeSteps = numActions << 1;
+        int numPlanActions = 0;
+        TState* state = linearizer.linearize(numActions, numTimeSteps, m_task, nullptr);
+        bool lastActionIsGoal = p->action != nullptr && p->action->isGoal;
+        unsigned int last = lastActionIsGoal ? numActions - 1 : numActions;
+        if (state != nullptr) {
+            for (unsigned int i = 1; i < last; ++i)
+            {
+                SASAction* a = linearizer.getAction(i);
+                if (a->name[0] != '#') {	// Fictitious actions
+                    numPlanActions++;
+                }
+            }
+            delete state;
+            delete[] linearizer.time;
+            delete[] linearizer.duration;
+        }
+        return numPlanActions;
+    }
+
+    nlohmann::json TaskPlanner::scheduleAsJson(Plan* p, SASTask* task)
+    {
+        Linearizer linearizer;
+        linearizer.setInitialState(m_initial_state, task);
+        return linearizer.scheduleAsJson(p, task);
+    }
 }  // namespace grstaps

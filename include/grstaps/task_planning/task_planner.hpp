@@ -32,6 +32,9 @@ namespace grstaps
         bool emptySearchSpace();
         void writeTrace(std::ostream& f, Plan* p);
         std::string planToPDDL(Plan* p);
+        float getMakespan(Plan* p);
+        int getPlanActions(Plan* p);
+        nlohmann::json scheduleAsJson(Plan* p, SASTask* task);
     };
 }  // namespace grstaps
 

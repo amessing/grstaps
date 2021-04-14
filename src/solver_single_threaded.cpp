@@ -35,6 +35,8 @@ namespace grstaps
         unsigned int tplan_nodes_expanded = 0;
         unsigned int tplan_nodes_visited  = 0;
         unsigned int tplan_nodes_pruned   = 0;
+        float num_branches = 0;
+        float num_times_branched = 0;
         Plan* base;
 
         // Motion Planning
@@ -80,7 +82,9 @@ namespace grstaps
 
                 nlohmann::json metrics = {
                     {"makespan", ta.getScheduleTime()},
+                    {"total_grounded_actions", problem.task()->actions.size()},
                     {"num_actions", (*ta.actionDurations).size()},
+                    {"avg_branching_factor", num_branches / num_times_branched},
                     {"num_tp_nodes_expanded", tplan_nodes_expanded},
                     {"num_tp_nodes_visited", tplan_nodes_visited},
                     {"num_tp_nodes_pruned", tplan_nodes_pruned},
@@ -102,6 +106,7 @@ namespace grstaps
             ++tplan_nodes_expanded;
             std::vector<Plan*> successors = task_planner.getNextSuccessors(base);
             unsigned int num_children     = successors.size();
+            ++num_times_branched;
             std::vector<Plan*> valid_successors;
             for(unsigned int i = 0; i < num_children; ++i)
             {
@@ -158,7 +163,9 @@ namespace grstaps
                     int breakpoint = -1;
                 }
             }
+            tplan_nodes_pruned += successors.size() - valid_successors.size();
             tplan_nodes_visited += valid_successors.size();
+            num_branches += valid_successors.size();
             task_planner.update(base, valid_successors);
         }
 

@@ -378,7 +378,7 @@ namespace grstaps
 
                                 currentLocations[j] = (*m_action_locations)[actionOrder[i]].second;
                                 start_end time      = {sched.stn[i][0], sched.stn[i][0] + travel_time};
-                                single_plan step    = std::make_pair(time, std::get<2>(waypoints));
+                                single_plan step    = std::make_tuple(-1, time, std::get<2>(waypoints));
                                 motionPlans[j].push_back(step);
                             }
                             else
@@ -428,7 +428,7 @@ namespace grstaps
                                 }
                                 */
 
-                                single_plan step = std::make_pair(time, std::get<2>(waypoints));
+                                single_plan step = std::make_tuple(i, time, std::get<2>(waypoints));
                                 motionPlans[j].push_back(step);
                             }
                         }
@@ -437,7 +437,7 @@ namespace grstaps
                         {
                             start_end time   = {sched.stn[i][1] - (*TaskAlloc->actionDurations)[i], sched.stn[i][1]};
                             std::vector<std::pair<float, float>> waypoints = std::vector<std::pair<float, float>>();
-                            single_plan step = std::make_pair(time, waypoints);
+                            single_plan step = std::make_tuple(i, time, waypoints);
                             motionPlans[j].push_back(step);
                             //    return std::pair<bool, vector<agent_motion_plans>>(false, motionPlans);
                         }

@@ -298,7 +298,7 @@ namespace grstaps
                     TValue value   = SASTask::getValueIndex(goal);
                     if(planEffects[v][value].iteration != linearizer.getIteration())
                     {
-                        std::cout << "-";
+                        //std::cout << "-";
                         return false;
                     }
                 }
@@ -473,7 +473,7 @@ namespace grstaps
             int precNumber = pb->currentPrecondition - pb->action->startCond.size() - pb->action->overCond.size();
             pb->openCond.push_back(precNumber);
             pb->currentPrecondition++;
-            std::cout << "Leaving precondition open: " << precNumber << std::endl;
+            //std::cout << "Leaving precondition open: " << precNumber << std::endl;
             fullActionSupportCheck(pb);
             pb->currentPrecondition--;
         }
@@ -487,7 +487,7 @@ namespace grstaps
         if(basePlan->hasOpenConditions())
         {  // If there are open conditions in the base plan, check if they can be solved through the effects of the new
            // action
-            std::cout << "Plan with open conditions" << std::endl;
+            //std::cout << "Plan with open conditions" << std::endl;
             solveBasePlanOpenConditionIfPossible(0, pb);
             return;
         }
@@ -921,24 +921,24 @@ namespace grstaps
     // Solves the threats in the plan
     void Successors::solveThreats(PlanBuilder* pb, std::vector<Threat>* threats)
     {
-        Logger::debug("{} threats remaining", threats->size());
+        //Logger::debug("{} threats remaining", threats->size());
         if(threats->size() == 0)
         {
-            Logger::debug("Generating successor");
+            //Logger::debug("Generating successor");
             checkContradictoryEffects(pb);
         }
         else
         {
             Threat t = threats->back();
             threats->pop_back();
-            Logger::debug("{} --> {} (threatened by {})", t.p1, t.p2, t.tp);
+            //Logger::debug("{} --> {} (threatened by {})", t.p1, t.p2, t.tp);
             if(!linearizer.existOrder(t.tp, t.p1) && !linearizer.existOrder(t.p2, t.tp))
             {
                 // Threat already exists
                 bool promotion, demotion;
                 if(mutexPoints(t.tp, t.p2, t.var, pb))
                 {
-                    Logger::debug("Unsolvable threat");
+                    //Logger::debug("Unsolvable threat");
                     promotion = demotion = false;
                 }
                 else
@@ -949,7 +949,7 @@ namespace grstaps
                 if(promotion && demotion)
                 {
                     // Both choices are possible
-                    Logger::debug("Promotion and demotion valid");
+                    //Logger::debug("Promotion and demotion valid");
                     if(pb->addOrdering(t.p2, t.tp))
                     {
                         solveThreats(pb, threats);
@@ -964,7 +964,7 @@ namespace grstaps
                 else if(demotion)
                 {
                     // Only demotion is possible: p2 -> tp
-                    Logger::debug("Demotion valid: Order {} -> {} added", t.p2, t.tp);
+                    //Logger::debug("Demotion valid: Order {} -> {} added", t.p2, t.tp);
                     if(pb->addOrdering(t.p2, t.tp))
                     {
                         solveThreats(pb, threats);
@@ -974,7 +974,7 @@ namespace grstaps
                 else if(promotion)
                 {
                     // Only promotion is possible: tp -> p1
-                    Logger::debug("Promotion valid: Order {} -> {} added", t.tp, t.p1);
+                    //Logger::debug("Promotion valid: Order {} -> {} added", t.tp, t.p1);
                     if(pb->addOrdering(t.tp, t.p1))
                     {
                         solveThreats(pb, threats);
@@ -989,7 +989,7 @@ namespace grstaps
             }
             else
             {
-                Logger::debug("Not a threat now");
+                //Logger::debug("Not a threat now");
                 solveThreats(pb, threats);
             }
         }
