@@ -226,7 +226,7 @@ class ProblemGenerator:
                     f.write(f'\t\t(underRubble {street.name})\n')
             for building in lm.buildings:
                 if building.rubble:
-                    f.wridef write_pddl_problem_file(self, parent_folder: str, problem_name: str, lm: LocationManager):
+                    f.write(f'\t\t(underRubble {building.name})\n')
         with open(f'{parent_folder}/{problem_name}/problem.pddl', 'w') as f:
             # Write header
             f.write(f'(define (problem ijrr_{problem_name})\n\t(:domain ijrr)\n')
@@ -471,7 +471,7 @@ def main():
 
         pg = ProblemGenerator(config)
         for instance_nr in range(20):
-            pg.generate(f'problems/{problem_nr}', f'{instance_nr}', 'maps/test.json')
+            pg.generate(f'problems_nr/{problem_nr}', f'{instance_nr}', 'maps/test.json')
 
 if  __name__ == "__main__":
     main()

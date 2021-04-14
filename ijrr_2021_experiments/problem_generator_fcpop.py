@@ -91,7 +91,6 @@ class ProblemGenerator:
         self.num_rubble = config.get('num_rubble')
         self.percent_rubble_on_street = config.get('percent_rubble_on_street')
 
-
     def generate(self, parent_folder: str, problem_name: str, map_name: str):
         # Create the folder for the problem
         Path(f'{parent_folder}/{problem_name}').mkdir(parents=True, exist_ok=True)
@@ -100,10 +99,16 @@ class ProblemGenerator:
         lm = self.generate_locations(map_name)
 
         # Copy the domain
-        shutil.copyfile('domain.pddl', f'{parent_folder}/{problem_name}/domain.pddl')
+        shutil.copyfile('domain.pddl', f'{parent_folder}/{problem_name}/domain_grstaps.pddl')
 
         # Write the pddl problem file
-        self.write_pddl_problem_file(parent_folder, problem_name, lm)
+        self.write_pddl_problem_file(parent_folder, f'{problem_name}_grstaps', lm)
+
+        # Copy the domain
+        self.write_fcpop_pddl_domain_file(parent_folder, problem_name, lm)
+
+        # Write the pddl problem file
+        self.write_fcpop_pddl_problem_file(parent_folder, problem_name, lm)
 
         # Write the json config
         self.write_config(parent_folder, problem_name, lm)
@@ -111,76 +116,11 @@ class ProblemGenerator:
         # Copy the map
         shutil.copyfile(map_name, f'{parent_folder}/{problem_name}/map.json')
 
-    def generate_locations(self, map_name: str):
+    def write_fcpop_pddl_domain_file(self, parent_folder: str, problem_name: str, lm: LocationManager):
+        pass
 
-        m = Map.load(map_name)
-        
-        num_streets = len(m.roads)
-        print(f'{num_streets} streets')
-        num_buildings = len(m.buildings)
-        print(f'{num_buildings} buildings')
-
-        lm = LocationManager()
-
-        for i, street in enumerate(m.roads):
-            c = Coord(street.x, street.y)
-            l = Location(f'street{i}', c, False)
-            lm.streets.append(l)
-
-        for i, building in enumerate(m.buildings):
-            c = Coord(building.x, building.y)
-            l = Location(f'building{i}', c, True)
-            lm.buildings.append(l)
-
-        # Set parameters
-        ## Survivors
-        num_survivors_on_street = int(self.num_survivors * self.percent_survivors_on_street)
-        num_survivors_in_buildings = self.num_survivors - num_survivors_on_street
-        ## Rubble
-        num_rubble_on_street = int(self.num_rubble * self.percent_rubble_on_street)
-        num_rubble_in_buildings = self.num_rubble - num_rubble_on_street
-
-        # Add survivors to streets
-        survivor_nr = 0
-        for index in random.choices(range(num_streets), k=num_survivors_on_street):
-            lm.streets[index].survivor = survivor_nr
-            survivor_nr += 1
-
-        # No fire on streets
-
-        # Add rubble to streets
-        for index in random.choices(range(num_streets), k=num_rubble_on_street):
-            lm.streets[index].rubble = True
-
-        # Create specialty buildings (hospital, fire station, construction company)
-        ## Hospital
-        index = random.randrange(num_buildings)
-        original_building = lm.buildings[index]
-        del lm.buildings[index]
-        lm.hospital = SpecialtyBuilding('hospital', original_building.coord, original_building.name)
-        ## Fire Station
-        index = random.randrange(num_buildings - 1)
-        original_building = lm.buildings[index]
-        del lm.buildings[index]
-        lm.fire_station = SpecialtyBuilding('fire_station', original_building.coord, original_building.name)
-        ## Construction Company
-        index = random.randrange(num_buildings - 2)
-        original_building = lm.buildings[index]
-        del lm.buildings[index]
-        lm.construction_company = SpecialtyBuilding('construction_company', original_building.coord, original_building.name)
-
-        # Add survivors to buildings
-        for index in random.choices(range(num_buildings - 3), k=num_survivors_in_buildings):
-            lm.buildings[index].survivor = survivor_nr
-            survivor_nr += 1
-
-        for index in random.choices(range(num_buildings - 3), k=self.num_fires):
-            lm.buildings[index].fire = True
-
-        for index in random.choices(range(num_buildings - 3), k=num_rubble_in_buildings):
-            lm.buildings[index].rubble = True
-
-        return lm
+    def write_fcpop_pddl_problem_file(self, parent_folder: str, problem_name: str, lm: LocationManager):
+        pass
 
     def write_pddl_problem_file(self, parent_folder: str, problem_name: str, lm: LocationManager):
         with open(f'{parent_folder}/{problem_name}/problem.pddl', 'w') as f:
@@ -453,6 +393,78 @@ class ProblemGenerator:
         # original parameters
         with open(f'{parent_folder}/{problem_name}/parameters.json', 'w') as f:
             json.dump(self.config, f, indent=4)
+
+    def generate_locations(self, map_name: str):
+
+        m = Map.load(map_name)
+        
+        num_streets = len(m.roads)
+        print(f'{num_streets} streets')
+        num_buildings = len(m.buildings)
+        print(f'{num_buildings} buildings')
+
+        lm = LocationManager()
+
+        for i, street in enumerate(m.roads):
+            c = Coord(street.x, street.y)
+            l = Location(f'street{i}', c, False)
+            lm.streets.append(l)
+
+        for i, building in enumerate(m.buildings):
+            c = Coord(building.x, building.y)
+            l = Location(f'building{i}', c, True)
+            lm.buildings.append(l)
+
+        # Set parameters
+        ## Survivors
+        num_survivors_on_street = int(self.num_survivors * self.percent_survivors_on_street)
+        num_survivors_in_buildings = self.num_survivors - num_survivors_on_street
+        ## Rubble
+        num_rubble_on_street = int(self.num_rubble * self.percent_rubble_on_street)
+        num_rubble_in_buildings = self.num_rubble - num_rubble_on_street
+
+        # Add survivors to streets
+        survivor_nr = 0
+        for index in random.choices(range(num_streets), k=num_survivors_on_street):
+            lm.streets[index].survivor = survivor_nr
+            survivor_nr += 1
+
+        # No fire on streets
+
+        # Add rubble to streets
+        for index in random.choices(range(num_streets), k=num_rubble_on_street):
+            lm.streets[index].rubble = True
+
+        # Create specialty buildings (hospital, fire station, construction company)
+        ## Hospital
+        index = random.randrange(num_buildings)
+        original_building = lm.buildings[index]
+        del lm.buildings[index]
+        lm.hospital = SpecialtyBuilding('hospital', original_building.coord, original_building.name)
+        ## Fire Station
+        index = random.randrange(num_buildings - 1)
+        original_building = lm.buildings[index]
+        del lm.buildings[index]
+        lm.fire_station = SpecialtyBuilding('fire_station', original_building.coord, original_building.name)
+        ## Construction Company
+        index = random.randrange(num_buildings - 2)
+        original_building = lm.buildings[index]
+        del lm.buildings[index]
+        lm.construction_company = SpecialtyBuilding('construction_company', original_building.coord, original_building.name)
+
+        # Add survivors to buildings
+        for index in random.choices(range(num_buildings - 3), k=num_survivors_in_buildings):
+            lm.buildings[index].survivor = survivor_nr
+            survivor_nr += 1
+
+        for index in random.choices(range(num_buildings - 3), k=self.num_fires):
+            lm.buildings[index].fire = True
+
+        for index in random.choices(range(num_buildings - 3), k=num_rubble_in_buildings):
+            lm.buildings[index].rubble = True
+
+        return lm
+
 def main():
     for problem_nr in range(5):
         config = {

@@ -226,50 +226,6 @@ class ProblemGenerator:
                     f.write(f'\t\t(underRubble {street.name})\n')
             for building in lm.buildings:
                 if building.rubble:
-                    f.wridef write_pddl_problem_file(self, parent_folder: str, problem_name: str, lm: LocationManager):
-        with open(f'{parent_folder}/{problem_name}/problem.pddl', 'w') as f:
-            # Write header
-            f.write(f'(define (problem ijrr_{problem_name})\n\t(:domain ijrr)\n')
-
-            # Write objects
-            f.write('\t(:objects\n\t\t')
-
-            ## Write survivors
-            for i in range(self.num_survivors):
-                f.write(f'survivor{i} ')
-            f.write('- survivor\n\t\t')
-
-            ## Write locations (only the important ones)
-            for street in lm.streets:
-                if street.survivor is not None or street.fire or street.rubble:
-                    f.write(f'{street.name} ')
-            f.write('- street\n\t\t')
-            for building in lm.buildings:
-                if building.survivor is not None or building.fire or building.rubble:
-                    f.write(f'{building.name} ')
-            f.write('- building\n')
-
-            f.write('\t)\n')
-            
-            # Write init
-            f.write('\t(:init\n')
-            ## Survivor initial locations
-            for street in lm.streets:
-                if street.survivor is not None:
-                    f.write(f'\t\t(atLocation survivor{street.survivor} {street.name})\n')
-            for building in lm.buildings:
-                if building.survivor is not None:
-                    f.write(f'\t\t(atLocation survivor{building.survivor} {building.name})\n')
-            ## What is on fire
-            for building in lm.buildings:
-                if building.fire:
-                    f.write(f'\t\t(onFire {building.name})\n')
-            ## What is under rubble
-            for street in lm.streets:
-                if street.rubble:
-                    f.write(f'\t\t(underRubble {street.name})\n')
-            for building in lm.buildings:
-                if building.rubble:
                     f.write(f'\t\t(underRubble {building.name})\n')
             ## Needs repair (fire or rubble)
             for building in lm.buildings:
@@ -454,24 +410,25 @@ class ProblemGenerator:
         with open(f'{parent_folder}/{problem_name}/parameters.json', 'w') as f:
             json.dump(self.config, f, indent=4)
 def main():
-    for problem_nr in range(5):
+    #15, 18, 21, 24, 27, 30
+    for problem_nr in range(6):
         config = {
-            'num_ambulances': problem_nr + 1,
-            'num_fire_trucks_ground': problem_nr + 1,
-            'num_fire_trucks_aerial': problem_nr + 1,
-            'num_cranes_ground': problem_nr + 1,
-            'num_cranes_aerial': problem_nr + 1,
-            'num_survivors': 10,
+            'num_ambulances': 3,
+            'num_fire_trucks_ground': 3,
+            'num_fire_trucks_aerial': 3,
+            'num_cranes_ground': 3,
+            'num_cranes_aerial': 3,
+            'num_survivors': 1 * (problem_nr + 1) + 5,
             'percent_survivors_on_street': 0.5,
-            'num_fires': 5,
+            'num_fires': 1 * (problem_nr + 1) + 3,
             'max_water': 3,
-            'num_rubble': 5,
+            'num_rubble': 1 * (problem_nr + 1) + 2,
             'percent_rubble_on_street': 0.5
         }
 
         pg = ProblemGenerator(config)
         for instance_nr in range(20):
-            pg.generate(f'problems/{problem_nr}', f'{instance_nr}', 'maps/test.json')
+            pg.generate(f'problems_ng/{problem_nr}', f'{instance_nr}', 'maps/test.json')
 
 if  __name__ == "__main__":
     main()
