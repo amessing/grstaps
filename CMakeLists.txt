@@ -77,9 +77,14 @@ target_compile_options(_${PROJECT_NAME} PRIVATE ${_opts})
 #endif(BUILD_ICRA)
 
 # Create the experiments for IJRR 2021
-if(BUILD_IJRR)
-    add_subdirectory(ijrr_2021_experiments)
-endif(BUILD_IJRR)
+#if(BUILD_IJRR)
+add_subdirectory(ijrr_2021_experiments)
+#endif(BUILD_IJRR)
+
+# Create the experiments for IROS 2021
+#add_subdirectory(iros_2021_experiments)
+
+#add_subdirectory(fcpop_mp)
 
 #if(BUILD_DOC)
 #    # Check if Doxygen is installed

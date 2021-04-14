@@ -1421,5 +1421,41 @@ namespace grstaps
         this->duration[step] = task->getActionDuration(action, state->numState);
         return this->duration[step];
     }
+    nlohmann::json Linearizer::scheduleAsJson(Plan* p, SASTask* task)
+    {
+        nlohmann::json rv;
+
+        setCurrentBasePlan(p);
+        setCurrentPlan(nullptr);
+        unsigned int numActions   = basePlanComponents.size();
+        unsigned int numTimeSteps = numActions << 1;
+        TState* state             = linearize(numActions, numTimeSteps, task, nullptr);
+        bool lastActionIsGoal     = p->action != nullptr && p->action->isGoal;
+        unsigned int last         = lastActionIsGoal ? numActions - 1 : numActions;
+        std::vector<LinearStep> linearSteps;
+        if(state != nullptr)
+        {
+            for(unsigned int i = 1; i < last; i++)
+            {
+                SASAction* a   = getAction(i);
+                if(a->name[0] != '#') // Not a fictitious action
+                {
+                    linearSteps.emplace_back(time[i << 1], a->name, duration[i]);
+                }
+            }
+            delete state;
+            delete[] time;
+            delete[] duration;
+        }
+        std::sort(linearSteps.begin(), linearSteps.end());
+        std::vector<std::tuple<std::string, double, double>> steps;
+        for(unsigned int i = 0; i < linearSteps.size(); i++)
+        {
+            LinearStep& s = linearSteps[i];
+            steps.push_back(std::tuple(s.actionName, s.time, s.duration));
+        }
+        rv = steps;
+        return rv;
+    }
 
 }  // namespace grstaps

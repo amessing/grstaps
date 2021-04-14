@@ -22,7 +22,13 @@
 
 namespace grstaps
 {
+    class AllocationExpander;
+    class AllocationIsGoal;
+    class Problem;
+    class taskAllocationToScheduling;
+    class TaskAllocation;
     class TaskPlanner;
+    class Timer;
 
     class SolverSequential : public SolverBase
     {
@@ -38,6 +44,36 @@ namespace grstaps
         Plan* taskPlanPortion(TaskPlanner& task_planner);
 
         std::shared_ptr<Solution> solve(Problem& problem) override { return nullptr; };
+
+        std::pair<Plan*, TaskAllocation> initialSolve(TaskPlanner& task_planner,
+                                                      Timer& timer,
+                                                      Problem& problem,
+                                                      taskAllocationToScheduling& taToSched,
+                                                      std::vector<std::vector<float>>& robotTraits,
+                                                      boost::shared_ptr<std::vector<int>> numSpec,
+                                                      boost::shared_ptr<const AllocationIsGoal> isGoal,
+                                                      boost::shared_ptr<const AllocationExpander> expander,
+                                                      float ns_time);
+        std::pair<Plan*, TaskAllocation> tpAnytime(std::pair<Plan*, TaskAllocation>& last_solution,
+                                                   TaskPlanner& task_planner,
+                                                   Timer& timer,
+                                                   Problem& problem,
+                                                   taskAllocationToScheduling& taToSched,
+                                                   std::vector<std::vector<float>>& robotTraits,
+                                                   boost::shared_ptr<std::vector<int>> numSpec,
+                                                   boost::shared_ptr<const AllocationIsGoal> isGoal,
+                                                   boost::shared_ptr<const AllocationExpander> expander,
+                                                   float ns_time);
+        std::pair<Plan*, TaskAllocation> taAnytime(std::pair<Plan*, TaskAllocation>& last_solution,
+                                                   TaskPlanner& task_planner,
+                                                   Timer& timer,
+                                                   Problem& problem,
+                                                   taskAllocationToScheduling& taToSched,
+                                                   std::vector<std::vector<float>>& robotTraits,
+                                                   boost::shared_ptr<std::vector<int>> numSpec,
+                                                   boost::shared_ptr<const AllocationIsGoal> isGoal,
+                                                   boost::shared_ptr<const AllocationExpander> expander,
+                                                   float ns_time);
 
         unsigned int m_tp_nodes_expanded;
         unsigned int m_tp_nodes_visited;

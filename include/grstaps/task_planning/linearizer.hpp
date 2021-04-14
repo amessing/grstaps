@@ -8,6 +8,8 @@
 #include "grstaps/task_planning/priority_queue.hpp"
 #include "grstaps/task_planning/utils.hpp"
 
+#include <nlohmann/json.hpp>
+
 namespace grstaps
 {
     class LandmarkCheck;
@@ -169,6 +171,8 @@ namespace grstaps
 
         void updateState(std::vector<SASNumericEffect>* e, TState* state, double dur);
 
+        friend class TaskPlanner;
+
     public:
         double makespan;
         //bool debug = false;
@@ -226,6 +230,7 @@ namespace grstaps
 
         TState* getFrontierState(SASTask* task, LandmarkHeuristic* hLand); //, double* timeNewStep);
         std::string planToPDDL(Plan* p, SASTask* task);
+        nlohmann::json scheduleAsJson(Plan* p, SASTask* task);
     };
 }
 #endif //GRSTAPS_LINEARIZER_HPP

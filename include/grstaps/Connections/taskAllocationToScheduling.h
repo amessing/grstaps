@@ -29,8 +29,8 @@ using std::get;
 using std::vector;
 using start_end          = std::pair<float, float>;
 using waypoints          = std::vector<std::pair<float, float>>;
-using single_plan        = std::pair<start_end, waypoints>;
-using agent_motion_plans = std::vector<std::pair<start_end, waypoints>>;
+using single_plan        = std::tuple<int, start_end, waypoints>;
+using agent_motion_plans = std::vector<single_plan>;
 
 namespace grstaps
 {

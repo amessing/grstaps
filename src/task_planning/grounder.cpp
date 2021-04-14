@@ -78,7 +78,9 @@ namespace grstaps
         {
             Operator *op = ops[i].op;
             if(op->atStart.prec.size() == 0 && op->overAllPrec.size() == 0)
+            {
                 groundRemainingParameters(ops[i]);
+            }
         }
         // Program the facts in the initial state
         for(unsigned int i = 0; i < auxValues->size(); i++)
@@ -91,7 +93,9 @@ namespace grstaps
         while(newValues->size() > 0)
         {
             for(unsigned int i = 0; i < newValues->size(); i++)
+            {
                 match(newValues->at(i));
+            }
             startNewValues += newValues->size();
             swapLevels();
             currentLevel++;
@@ -99,7 +103,9 @@ namespace grstaps
         removeADLFeaturesInPreferences();
         removeADLFeaturesInConstraints();
         if(gTask->task->metricType == MT_NONE)
+        {
             gTask->metricType = 'X';
+        }
         else
         {
             gTask->metricType = gTask->task->metricType == MT_MAXIMIZE ? '>' : '<';
@@ -159,9 +165,15 @@ namespace grstaps
             GrounderOperator &g = ops[i];
             g.initialize(prepTask->operators[i]);
             for(unsigned int j = 0; j < g.numParams; j++)
+            {
                 for(unsigned int k = 0; k < numObjects; k++)
+                {
                     if(objectIsCompatible(k, g.op->parameters[j].types))
+                    {
                         g.compatibleObjectsWithParam[j].push_back(k);
+                    }
+                }
+            }
         }
         unsigned int numFunctions = prepTask->task->functions.size();
         opRequireFunction         = new std::vector<GrounderOperator *>[numFunctions];
@@ -169,10 +181,14 @@ namespace grstaps
         {
             std::vector<OpFluent> &atStart = ops[i].op->atStart.prec;
             for(unsigned int j = 0; j < atStart.size(); j++)
+            {
                 addOpToRequireFunction(&ops[i], atStart[j].variable.fncIndex);
+            }
             std::vector<OpFluent> &overAll = ops[i].op->overAllPrec;
             for(unsigned int j = 0; j < overAll.size(); j++)
+            {
                 addOpToRequireFunction(&ops[i], overAll[j].variable.fncIndex);
+            }
         }
     }
 
@@ -181,14 +197,18 @@ namespace grstaps
     {
         std::vector<GrounderOperator *> &v = opRequireFunction[f];
         bool included                      = false;
-        for(unsigned int i = 0; i < v.size(); i++)
+        for(unsigned int i = 0; i < v.size(); ++i)
+        {
             if(v[i] == op)
             {
                 included = true;
                 break;
             }
+        }
         if(!included)
+        {
             v.push_back(op);
+        }
     }
 
     // Sets the initial state in the first level of the relaxed planning graph
@@ -221,7 +241,8 @@ namespace grstaps
     {
         std::string factName = getVariableName(f.function, f.parameters);
         if(variableIndex.find(factName) == variableIndex.end())
-        {  // New variable
+        {
+            // New variable
             GroundedVar v;
             v.index     = gTask->variables.size();
             v.fncIndex  = f.function;
@@ -231,7 +252,9 @@ namespace grstaps
             variableIndex[factName] = v.index;
             unsigned int notReached = MAX_UNSIGNED_INT;
             if(v.isNumeric)
+            {
                 gTask->reachedValues.emplace_back(0, notReached);
+            }
             else
             {
                 gTask->reachedValues.emplace_back(prepTask->task->objects.size(), notReached);
@@ -246,7 +269,9 @@ namespace grstaps
     {
         std::string name = std::to_string(function);
         for(unsigned int i = 0; i < parameters.size(); i++)
+        {
             name += " " + std::to_string(parameters[i]);
+        }
         return name;
     }
 
@@ -255,10 +280,16 @@ namespace grstaps
     {
         std::string name = std::to_string(l.fncIndex);
         for(unsigned int i = 0; i < l.params.size(); i++)
+        {
             if(l.params[i].isVariable)
+            {
                 name += " " + std::to_string(opParameters[l.params[i].index]);
+            }
             else
+            {
                 name += " " + std::to_string(l.params[i].index);
+            }
+        }
         return name;
     }
 
@@ -279,16 +310,18 @@ namespace grstaps
             return it->second;
     }
 
-    // Grounding by combining all posible values for the parameters
+    // Grounding by combining all possible values for the parameters
     void Grounder::groundRemainingParameters(GrounderOperator &op)
     {
         unsigned int pIndex = MAX_UNSIGNED_INT;
         for(unsigned int i = 0; i < op.numParams; i++)
+        {
             if(op.paramValues[i].size() == 0)
             {
                 pIndex = i;
                 break;
             }
+        }
         if(pIndex == MAX_UNSIGNED_INT)
         {
             groundAction(op);
@@ -312,14 +345,17 @@ namespace grstaps
         a.index = gTask->actions.size();
         a.name  = op.op->name;
         for(unsigned int i = 0; i < op.numParams; i++)
-        {  // Action parameters grounding
+        {
+            // Action parameters grounding
             a.parameters.push_back(op.paramValues[i].back());
         }
         if(!op.op->isGoal)
         {
             std::string name = a.getName(gTask->task);
             if(groundedActions.find(name) != groundedActions.end())
+            {
                 return;  // Repeated action
+            }
             groundedActions[name] = a.index;
         }
         if(!checkEqualityConditions(op, a))
@@ -477,10 +513,12 @@ namespace grstaps
         unsigned int paramIndex;
         GroundedVar &v = gTask->variables[varIndex];
         for(unsigned int i = 0; i < v.params.size(); i++)
-        {  // Check the parameters
+        {
+            // Check the parameters
             paramIndex = p.params->at(i).index;
             if(p.params->at(i).isVariable)
-            {  // Parameter
+            {
+                // Parameter
                 std::vector<unsigned int> &paramValues = op->paramValues[paramIndex];
                 if(paramValues.size() == 0)
                 {  // Ungrounded parameter, types should match
@@ -555,7 +593,8 @@ namespace grstaps
             groundRemainingParameters(*op);
         }
         else
-        {  // Continue with the precondition matching
+        {
+// Continue with the precondition matching
 #ifdef _GROUNDER_TRACE_ON_
             std::cout << "Trying to ground precondition " << precIndex << ": "
                       << gTask->task->functions[op->preconditions[precIndex].fncIndex].name << std::endl;
@@ -1184,10 +1223,12 @@ namespace grstaps
         std::vector<bool> staticVar(numVars, true);
         std::vector<unsigned int> newIndex;
         std::vector<VariableValue> value;
-        for(unsigned int i = 0; i < numActions; i++)
+        for(unsigned int i = 0; i < numActions; ++i)
+        {
             checkStaticVariables(gTask->actions[i], staticVar);
+        }
         unsigned int index = 0;
-        for(unsigned int i = 0; i < numVars; i++)
+        for(unsigned int i = 0; i < numVars; ++i)
         {
             if(staticVar[i])
             {
@@ -1196,9 +1237,12 @@ namespace grstaps
                 getInitialValues(i, initValues);
                 VariableValue v;
                 if(initValues.size() > 1)
+                {
                     staticVar[i] = false;  // TIL are not static
+                }
                 else if(initValues.size() == 0)
-                {  // Check if function is boolean. In that case the initial value is false
+                {
+                    // Check if function is boolean. In that case the initial value is false
                     unsigned int fncIndex = gTask->variables[i].fncIndex;
                     if(prepTask->task->isBooleanFunction(fncIndex))
                     {
@@ -1219,7 +1263,8 @@ namespace grstaps
                         staticVar[i] = false;  // TIL are not static
                     }
                     else
-                    {  // Initial-state fluent
+                    {
+                        // Initial-state fluent
                         if(f->valueIsNumeric)
                         {
                             v.valueIsNumeric = true;
@@ -1234,7 +1279,9 @@ namespace grstaps
                 }
                 value.push_back(v);
                 if(staticVar[i])
+                {
                     newIndex.push_back(invalidIndex);  // Remove
+                }
                 else
                 {  // Next variable
                     newIndex.push_back(index);
@@ -1259,13 +1306,21 @@ namespace grstaps
     void Grounder::checkStaticVariables(GroundedAction &a, std::vector<bool> &staticVar)
     {
         for(unsigned int i = 0; i < a.startEff.size(); i++)
+        {
             staticVar[a.startEff[i].varIndex] = false;
+        }
         for(unsigned int i = 0; i < a.endEff.size(); i++)
+        {
             staticVar[a.endEff[i].varIndex] = false;
+        }
         for(unsigned int i = 0; i < a.startNumEff.size(); i++)
+        {
             staticVar[a.startNumEff[i].varIndex] = false;
+        }
         for(unsigned int i = 0; i < a.endNumEff.size(); i++)
+        {
             staticVar[a.endNumEff[i].varIndex] = false;
+        }
     }
 
     // Stores in the std::vector the initial values for this variable. Can be multiple due to the time-initial literals
@@ -1435,7 +1490,7 @@ namespace grstaps
     // Puts all non-numeric variables together at the first places. The numeric variables will have the last indexes
     void Grounder::groupVariables(std::vector<bool> &staticVar, std::vector<unsigned int> &newIndex)
     {
-        unsigned int numVars = staticVar.size(), i = 0, j = numVars - 1;
+        int numVars = staticVar.size(), i = 0, j = numVars - 1;
         while(i < j)
         {
             while(i < numVars && (staticVar[i] || !gTask->variables[i].isNumeric))

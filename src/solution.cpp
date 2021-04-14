@@ -43,12 +43,17 @@ namespace grstaps
             m_allocation->taToScheduling.saveMotionPlanningNonSpeciesSchedule(m_allocation.get());
         if(motion_plans.first)
         {
-            for(unsigned int i = 1; i < plan_subcomponents.size() - 1; ++i)
+            const int plan_length = plan_subcomponents.size();
+            const std::string ta_id = m_allocation->getID();
+            const int num_robots = ta_id.size() / (plan_length - 2); // remove init and goal actions
+            for(unsigned int i = 1; i < plan_length - 1; ++i)
             {
                 const unsigned int index = i - 1;
                 const Plan* p            = plan_subcomponents[i];
+                const std::string action_allocation = ta_id.substr(num_robots * i, num_robots);
                 nlohmann::json action    = {{"name", p->action->name},
                                          {"index", index},
+                                         {"allocated", action_allocation},
                                          {"start_time", m_allocation->taToScheduling.sched.actionStartTimes[index]},
                                          {"end_time", m_allocation->taToScheduling.sched.stn[index][1]}};
                 j["schedule"].push_back(action);
@@ -67,7 +72,7 @@ namespace grstaps
 
             j["ordering_constraints"] = ordering_constraints;
 
-            j["allocation"] = m_allocation->getID();
+            j["allocation"] = ta_id;
 
             j["metrics"] = m_metrics;
 
@@ -82,10 +87,11 @@ namespace grstaps
                 for(const auto& motion_plan: agent_motion_plans)
                 {
                     nlohmann::json mp;
-                    mp["start"]     = motion_plan.first.first;
-                    mp["end"]       = motion_plan.first.second;
+                    mp["action_index"] = std::get<0>(motion_plan);
+                    mp["start"]     = std::get<1>(motion_plan).first;
+                    mp["end"]       = std::get<1>(motion_plan).second;
                     mp["waypoints"] = nlohmann::json();
-                    for(const std::pair<float, float>& waypoint: motion_plan.second)
+                    for(const std::pair<float, float>& waypoint: std::get<2>(motion_plan))
                     {
                         nlohmann::json w;
                         w.push_back(waypoint.first);
