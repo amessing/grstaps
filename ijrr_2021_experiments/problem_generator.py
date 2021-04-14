@@ -4,6 +4,8 @@ from shapely.geometry import Polygon
 import random
 import shutil
 
+EXTRA = False
+
 class Map:
     def __init__(self, buildings: list, roads: list):
         self.buildings = buildings
@@ -224,6 +226,50 @@ class ProblemGenerator:
                     f.write(f'\t\t(underRubble {street.name})\n')
             for building in lm.buildings:
                 if building.rubble:
+                    f.wridef write_pddl_problem_file(self, parent_folder: str, problem_name: str, lm: LocationManager):
+        with open(f'{parent_folder}/{problem_name}/problem.pddl', 'w') as f:
+            # Write header
+            f.write(f'(define (problem ijrr_{problem_name})\n\t(:domain ijrr)\n')
+
+            # Write objects
+            f.write('\t(:objects\n\t\t')
+
+            ## Write survivors
+            for i in range(self.num_survivors):
+                f.write(f'survivor{i} ')
+            f.write('- survivor\n\t\t')
+
+            ## Write locations (only the important ones)
+            for street in lm.streets:
+                if street.survivor is not None or street.fire or street.rubble:
+                    f.write(f'{street.name} ')
+            f.write('- street\n\t\t')
+            for building in lm.buildings:
+                if building.survivor is not None or building.fire or building.rubble:
+                    f.write(f'{building.name} ')
+            f.write('- building\n')
+
+            f.write('\t)\n')
+            
+            # Write init
+            f.write('\t(:init\n')
+            ## Survivor initial locations
+            for street in lm.streets:
+                if street.survivor is not None:
+                    f.write(f'\t\t(atLocation survivor{street.survivor} {street.name})\n')
+            for building in lm.buildings:
+                if building.survivor is not None:
+                    f.write(f'\t\t(atLocation survivor{building.survivor} {building.name})\n')
+            ## What is on fire
+            for building in lm.buildings:
+                if building.fire:
+                    f.write(f'\t\t(onFire {building.name})\n')
+            ## What is under rubble
+            for street in lm.streets:
+                if street.rubble:
+                    f.write(f'\t\t(underRubble {street.name})\n')
+            for building in lm.buildings:
+                if building.rubble:
                     f.write(f'\t\t(underRubble {building.name})\n')
             ## Needs repair (fire or rubble)
             for building in lm.buildings:
@@ -332,13 +378,14 @@ class ProblemGenerator:
                 config['actions_trait_requirements'].append(config['clearRubble_trait_requirements'])
                 config['actions_start_end'].append([location_index, location_index])
 
-                config['grounded_actions'].append(f'clearrubble2 {street.name}')
-                config['actions_trait_requirements'].append(config['clearRubble2_trait_requirements'])
-                config['actions_start_end'].append([location_index, location_index])
+                if EXTRA:
+                    config['grounded_actions'].append(f'clearrubble2 {street.name}')
+                    config['actions_trait_requirements'].append(config['clearRubble2_trait_requirements'])
+                    config['actions_start_end'].append([location_index, location_index])
 
-                config['grounded_actions'].append(f'clearrubble3 {street.name}')
-                config['actions_trait_requirements'].append(config['clearRubble3_trait_requirements'])
-                config['actions_start_end'].append([location_index, location_index])
+                    config['grounded_actions'].append(f'clearrubble3 {street.name}')
+                    config['actions_trait_requirements'].append(config['clearRubble3_trait_requirements'])
+                    config['actions_start_end'].append([location_index, location_index])
             location_index += 1
         for building in lm.buildings:
             if building.survivor is not None:
@@ -354,47 +401,50 @@ class ProblemGenerator:
                 config['actions_trait_requirements'][-1][3] = water
                 config['actions_start_end'].append([fire_station_index, location_index])
 
-                # Put out fire 2
-                config['grounded_actions'].append(f'exstinguishfire2 {building.name}')
-                config['actions_trait_requirements'].append(config['exstinguishFire2_trait_requirements'])
-                config['actions_trait_requirements'][-1][3] = water * 2
-                config['actions_start_end'].append([fire_station_index, location_index])
+                if EXTRA:
+                    # Put out fire 2
+                    config['grounded_actions'].append(f'exstinguishfire2 {building.name}')
+                    config['actions_trait_requirements'].append(config['exstinguishFire2_trait_requirements'])
+                    config['actions_trait_requirements'][-1][3] = water * 2
+                    config['actions_start_end'].append([fire_station_index, location_index])
 
-                # Put out fire 3
-                config['grounded_actions'].append(f'exstinguishfire3 {building.name}')
-                config['actions_trait_requirements'].append(config['exstinguishFire3_trait_requirements'])
-                config['actions_trait_requirements'][-1][3] = water * 3
-                config['actions_start_end'].append([fire_station_index, location_index])
+                    # Put out fire 3
+                    config['grounded_actions'].append(f'exstinguishfire3 {building.name}')
+                    config['actions_trait_requirements'].append(config['exstinguishFire3_trait_requirements'])
+                    config['actions_trait_requirements'][-1][3] = water * 3
+                    config['actions_start_end'].append([fire_station_index, location_index])
             if building.rubble:
                 # Clear rubble
                 config['grounded_actions'].append(f'clearrubble {building.name}')
                 config['actions_trait_requirements'].append(config['clearRubble_trait_requirements'])
                 config['actions_start_end'].append([location_index, location_index])
 
-                # Clear rubble2
-                config['grounded_actions'].append(f'clearrubble2 {building.name}')
-                config['actions_trait_requirements'].append(config['clearRubble2_trait_requirements'])
-                config['actions_start_end'].append([location_index, location_index])
+                if EXTRA:
+                    # Clear rubble2
+                    config['grounded_actions'].append(f'clearrubble2 {building.name}')
+                    config['actions_trait_requirements'].append(config['clearRubble2_trait_requirements'])
+                    config['actions_start_end'].append([location_index, location_index])
 
-                # Clear rubble3
-                config['grounded_actions'].append(f'clearrubble3 {building.name}')
-                config['actions_trait_requirements'].append(config['clearRubble3_trait_requirements'])
-                config['actions_start_end'].append([location_index, location_index])
+                    # Clear rubble3
+                    config['grounded_actions'].append(f'clearrubble3 {building.name}')
+                    config['actions_trait_requirements'].append(config['clearRubble3_trait_requirements'])
+                    config['actions_start_end'].append([location_index, location_index])
             if building.fire or building.rubble:
                 # Repair building
                 config['grounded_actions'].append(f'repairbuilding {building.name}')
                 config['actions_trait_requirements'].append(config['repairBuilding_trait_requirements'])
                 config['actions_start_end'].append([location_index, location_index])
 
-                # Repair building 2
-                config['grounded_actions'].append(f'repairbuilding2 {building.name}')
-                config['actions_trait_requirements'].append(config['repairBuilding2_trait_requirements'])
-                config['actions_start_end'].append([location_index, location_index])
+                if EXTRA:
+                    # Repair building 2
+                    config['grounded_actions'].append(f'repairbuilding2 {building.name}')
+                    config['actions_trait_requirements'].append(config['repairBuilding2_trait_requirements'])
+                    config['actions_start_end'].append([location_index, location_index])
 
-                # Repair building 3
-                config['grounded_actions'].append(f'repairbuilding3 {building.name}')
-                config['actions_trait_requirements'].append(config['repairBuilding3_trait_requirements'])
-                config['actions_start_end'].append([location_index, location_index])
+                    # Repair building 3
+                    config['grounded_actions'].append(f'repairbuilding3 {building.name}')
+                    config['actions_trait_requirements'].append(config['repairBuilding3_trait_requirements'])
+                    config['actions_start_end'].append([location_index, location_index])
             location_index += 1
         
         with open(f'{parent_folder}/{problem_name}/config.json', 'w') as f:
