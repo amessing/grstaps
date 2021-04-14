@@ -1,1 +1,3 @@
-{"solution":[{"end_time":77,"coalition":[0]},null,{"end_time":38,"coalition":[1]},{"end_time":68,"coalition":[2]},{"end_time":90,"coalition":[3]},null,{"end_time":169,"coalition":[1]},null,null,{"end_time":127,"coalition":[2]},null,null,null,null,null,null,{"end_time":126,"coalition":[0]},null,null,{"end_time":126,"coalition":[3]},null,null,{"end_time":201,"coalition":[0]},null,null,null,null,null],"metrics":{"average_travel_time":0.0,"comp_time_nano":292907423215,"completed_task_percentage":0.32142857}}
+version https://git-lfs.github.com/spec/v1
+oid sha256:2cc0672efa5416061f3f80d988ebe6d6375e384584405608e9c24440f6c5e298
+size 509
