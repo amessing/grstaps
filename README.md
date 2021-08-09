@@ -1,4 +1,12 @@
-# Graphically Recursive Simultaneous Task Allocation, Planning, and Scheduling [![Build Status](https://travis-ci.com/amessing/grstaps.svg?token=ZbU2mzJqy2bwdxUCNR2d&branch=master)](https://travis-ci.com/amessing/grstaps)
+# Graphically Recursive Simultaneous Task Allocation, Planning, and Scheduling
+
+This repository includes the code used for 
+```
+citation...
+```
+
+*We are currently working on a refactored cleaner version of the code which will be used for future papers and linked here when completed.*
+
 
 ## Dependencies:
 ### apt:
