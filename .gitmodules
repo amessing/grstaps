@@ -28,4 +28,4 @@
 	url = git@github.com:amessing/PlayRho.git
 [submodule "lib/earcut.hpp"]
 	path = lib/earcut.hpp
-	url = git@github.com:mapbox/earcut.hpp.git
+	url = git@github.com:amessing/earcut.hpp.git

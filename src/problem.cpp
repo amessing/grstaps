@@ -19,10 +19,10 @@
 
 #include "grstaps/problem.hpp"
 #include <iostream>
-#include<cmath>
+#include <cmath>
 
 // External
-#include <earcut.hpp>
+#include <mapbox/earcut.hpp>
 #include <fmt/format.h>
 
 // Local

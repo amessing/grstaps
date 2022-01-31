@@ -35,7 +35,8 @@ option(BUILD_DOC "Build Documentation" ${MASTER_PROJECT})
 option(BUILD_TESTS "Build Unit Tests" ${MASTER_PROJECT})
 option(BUILD_EXE "Build Executable" ${MASTER_PROJECT})
 option(BUILD_ICRA "Build Experiments for ICRA 2021" OFF)
-option(BUILD_IJRR "Build Experiments for IJRR 2021" ON)
+option(BUILD_IROS "Build Experiments for IROS 2021" ON)
+option(BUILD_IJRR "Build Experiments for IJRR 2021" OFF)
 
 # Add external libraries
 add_subdirectory(lib)
@@ -56,7 +57,7 @@ list(REMOVE_ITEM ${PROJECT_NAME}_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cp
 add_library(_${PROJECT_NAME} ${${PROJECT_NAME}_HEADERS} ${${PROJECT_NAME}_SOURCES})
 set_target_properties(_${PROJECT_NAME} PROPERTIES CXX_STANDARD 17 CXX_STANDARD_REQUIRED YES)
 target_link_libraries(_${PROJECT_NAME} PRIVATE
-        OpenMP::OpenMP_CXX polyclipping earcut_hpp box2d fmt nlohmann_json ${OMPL_LIBRARIES} spdlog stdc++fs)
+        OpenMP::OpenMP_CXX polyclipping earcut box2d fmt nlohmann_json ${OMPL_LIBRARIES} spdlog stdc++fs)
 target_include_directories(_${PROJECT_NAME} PUBLIC include PRIVATE ${OMPL_INCLUDE_DIRS})
 target_compile_options(_${PROJECT_NAME} PRIVATE ${_opts})
 
@@ -72,17 +73,19 @@ target_compile_options(_${PROJECT_NAME} PRIVATE ${_opts})
 #endif(BUILD_EXE)
 
 # Create the experiments for ICRA 2021
-#if(BUILD_ICRA)
-#    add_subdirectory(icra_2021_experiments)
-#endif(BUILD_ICRA)
+if(BUILD_ICRA)
+    add_subdirectory(icra_2021_experiments)
+endif(BUILD_ICRA)
 
 # Create the experiments for IJRR 2021
-#if(BUILD_IJRR)
-add_subdirectory(ijrr_2021_experiments)
-#endif(BUILD_IJRR)
+if(BUILD_IJRR)
+    add_subdirectory(ijrr_2021_experiments)
+endif(BUILD_IJRR)
 
 # Create the experiments for IROS 2021
-#add_subdirectory(iros_2021_experiments)
+if(BUILD_IROS)
+    add_subdirectory(iros_2021_experiments)
+endif(BUILD_IROS)
 
 #add_subdirectory(fcpop_mp)
 
